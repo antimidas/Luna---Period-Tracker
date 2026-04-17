@@ -1438,7 +1438,7 @@
 
       <button class="layout-action-btn" onclick="resetLayout()">Reset Layout</button>
 
-      <button class="layout-action-btn" onclick="exportCalendarPdf()">Export PDF</button>
+      <button class="layout-action-btn" onclick="exportCalendarPdf()">Print Calendar</button>
 
     </div>
 
@@ -3457,7 +3457,20 @@ function buildMoodsDaySet(moods) {
   return set;
 }
 
-function renderExportMonthPage(year, monthIndex, periodDays, symptomsByDay, moodDays) {
+function buildPredictedDaySet(nextPredicted) {
+  const set = new Set();
+  if (!nextPredicted) return set;
+  const start = new Date(nextPredicted);
+  if (Number.isNaN(start.getTime())) return set;
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    set.add(d.toISOString().split("T")[0]);
+  }
+  return set;
+}
+
+function renderExportMonthPage(year, monthIndex, periodDays, predictedDays, symptomsByDay, moodDays) {
   const firstDay = new Date(year, monthIndex, 1).getDay();
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
   const prevDays = new Date(year, monthIndex, 0).getDate();
@@ -3474,6 +3487,7 @@ function renderExportMonthPage(year, monthIndex, periodDays, symptomsByDay, mood
     const showEmojis = periodDays.has(dateStr) && daySymptoms.length > 0;
     const cls = ["p-cal-day"];
     if (periodDays.has(dateStr)) cls.push("period");
+    else if (predictedDays.has(dateStr)) cls.push("predicted");
     let emojiHtml = "";
     if (showEmojis) {
       const emojiSpans = daySymptoms
@@ -3533,6 +3547,7 @@ function renderExportMonthPage(year, monthIndex, periodDays, symptomsByDay, mood
 
       <div class="p-legend">
         <span><i class="lg period"></i>Period</span>
+        <span><i class="lg predicted"></i>Predicted</span>
         <span><i class="lg symptom"></i>Symptom logged</span>
         <span><i class="lg mood"></i>Mood logged</span>
       </div>
@@ -3547,15 +3562,18 @@ function renderExportMonthPage(year, monthIndex, periodDays, symptomsByDay, mood
 
 async function exportCalendarPdf() {
   try {
-    toast("Preparing PDF export...");
+    toast("Preparing calendar print...");
     const data = await api("GET", "/export-data");
     const { start, end } = getExportMonthRange(data);
-    const months = monthsBetween(start, end);
+    const nextMonth = new Date(currentYear, currentMonth, 1);
+    const finalEnd = end > nextMonth ? end : nextMonth;
+    const months = monthsBetween(start, finalEnd);
     const periodDays = buildPeriodDaySet(data.cycles);
+    const predictedDays = buildPredictedDaySet(summary.next_period_predicted);
     const symptomsByDay = buildSymptomsByDay(data.symptoms);
     const moodDays = buildMoodsDaySet(data.moods);
     const pages = months
-      .map(({ year, monthIndex }) => renderExportMonthPage(year, monthIndex, periodDays, symptomsByDay, moodDays))
+      .map(({ year, monthIndex }) => renderExportMonthPage(year, monthIndex, periodDays, predictedDays, symptomsByDay, moodDays))
       .join("\n");
 
     const printHtml = `
@@ -3610,6 +3628,7 @@ async function exportCalendarPdf() {
             position: relative;
           }
           .p-cal-day.period { background: #ffe6ef; border-color: #f4b5cb; }
+          .p-cal-day.predicted { background: #fff2f8; border-color: #f2b8d1; }
           .p-cal-day.other-month { opacity: 0.4; background: #faf8fb; }
           .p-day-emojis { display: flex; gap: 3px; margin-top: 6px; font-size: 13px; }
           .p-day-dots { display: flex; gap: 4px; margin-top: 6px; }
@@ -3620,6 +3639,7 @@ async function exportCalendarPdf() {
           .p-legend span { display: inline-flex; align-items: center; gap: 6px; }
           .lg { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
           .lg.period { background: #f27aa4; }
+          .lg.predicted { background: #f4c2d8; border: 1px solid #f2b8d1; }
           .lg.symptom { background: #7a9cbf; }
           .lg.mood { background: #f0b429; }
           .p-symptoms {
