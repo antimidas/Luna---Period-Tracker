@@ -1,0 +1,165 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  Home Assistant Integration — Period Tracker
+#  Add these to your configuration.yaml (or split into separate files)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── REST Sensor: pulls live summary from your tracker API ─────────────────────
+# Replace TRACKER_HOST with the IP/hostname of your server
+# Replace YOUR_API_KEY with the API_KEY in your .env
+
+rest:
+  - resource: "http://TRACKER_HOST:3001/api/summary"
+    headers:
+      X-Api-Key: "YOUR_API_KEY"
+    scan_interval: 3600   # refresh every hour
+    sensor:
+      - name: "Period Tracker - Days Since Period"
+        value_template: "{{ value_json.days_since_period }}"
+        unit_of_measurement: "days"
+        icon: "mdi:calendar-heart"
+
+      - name: "Period Tracker - Next Period Date"
+        value_template: "{{ value_json.next_period_predicted }}"
+        icon: "mdi:calendar-clock"
+
+      - name: "Period Tracker - Today Mood"
+        value_template: >
+          {% if value_json.today_mood %}
+            {{ value_json.today_mood.mood }}
+          {% else %}
+            unknown
+          {% endif %}
+        icon: "mdi:emoticon-outline"
+
+      - name: "Period Tracker - Today Symptoms"
+        value_template: >
+          {% if value_json.today_symptoms %}
+            {{ value_json.today_symptoms | map(attribute='symptom') | join(', ') }}
+          {% else %}
+            none
+          {% endif %}
+        icon: "mdi:medical-bag"
+
+      - name: "Period Tracker - Avg Cycle Length"
+        value_template: "{{ value_json.avg_cycle_length }}"
+        unit_of_measurement: "days"
+        icon: "mdi:chart-timeline-variant"
+
+
+# ── Template Sensors: derived from REST data ──────────────────────────────────
+template:
+  - sensor:
+      - name: "Days Until Next Period"
+        unique_id: period_tracker_days_until
+        icon: "mdi:calendar-today"
+        unit_of_measurement: "days"
+        state: >
+          {% set next = states('sensor.period_tracker_next_period_date') %}
+          {% if next not in ['unknown', 'unavailable', ''] %}
+            {% set today = now().date() %}
+            {% set nd = strptime(next, '%Y-%m-%d').date() %}
+            {{ (nd - today).days }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "Period Phase"
+        unique_id: period_tracker_phase
+        icon: "mdi:moon-waxing-crescent"
+        state: >
+          {% set days = states('sensor.period_tracker_days_since_period') | int(-1) %}
+          {% set cycle = states('sensor.period_tracker_avg_cycle_length') | int(28) %}
+          {% if days < 0 %}
+            unknown
+          {% elif days <= 5 %}
+            Menstrual
+          {% elif days <= 13 %}
+            Follicular
+          {% elif days == 14 %}
+            Ovulation
+          {% elif days <= cycle %}
+            Luteal
+          {% else %}
+            Late
+          {% endif %}
+
+
+# ── Binary Sensor: is period currently active? ────────────────────────────────
+      - name: "Period Active"
+        unique_id: period_tracker_active
+        # True if within the first 6 days since period started
+        state: >
+          {% set days = states('sensor.period_tracker_days_since_period') | int(-1) %}
+          {{ days >= 0 and days <= 5 }}
+        icon: >
+          {% if is_state('binary_sensor.period_active', 'on') %}
+            mdi:water
+          {% else %}
+            mdi:water-off
+          {% endif %}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  AUTOMATIONS  (add to automations.yaml or via UI)
+# ══════════════════════════════════════════════════════════════════════════════
+
+automation:
+  # ── 3-day warning before predicted period ──────────────────────────────────
+  - alias: "Period Tracker - 3 Day Warning"
+    trigger:
+      - platform: template
+        value_template: "{{ states('sensor.days_until_next_period') | int(-1) == 3 }}"
+    condition: []
+    action:
+      - service: notify.notify
+        data:
+          title: "🌙 Period Reminder"
+          message: "Your period is predicted in 3 days. Stock up on supplies!"
+
+  # ── Webhook receiver: update sensor when app posts data ───────────────────
+  - alias: "Period Tracker - Webhook Receiver"
+    trigger:
+      - platform: webhook
+        webhook_id: "period_tracker_12345"   # must match HA_WEBHOOK_URL in .env
+        allowed_methods:
+          - POST
+        local_only: false
+    action:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.period_tracker_last_event
+        data:
+          value: "{{ trigger.json.event }} @ {{ now().strftime('%Y-%m-%d %H:%M') }}"
+      - service: homeassistant.update_entity
+        target:
+          entity_id:
+            - sensor.period_tracker_days_since_period
+            - sensor.period_tracker_next_period_date
+            - sensor.period_tracker_today_mood
+            - sensor.period_tracker_today_symptoms
+
+  # ── Morning briefing notification ─────────────────────────────────────────
+  - alias: "Period Tracker - Morning Briefing"
+    trigger:
+      - platform: time
+        at: "08:15:00"
+    action:
+      - service: notify.notify
+        data:
+          title: "🌙 Luna Daily Update"
+          message: >
+            Phase: {{ states('sensor.period_phase') }}.
+            {% set days = states('sensor.days_until_next_period') | int(-1) %}
+            {% if days >= 0 %}Next period in {{ days }} days.{% endif %}
+            {% set symptoms = states('sensor.period_tracker_today_symptoms') %}
+            {% if symptoms not in ['none','unknown'] %}Logged symptoms: {{ symptoms }}.{% endif %}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  INPUT TEXT (for webhook status storage — add to configuration.yaml)
+# ══════════════════════════════════════════════════════════════════════════════
+
+input_text:
+  period_tracker_last_event:
+    name: "Period Tracker Last Event"
+    icon: mdi:webhook

@@ -1,0 +1,22 @@
+# Home Assistant Lovelace card
+# Full editable Luna UI embedded directly in dashboard
+# Update the URL if your tracker is on a different host.
+
+type: vertical-stack
+cards:
+  - type: markdown
+    content: |
+      ## Luna Tracker (Editable)
+      Use the embedded app below to edit period days, symptoms, mood, themes, and layout.
+
+  - type: iframe
+    url: https://pt.3evils.com
+    aspect_ratio: 75%
+
+  - type: button
+    name: Open Luna in New Tab
+    icon: mdi:open-in-new
+    tap_action:
+      action: url
+      url_path: https://pt.3evils.com
+    show_state: false
