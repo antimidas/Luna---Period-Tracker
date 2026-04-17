@@ -1850,6 +1850,9 @@ const SYMPTOM_EMOJIS = {
   "Joint pain": "🦴",
   "Mood swings": "🎭",
 };
+function symptomEmoji(sym) {
+  return SYMPTOM_EMOJIS[sym] || "✏️";
+}
 
 
 
@@ -2788,7 +2791,7 @@ function renderCalendar() {
 
         const span = document.createElement("span");
 
-        span.textContent = SYMPTOM_EMOJIS[symptom] || "•";
+        span.textContent = symptomEmoji(symptom);
 
         span.title = symptom;
 
@@ -2876,7 +2879,8 @@ async function selectDate(dateStr) {
 
   allSymptoms.forEach(s => selectedSymptoms.add(s.symptom));
 
-
+  // Rebuild pills so any custom symptoms from the server get their pill rendered
+  buildSymptomPills();
 
   const mood = calData.moods.find(m => (m.log_date||"").startsWith(dateStr.substring(0,10)));
 
@@ -3091,31 +3095,85 @@ document.querySelectorAll(".mood-btn").forEach(b => {
 function buildSymptomPills() {
 
   const container = document.getElementById("symptomPills");
+  container.innerHTML = "";
 
-  SYMPTOMS.forEach(sym => {
+  // Render standard symptoms
+  SYMPTOMS.forEach(sym => addSymptomPill(sym, container));
 
-    const pill = document.createElement("div");
-
-    pill.className = "pill";
-
-    pill.textContent = sym;
-
-    pill.dataset.symptom = sym;
-
-    pill.onclick = () => {
-
-      if (selectedSymptoms.has(sym)) selectedSymptoms.delete(sym);
-
-      else selectedSymptoms.add(sym);
-
-      pill.classList.toggle("active", selectedSymptoms.has(sym));
-
-    };
-
-    container.appendChild(pill);
-
+  // Custom symptoms already selected (e.g. loaded from server)
+  selectedSymptoms.forEach(sym => {
+    if (!SYMPTOMS.includes(sym)) addSymptomPill(sym, container, true);
   });
 
+  // "Other" pill — opens inline input
+  const otherPill = document.createElement("div");
+  otherPill.className = "pill pill-other";
+  otherPill.id = "pillOther";
+  otherPill.textContent = "✏️ Other";
+  otherPill.onclick = () => showCustomSymptomInput(container);
+  container.appendChild(otherPill);
+
+}
+
+function addSymptomPill(sym, container, isCustom = false) {
+  if (container.querySelector(`[data-symptom="${CSS.escape(sym)}"]`)) return;
+  const pill = document.createElement("div");
+  pill.className = "pill" + (selectedSymptoms.has(sym) ? " active" : "");
+  pill.textContent = sym;
+  pill.dataset.symptom = sym;
+  if (isCustom) pill.dataset.custom = "1";
+  pill.onclick = () => {
+    if (selectedSymptoms.has(sym)) selectedSymptoms.delete(sym);
+    else selectedSymptoms.add(sym);
+    pill.classList.toggle("active", selectedSymptoms.has(sym));
+  };
+  container.appendChild(pill);
+}
+
+function showCustomSymptomInput(container) {
+  // Only one input at a time
+  if (document.getElementById("customSymptomInput")) return;
+
+  const wrap = document.createElement("div");
+  wrap.id = "customSymptomInput";
+  wrap.style.cssText = "display:inline-flex;align-items:center;gap:4px;margin:4px 4px;";
+
+  const inp = document.createElement("input");
+  inp.type = "text";
+  inp.placeholder = "Describe symptom…";
+  inp.maxLength = 80;
+  inp.style.cssText = "border:1px solid var(--symptom);border-radius:20px;padding:4px 10px;" +
+    "font-size:0.82rem;outline:none;background:var(--card);color:var(--text);width:160px;";
+
+  const btn = document.createElement("button");
+  btn.textContent = "Add";
+  btn.style.cssText = "background:var(--symptom);color:#fff;border:none;border-radius:20px;" +
+    "padding:4px 10px;font-size:0.82rem;cursor:pointer;";
+
+  const cancel = document.createElement("button");
+  cancel.textContent = "✕";
+  cancel.style.cssText = "background:transparent;border:none;cursor:pointer;font-size:0.9rem;color:var(--muted);";
+
+  const commit = () => {
+    const val = inp.value.trim();
+    if (!val) { inp.focus(); return; }
+    wrap.remove();
+    selectedSymptoms.add(val);
+    const otherPill = document.getElementById("pillOther");
+    addSymptomPill(val, container, true);
+    // Keep Other pill at the end
+    if (otherPill) container.appendChild(otherPill);
+  };
+
+  btn.onclick = commit;
+  cancel.onclick = () => wrap.remove();
+  inp.onkeydown = e => { if (e.key === "Enter") commit(); if (e.key === "Escape") wrap.remove(); };
+
+  wrap.append(inp, btn, cancel);
+  // Insert before the Other pill
+  const otherPill = document.getElementById("pillOther");
+  container.insertBefore(wrap, otherPill);
+  inp.focus();
 }
 
 
