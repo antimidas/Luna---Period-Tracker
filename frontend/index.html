@@ -1438,6 +1438,8 @@
 
       <button class="layout-action-btn" onclick="resetLayout()">Reset Layout</button>
 
+      <button class="layout-action-btn" onclick="exportCalendarPdf()">Export PDF</button>
+
     </div>
 
     <select class="theme-select" id="themeSelect" onchange="onThemeChange()">
@@ -3364,6 +3366,313 @@ function toast(msg, isError=false) {
 
   setTimeout(() => t.className = "toast", 3000);
 
+}
+
+function toDateOnly(value) {
+  if (!value) return "";
+  return String(value).split("T")[0];
+}
+
+function monthKeyFromDateStr(dateStr) {
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function monthLabel(year, monthIndex) {
+  return new Date(year, monthIndex, 1).toLocaleString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function monthsBetween(start, end) {
+  const out = [];
+  const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+  const last = new Date(end.getFullYear(), end.getMonth(), 1);
+  while (cursor <= last) {
+    out.push({ year: cursor.getFullYear(), monthIndex: cursor.getMonth() });
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return out;
+}
+
+function getExportMonthRange(data) {
+  const points = [];
+  (data.cycles || []).forEach((c) => {
+    const s = toDateOnly(c.start_date);
+    const e = toDateOnly(c.end_date) || s;
+    if (s) points.push(new Date(s));
+    if (e) points.push(new Date(e));
+  });
+  (data.symptoms || []).forEach((s) => {
+    const d = toDateOnly(s.log_date);
+    if (d) points.push(new Date(d));
+  });
+  (data.moods || []).forEach((m) => {
+    const d = toDateOnly(m.log_date);
+    if (d) points.push(new Date(d));
+  });
+
+  if (!points.length) {
+    return { start: new Date(currentYear, currentMonth - 1, 1), end: new Date(currentYear, currentMonth - 1, 1) };
+  }
+
+  points.sort((a, b) => a - b);
+  return {
+    start: new Date(points[0].getFullYear(), points[0].getMonth(), 1),
+    end: new Date(points[points.length - 1].getFullYear(), points[points.length - 1].getMonth(), 1),
+  };
+}
+
+function buildPeriodDaySet(cycles) {
+  const set = new Set();
+  (cycles || []).forEach((c) => {
+    const s = new Date(toDateOnly(c.start_date));
+    const endBase = toDateOnly(c.end_date) || toDateOnly(c.start_date);
+    const e = new Date(endBase);
+    for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+      set.add(d.toISOString().split("T")[0]);
+    }
+  });
+  return set;
+}
+
+function buildSymptomsByDay(symptoms) {
+  const map = new Map();
+  (symptoms || []).forEach((s) => {
+    const day = toDateOnly(s.log_date);
+    if (!map.has(day)) map.set(day, []);
+    const list = map.get(day);
+    if (!list.includes(s.symptom)) list.push(s.symptom);
+  });
+  return map;
+}
+
+function buildMoodsDaySet(moods) {
+  const set = new Set();
+  (moods || []).forEach((m) => {
+    const day = toDateOnly(m.log_date);
+    if (day) set.add(day);
+  });
+  return set;
+}
+
+function renderExportMonthPage(year, monthIndex, periodDays, symptomsByDay, moodDays) {
+  const firstDay = new Date(year, monthIndex, 1).getDay();
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const prevDays = new Date(year, monthIndex, 0).getDate();
+
+  let cells = "";
+
+  for (let i = firstDay - 1; i >= 0; i--) {
+    cells += `<div class="p-cal-day other-month"><span>${prevDays - i}</span></div>`;
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const daySymptoms = symptomsByDay.get(dateStr) || [];
+    const showEmojis = periodDays.has(dateStr) && daySymptoms.length > 0;
+    const cls = ["p-cal-day"];
+    if (periodDays.has(dateStr)) cls.push("period");
+    let emojiHtml = "";
+    if (showEmojis) {
+      const emojiSpans = daySymptoms
+        .slice(0, 3)
+        .map((sym) => `<span title="${sym.replace(/"/g, "&quot;")}">${symptomEmoji(sym)}</span>`)
+        .join("");
+      const more = daySymptoms.length > 3 ? `<span title="${daySymptoms.length} symptoms">+</span>` : "";
+      emojiHtml = `<div class="p-day-emojis">${emojiSpans}${more}</div>`;
+    }
+
+    let dots = "";
+    if (!showEmojis && daySymptoms.length) dots += `<span class="p-dot symptom"></span>`;
+    if (moodDays.has(dateStr)) dots += `<span class="p-dot mood"></span>`;
+    const dotHtml = dots ? `<div class="p-day-dots">${dots}</div>` : "";
+
+    cells += `<div class="${cls.join(" ")}"><span>${d}</span>${emojiHtml}${dotHtml}</div>`;
+  }
+
+  const total = firstDay + daysInMonth;
+  const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let d = 1; d <= remaining; d++) {
+    cells += `<div class="p-cal-day other-month"><span>${d}</span></div>`;
+  }
+
+  const mk = `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
+  const monthlySymptomRows = [];
+  for (const [day, symptoms] of symptomsByDay.entries()) {
+    if (!day.startsWith(mk)) continue;
+    monthlySymptomRows.push({ day, symptoms: [...symptoms] });
+  }
+  monthlySymptomRows.sort((a, b) => a.day.localeCompare(b.day));
+
+  const symptomSummary = new Map();
+  monthlySymptomRows.forEach((row) => {
+    row.symptoms.forEach((sym) => {
+      if (!symptomSummary.has(sym)) symptomSummary.set(sym, { count: 0, days: [] });
+      const entry = symptomSummary.get(sym);
+      entry.count += 1;
+      entry.days.push(row.day.slice(8));
+    });
+  });
+  const summaryRows = [...symptomSummary.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([sym, v]) => `<li><strong>${sym}</strong> (${v.count}) - days: ${v.days.join(", ")}</li>`)
+    .join("");
+
+  return `
+    <section class="pdf-page">
+      <div class="p-head">
+        <h2>${monthLabel(year, monthIndex)}</h2>
+        <div class="p-sub">Luna Period Tracker</div>
+      </div>
+      <div class="p-cal-grid">
+        <div class="p-day-name">Su</div><div class="p-day-name">Mo</div><div class="p-day-name">Tu</div><div class="p-day-name">We</div><div class="p-day-name">Th</div><div class="p-day-name">Fr</div><div class="p-day-name">Sa</div>
+        ${cells}
+      </div>
+
+      <div class="p-legend">
+        <span><i class="lg period"></i>Period</span>
+        <span><i class="lg symptom"></i>Symptom logged</span>
+        <span><i class="lg mood"></i>Mood logged</span>
+      </div>
+
+      <div class="p-symptoms">
+        <h3>Symptoms Experienced</h3>
+        ${summaryRows ? `<ul>${summaryRows}</ul>` : `<div class="empty">No symptoms logged this month.</div>`}
+      </div>
+    </section>
+  `;
+}
+
+async function exportCalendarPdf() {
+  try {
+    toast("Preparing PDF export...");
+    const data = await api("GET", "/export-data");
+    const { start, end } = getExportMonthRange(data);
+    const months = monthsBetween(start, end);
+    const periodDays = buildPeriodDaySet(data.cycles);
+    const symptomsByDay = buildSymptomsByDay(data.symptoms);
+    const moodDays = buildMoodsDaySet(data.moods);
+    const pages = months
+      .map(({ year, monthIndex }) => renderExportMonthPage(year, monthIndex, periodDays, symptomsByDay, moodDays))
+      .join("\n");
+
+    const printHtml = `
+      <!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Luna Calendar Export</title>
+        <style>
+          @page { size: A4 portrait; margin: 12mm; }
+          * { box-sizing: border-box; }
+          body { margin: 0; font-family: "Trebuchet MS", "Segoe UI", sans-serif; color: #2f3a3f; background: #f7f4f8; }
+          .pdf-page {
+            width: 100%;
+            min-height: 270mm;
+            background: #fff;
+            border: 1px solid #ecdfe8;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 10mm;
+            page-break-after: always;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+          }
+          .pdf-page:last-child { page-break-after: auto; }
+          .p-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+          .p-head h2 { margin: 0; color: #b43d74; font-size: 24px; }
+          .p-sub { font-size: 12px; color: #7d6c79; }
+          .p-cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            border-radius: 10px;
+            background: #fff;
+            margin-bottom: 10px;
+          }
+          .p-day-name {
+            text-align: center;
+            font-weight: 700;
+            color: #b43d74;
+            padding: 4px;
+            border-bottom: 1px solid #eadce7;
+          }
+          .p-cal-day {
+            min-height: 82px;
+            border: 1px solid #eadce7;
+            border-radius: 10px;
+            padding: 6px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+          }
+          .p-cal-day.period { background: #ffe6ef; border-color: #f4b5cb; }
+          .p-cal-day.other-month { opacity: 0.4; background: #faf8fb; }
+          .p-day-emojis { display: flex; gap: 3px; margin-top: 6px; font-size: 13px; }
+          .p-day-dots { display: flex; gap: 4px; margin-top: 6px; }
+          .p-dot { width: 7px; height: 7px; border-radius: 999px; display: inline-block; }
+          .p-dot.symptom { background: #7a9cbf; }
+          .p-dot.mood { background: #f0b429; }
+          .p-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #6f6470; margin: 6px 0 12px; }
+          .p-legend span { display: inline-flex; align-items: center; gap: 6px; }
+          .lg { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+          .lg.period { background: #f27aa4; }
+          .lg.symptom { background: #7a9cbf; }
+          .lg.mood { background: #f0b429; }
+          .p-symptoms {
+            border-top: 1px solid #eadce7;
+            padding-top: 10px;
+            margin-top: 4px;
+          }
+          .p-symptoms h3 { margin: 0 0 6px; color: #b43d74; font-size: 15px; }
+          .p-symptoms ul { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.55; }
+          .empty { font-size: 12px; color: #847984; }
+          @media print {
+            body { background: #fff; }
+            .pdf-page { box-shadow: none; margin: 0 0 8mm; }
+          }
+        </style>
+      </head>
+      <body>
+        ${pages}
+      </body>
+      </html>
+    `;
+
+    // Print from an off-screen iframe so the current app view is never replaced.
+    const frame = document.createElement("iframe");
+    frame.style.position = "fixed";
+    frame.style.right = "0";
+    frame.style.bottom = "0";
+    frame.style.width = "0";
+    frame.style.height = "0";
+    frame.style.border = "0";
+    frame.setAttribute("aria-hidden", "true");
+    document.body.appendChild(frame);
+
+    const doc = frame.contentDocument || frame.contentWindow.document;
+    doc.open();
+    doc.write(printHtml);
+    doc.close();
+
+    const cleanup = () => {
+      if (frame && frame.parentNode) frame.parentNode.removeChild(frame);
+    };
+
+    frame.contentWindow.onafterprint = cleanup;
+
+    setTimeout(() => {
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+      // Fallback cleanup in case onafterprint does not fire.
+      setTimeout(cleanup, 1500);
+    }, 250);
+  } catch (err) {
+    toast("Failed to export PDF", true);
+  }
 }
 
 

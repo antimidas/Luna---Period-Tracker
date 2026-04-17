@@ -508,6 +508,24 @@ app.get("/api/calendar", requireAuth, async (req, res) => {
   res.json({ cycles, symptoms, moods });
 });
 
+// Export data for printable/PDF calendar across months
+app.get("/api/export-data", requireAuth, async (req, res) => {
+  const [cycles] = await pool.query(
+    "SELECT * FROM cycles WHERE user_id=? ORDER BY start_date ASC",
+    [req.user.id]
+  );
+  const [symptoms] = await pool.query(
+    "SELECT * FROM symptoms WHERE user_id=? ORDER BY log_date ASC, symptom ASC",
+    [req.user.id]
+  );
+  const [moods] = await pool.query(
+    "SELECT * FROM moods WHERE user_id=? ORDER BY log_date ASC",
+    [req.user.id]
+  );
+
+  res.json({ cycles, symptoms, moods });
+});
+
 // Health check
 app.get("/api/health", (req, res) => res.json({ status: "ok", timestamp: new Date() }));
 
