@@ -4,13 +4,12 @@
 # ══════════════════════════════════════════════════════════════════════════════
 
 # ── REST Sensor: pulls live summary from your tracker API ─────────────────────
-# Replace TRACKER_HOST with the IP/hostname of your server
-# Replace YOUR_API_KEY with the API_KEY in your .env
+# Configured for Mila on the public Luna host.
 
 rest:
-  - resource: "http://TRACKER_HOST:3001/api/summary"
+  - resource: "https://pt.3evils.com/api/summary?username=mila"
     headers:
-      X-Api-Key: "YOUR_API_KEY"
+      X-Api-Key: "mysecretapikey"
     scan_interval: 3600   # refresh every hour
     sensor:
       - name: "Period Tracker - Days Since Period"
@@ -44,6 +43,18 @@ rest:
         value_template: "{{ value_json.avg_cycle_length }}"
         unit_of_measurement: "days"
         icon: "mdi:chart-timeline-variant"
+
+  - resource: "https://pt.3evils.com/api/ha-calendar?username=mila"
+    headers:
+      X-Api-Key: "mysecretapikey"
+    scan_interval: 1800
+    sensor:
+      - name: "Period Tracker - Calendar Data"
+        value_template: "{{ value_json.month_label }}"
+        json_attributes:
+          - month_label
+          - weekdays
+          - weeks
 
 
 # ── Template Sensors: derived from REST data ──────────────────────────────────
@@ -83,8 +94,7 @@ template:
             Late
           {% endif %}
 
-
-# ── Binary Sensor: is period currently active? ────────────────────────────────
+  - binary_sensor:
       - name: "Period Active"
         unique_id: period_tracker_active
         # True if within the first 6 days since period started
@@ -92,7 +102,7 @@ template:
           {% set days = states('sensor.period_tracker_days_since_period') | int(-1) %}
           {{ days >= 0 and days <= 5 }}
         icon: >
-          {% if is_state('binary_sensor.period_active', 'on') %}
+          {% if this.state == 'on' %}
             mdi:water
           {% else %}
             mdi:water-off
@@ -137,6 +147,7 @@ automation:
             - sensor.period_tracker_next_period_date
             - sensor.period_tracker_today_mood
             - sensor.period_tracker_today_symptoms
+            - sensor.period_tracker_calendar_data
 
   # ── Morning briefing notification ─────────────────────────────────────────
   - alias: "Period Tracker - Morning Briefing"

@@ -1,0 +1,20 @@
+# Home Assistant Lovelace card
+# Calendar-only Luna card
+
+type: markdown
+content: |
+  {% set month = states('sensor.period_tracker_calendar_data') %}
+  {% set weeks = state_attr('sensor.period_tracker_calendar_data', 'weeks') or [] %}
+  ## {{ month if month not in ['unknown', 'unavailable', 'none', ''] else 'Luna Calendar' }}
+  {% if weeks | count == 0 %}
+  Calendar data is not available yet. Reload the REST entities or restart Home Assistant after adding the new `sensor.period_tracker_calendar_data` sensor.
+  {% else %}
+  ```text
+  Su    Mo    Tu    We    Th    Fr    Sa
+  {% for week in weeks %}
+  {% for cell in week %}{% if cell.in_month %}{{ '%2s' | format(cell.label) }}{{ 'T' if cell.is_today else ' ' }}{{ 'P' if cell.is_period else ('*' if cell.is_predicted else ' ') }}{{ 'S' if cell.symptom_count > 0 else ' ' }}{{ 'M' if cell.has_mood else ' ' }} {% else %}      {% endif %}{% endfor %}
+  {% endfor %}
+  ```
+
+  Legend: `P` Period, `*` Predicted, `S` Symptom logged, `M` Mood logged, `T` Today
+  {% endif %}

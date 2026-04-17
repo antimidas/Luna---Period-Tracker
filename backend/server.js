@@ -22,9 +22,30 @@ const pool = mysql.createPool({
 });
 
 const FLOW_OPTIONS = ["none", "spotting", "light", "medium", "heavy"];
+const SYMPTOM_EMOJIS = {
+  "Cramps": "😖",
+  "Back pain": "🌀",
+  "Headache": "🤕",
+  "Bloating": "🎈",
+  "Breast tenderness": "💗",
+  "Fatigue": "🥱",
+  "Nausea": "🤢",
+  "Acne": "🫧",
+  "Insomnia": "🌙",
+  "Hot flashes": "🔥",
+  "Food cravings": "🍫",
+  "Spotting": "🩸",
+  "Dizziness": "💫",
+  "Joint pain": "🦴",
+  "Mood swings": "🎭",
+};
 const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-env";
 const JWT_EXPIRES_IN = "7d";
 const API_KEY = process.env.API_KEY || "mysecretapikey";
+
+function symptomEmoji(symptom) {
+  return SYMPTOM_EMOJIS[symptom] || "✏️";
+}
 
 function signToken(user) {
   return jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
@@ -124,6 +145,15 @@ function requireApiKey(req, res, next) {
   next();
 }
 
+async function getApiContextUser(req) {
+  const username = String(req.query.username || "owner").trim().toLowerCase();
+  const [rows] = await pool.query(
+    `SELECT id, username FROM users WHERE username=? LIMIT 1`,
+    [username]
+  );
+  return rows[0] || null;
+}
+
 async function notifyHomeAssistant(eventType, data) {
   const webhookUrl = process.env.HA_WEBHOOK_URL;
   const haToken = process.env.HA_TOKEN;
@@ -194,6 +224,102 @@ async function getCurrentStatus(userId) {
   };
 }
 
+async function buildHomeAssistantCalendar(userId) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const monthIndex = now.getMonth();
+  const month = monthIndex + 1;
+  const monthStart = `${year}-${String(month).padStart(2, "0")}-01`;
+  const monthEnd = new Date(year, month, 0).toISOString().split("T")[0];
+  const today = now.toISOString().split("T")[0];
+
+  const [cycles] = await pool.query(
+    `SELECT * FROM cycles
+     WHERE user_id=? AND start_date <= ? AND COALESCE(end_date, start_date) >= ?
+     ORDER BY start_date ASC`,
+    [userId, monthEnd, monthStart]
+  );
+  const [symptoms] = await pool.query(
+    `SELECT * FROM symptoms WHERE user_id=? AND YEAR(log_date)=? AND MONTH(log_date)=? ORDER BY log_date ASC, symptom ASC`,
+    [userId, year, month]
+  );
+  const [moods] = await pool.query(
+    `SELECT * FROM moods WHERE user_id=? AND YEAR(log_date)=? AND MONTH(log_date)=? ORDER BY log_date ASC`,
+    [userId, year, month]
+  );
+
+  const predictedStart = await getPrediction(userId);
+  const predictedDays = new Set();
+  if (predictedStart) {
+    const base = new Date(predictedStart);
+    for (let i = 0; i < 5; i++) {
+      const d = new Date(base);
+      d.setDate(d.getDate() + i);
+      predictedDays.add(d.toISOString().split("T")[0]);
+    }
+  }
+
+  const periodDays = new Set();
+  cycles.forEach((cycle) => {
+    const start = new Date(cycle.start_date);
+    const end = new Date(cycle.end_date || cycle.start_date);
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      periodDays.add(d.toISOString().split("T")[0]);
+    }
+  });
+
+  const symptomsByDay = new Map();
+  symptoms.forEach((entry) => {
+    const day = String(entry.log_date).split("T")[0];
+    if (!symptomsByDay.has(day)) symptomsByDay.set(day, []);
+    const list = symptomsByDay.get(day);
+    if (!list.includes(entry.symptom)) list.push(entry.symptom);
+  });
+
+  const moodDays = new Set(moods.map((entry) => String(entry.log_date).split("T")[0]));
+  const firstDay = new Date(year, monthIndex, 1).getDay();
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const weeks = [];
+  let week = [];
+
+  for (let i = 0; i < firstDay; i++) {
+    week.push({ in_month: false, label: "" });
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const daySymptoms = symptomsByDay.get(dateStr) || [];
+    const showIcons = periodDays.has(dateStr) && daySymptoms.length > 0;
+    week.push({
+      in_month: true,
+      label: String(day),
+      date: dateStr,
+      is_today: dateStr === today,
+      is_period: periodDays.has(dateStr),
+      is_predicted: !periodDays.has(dateStr) && predictedDays.has(dateStr),
+      has_mood: moodDays.has(dateStr),
+      symptom_count: daySymptoms.length,
+      symptom_icons: showIcons ? daySymptoms.slice(0, 3).map(symptomEmoji) : [],
+      more_symptoms: showIcons && daySymptoms.length > 3 ? "+" : "",
+    });
+    if (week.length === 7) {
+      weeks.push(week);
+      week = [];
+    }
+  }
+
+  while (week.length && week.length < 7) {
+    week.push({ in_month: false, label: "" });
+  }
+  if (week.length) weeks.push(week);
+
+  return {
+    month_label: now.toLocaleString("en-US", { month: "long", year: "numeric" }),
+    weekdays: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+    weeks,
+  };
+}
+
 // Authentication
 app.post("/api/auth/register", async (req, res) => {
   const { username, password, display_name } = req.body;
@@ -249,6 +375,24 @@ app.post("/api/auth/login", async (req, res) => {
   });
 });
 
+// Generate a long-lived embed token using the API key (no password needed)
+app.get("/api/auth/embed-token", requireApiKey, async (req, res) => {
+  const username = String(req.query.username || "").trim().toLowerCase();
+  if (!username) return res.status(400).json({ error: "username query param required" });
+
+  const [rows] = await pool.query(
+    `SELECT id, username, display_name FROM users WHERE username=? LIMIT 1`,
+    [username]
+  );
+  const user = rows[0];
+  if (!user) return res.status(404).json({ error: "user not found" });
+
+  const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
+    expiresIn: "365d",
+  });
+  res.json({ token, expires_in: "365d", user: { id: user.id, username: user.username } });
+});
+
 app.get("/api/auth/me", requireAuth, async (req, res) => {
   const [rows] = await pool.query(
     `SELECT id, username, display_name FROM users WHERE id=? LIMIT 1`,
@@ -302,6 +446,7 @@ app.get("/api/cycles", requireAuth, async (req, res) => {
 });
 
 app.post("/api/cycles", requireAuth, async (req, res) => {
+  try {
   const { start_date, end_date, flow_intensity, notes } = req.body;
   if (!start_date) return res.status(400).json({ error: "start_date required" });
 
@@ -324,9 +469,11 @@ app.post("/api/cycles", requireAuth, async (req, res) => {
   });
 
   res.json({ id: result.insertId, start_date, prediction });
+  } catch (e) { console.error("POST /api/cycles:", e.message); res.status(500).json({ error: e.message }); }
 });
 
 app.patch("/api/cycles/:id", requireAuth, async (req, res) => {
+  try {
   const { end_date, flow_intensity, notes } = req.body;
   await pool.query(
     `UPDATE cycles
@@ -337,11 +484,14 @@ app.patch("/api/cycles/:id", requireAuth, async (req, res) => {
     [end_date, flow_intensity, notes, req.params.id, req.user.id]
   );
   res.json({ success: true });
+  } catch (e) { console.error("PATCH /api/cycles:", e.message); res.status(500).json({ error: e.message }); }
 });
 
 app.delete("/api/cycles/:id", requireAuth, async (req, res) => {
+  try {
   await pool.query("DELETE FROM cycles WHERE id=? AND user_id=?", [req.params.id, req.user.id]);
   res.json({ success: true });
+  } catch (e) { console.error("DELETE /api/cycles:", e.message); res.status(500).json({ error: e.message }); }
 });
 
 // Symptoms
@@ -370,6 +520,7 @@ app.get("/api/symptoms", requireAuth, async (req, res) => {
 });
 
 app.post("/api/symptoms", requireAuth, async (req, res) => {
+  try {
   const { log_date, symptom, severity } = req.body;
   if (!log_date || !symptom) return res.status(400).json({ error: "log_date and symptom required" });
 
@@ -388,11 +539,14 @@ app.post("/api/symptoms", requireAuth, async (req, res) => {
   });
 
   res.json({ id: result.insertId, log_date, symptom });
+  } catch (e) { console.error("POST /api/symptoms:", e.message); res.status(500).json({ error: e.message }); }
 });
 
 app.delete("/api/symptoms/:id", requireAuth, async (req, res) => {
+  try {
   await pool.query("DELETE FROM symptoms WHERE id=? AND user_id=?", [req.params.id, req.user.id]);
   res.json({ success: true });
+  } catch (e) { console.error("DELETE /api/symptoms:", e.message); res.status(500).json({ error: e.message }); }
 });
 
 // Moods
@@ -414,24 +568,45 @@ app.get("/api/moods", requireAuth, async (req, res) => {
 });
 
 app.post("/api/moods", requireAuth, async (req, res) => {
-  const { log_date, mood, energy_level, notes } = req.body;
-  if (!log_date || !mood) return res.status(400).json({ error: "log_date and mood required" });
+  try {
+    const { log_date, mood, energy_level, notes } = req.body;
+    if (!log_date || !mood) return res.status(400).json({ error: "log_date and mood required" });
 
-  await pool.query(
-    `INSERT INTO moods (user_id, log_date, mood, energy_level, notes) VALUES (?, ?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE mood=VALUES(mood), energy_level=VALUES(energy_level), notes=VALUES(notes)`,
-    [req.user.id, log_date, mood, energy_level || null, notes || null]
-  );
+    // Clamp energy_level to valid DB range (1-5)
+    let energy = energy_level != null ? parseInt(energy_level) : null;
+    if (energy != null && (energy < 1 || energy > 5)) energy = Math.min(5, Math.max(1, energy));
 
-  await notifyHomeAssistant("mood_logged", {
-    user_id: req.user.id,
-    username: req.user.username,
-    log_date,
-    mood,
-    energy_level,
-  });
+    await pool.query(
+      `INSERT INTO moods (user_id, log_date, mood, energy_level, notes) VALUES (?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE mood=VALUES(mood), energy_level=VALUES(energy_level), notes=VALUES(notes)`,
+      [req.user.id, log_date, mood, energy, notes || null]
+    );
 
-  res.json({ success: true });
+    await notifyHomeAssistant("mood_logged", {
+      user_id: req.user.id,
+      username: req.user.username,
+      log_date,
+      mood,
+      energy_level: energy,
+    });
+
+    res.json({ success: true });
+  } catch (e) {
+    console.error("POST /api/moods error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete("/api/moods", requireAuth, async (req, res) => {
+  try {
+    const { date } = req.query;
+    if (!date) return res.status(400).json({ error: "date query param required" });
+    await pool.query("DELETE FROM moods WHERE user_id=? AND log_date=?", [req.user.id, date]);
+    res.json({ success: true });
+  } catch (e) {
+    console.error("DELETE /api/moods error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Summary for logged-in user (or owner via API key for HA)
@@ -449,9 +624,8 @@ app.get("/api/summary", async (req, res) => {
     const key = req.headers["x-api-key"] || req.query.api_key;
     if (key !== API_KEY) return res.status(403).json({ error: "Forbidden" });
 
-    const [ownerRows] = await pool.query(`SELECT id, username FROM users WHERE username='owner' LIMIT 1`);
-    if (!ownerRows.length) return res.status(404).json({ error: "owner user not found" });
-    contextUser = ownerRows[0];
+    contextUser = await getApiContextUser(req);
+    if (!contextUser) return res.status(404).json({ error: "requested user not found" });
   }
 
   const status = await getCurrentStatus(contextUser.id);
@@ -485,6 +659,14 @@ app.get("/api/summary", async (req, res) => {
     today_mood: todayMood[0] || null,
     recent_symptoms_7d: recentSymptoms,
   });
+});
+
+app.get("/api/ha-calendar", requireApiKey, async (req, res) => {
+  const contextUser = await getApiContextUser(req);
+  if (!contextUser) return res.status(404).json({ error: "requested user not found" });
+
+  const calendar = await buildHomeAssistantCalendar(contextUser.id);
+  res.json(calendar);
 });
 
 // Calendar data for month
@@ -560,6 +742,12 @@ cron.schedule("0 8 * * *", async () => {
 });
 
 const PORT = process.env.PORT || 3001;
+
+// Global error handler — prevents unhandled DB/route errors from crashing the process
+app.use((err, req, res, next) => {
+  console.error("Unhandled route error:", err.message);
+  res.status(500).json({ error: err.message || "Internal server error" });
+});
 
 ensureSchema()
   .then(() => {

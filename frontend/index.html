@@ -860,6 +860,70 @@
 
   .sidebar { display: flex; flex-direction: column; gap: 18px; }
 
+  body.embed-view {
+    min-height: auto;
+    background-attachment: scroll;
+  }
+
+  body.embed-view header,
+  body.embed-view .layout-modal-backdrop {
+    display: none !important;
+  }
+
+  body.embed-view .toast {
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+    text-align: center;
+  }
+
+  body.embed-view .container {
+    max-width: none;
+    display: block;
+    padding: 0;
+  }
+
+  body.embed-view .card {
+    display: none;
+    margin: 0;
+    border-radius: 0;
+    min-height: 100vh;
+  }
+
+  body.embed-view .card-header {
+    border-radius: 0;
+  }
+
+  body.embed-view .card-body {
+    padding: 18px;
+  }
+
+  body.embed-view .resize-handle,
+  body.embed-view .collapse-btn {
+    display: none !important;
+  }
+
+  body.embed-calendar [data-move-id="calendar-card"],
+  body.embed-overview [data-move-id="overview-card"],
+  body.embed-logday [data-move-id="logday-card"] {
+    display: block;
+  }
+
+  body.embed-calendar .sidebar,
+  body.embed-overview .container > div:first-child,
+  body.embed-logday .container > div:first-child {
+    display: none;
+  }
+
+  body.embed-overview .sidebar,
+  body.embed-logday .sidebar {
+    display: block;
+  }
+
+  body.embed-calendar .container > div:first-child {
+    display: block;
+  }
+
 
 
   /* ── Summary Stats ──────────────────────────── */
@@ -1687,7 +1751,10 @@
 
 
 
-        <button class="save-btn" onclick="saveDay()">Save Day ✓</button>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="save-btn" style="flex:3" onclick="saveDay()">Save Day ✓</button>
+          <button class="save-btn" style="flex:1;background:var(--muted);color:var(--text)" onclick="clearDay()" title="Remove all data for this date">Clear 🗑</button>
+        </div>
 
       </div>
 
@@ -1973,6 +2040,33 @@ let resizedCards = {};
 let collapsedCards = {};
 
 const today = new Date();
+
+const EMBED_VIEW = getEmbedView();
+const lunaChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('luna-updates') : null;
+
+function getEmbedView() {
+  const segment = window.location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || "";
+  if (segment === "calendar") return "calendar";
+  if (segment === "log-day" || segment === "logday") return "logday";
+  if (segment === "cycle-overview" || segment === "overview") return "overview";
+  return "";
+}
+
+function applyEmbedView() {
+  if (!EMBED_VIEW) return;
+  document.body.classList.add("embed-view", `embed-${EMBED_VIEW}`);
+  if (EMBED_VIEW === "calendar") document.title = "Luna Calendar";
+  if (EMBED_VIEW === "logday") document.title = "Luna Log Day";
+  if (EMBED_VIEW === "overview") document.title = "Luna Cycle Overview";
+
+  // Accept ?token= in embed URLs for auto-login (e.g. from HA iframes)
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlToken = urlParams.get("token");
+  if (urlToken) {
+    authToken = urlToken;
+    localStorage.setItem(TOKEN_KEY, urlToken);
+  }
+}
 
 
 
@@ -3052,6 +3146,47 @@ function updateLoggerUI() {
 
 
 
+// ── Clear Day ─────────────────────────────────────────────────────
+async function clearDay() {
+  if (!selectedDate) return toast("Select a date first", true);
+  if (!confirm(`Clear all data for ${fmtDate(selectedDate)}?`)) return;
+
+  try {
+    // Remove all cycle entries covering this date
+    const cycleRows = calData.cycles.filter(c => {
+      const s = new Date(c.start_date);
+      const sel = new Date(selectedDate);
+      const e = c.end_date ? new Date(c.end_date) : new Date(s);
+      return sel >= s && sel <= e;
+    });
+    for (const row of cycleRows) await api("DELETE", `/cycles/${row.id}`);
+
+    // Remove all symptoms for this date
+    const symptoms = calData.symptoms.filter(s => (s.log_date||"").startsWith(selectedDate.substring(0,10)));
+    for (const s of symptoms) await api("DELETE", `/symptoms/${s.id}`);
+
+    // Remove mood for this date
+    await api("DELETE", `/moods?date=${selectedDate}`);
+
+    // Reset UI state
+    isPeriod = false;
+    selectedFlow = "medium";
+    selectedSymptoms = new Set();
+    selectedMood = "";
+    document.getElementById("energySlider").value = 3;
+    document.getElementById("energyLabel").textContent = "3";
+    updateLoggerUI();
+    buildSymptomPills();
+
+    await loadCalendar();
+    await loadSummary();
+    if (lunaChannel) lunaChannel.postMessage({ type: 'luna-data-updated' });
+    toast("Day cleared");
+  } catch (e) {
+    toast("Error clearing: " + e.message, true);
+  }
+}
+
 // ── Save ───────────────────────────────────────────────────────────
 
 async function saveDay() {
@@ -3116,7 +3251,7 @@ async function saveDay() {
 
 
 
-    // Mood
+    // Mood — save if selected, delete if deselected (removes previously saved mood)
 
     if (selectedMood) {
 
@@ -3130,6 +3265,10 @@ async function saveDay() {
 
       });
 
+    } else {
+
+      await api("DELETE", `/moods?date=${selectedDate}`);
+
     }
 
 
@@ -3137,6 +3276,8 @@ async function saveDay() {
     await loadCalendar();
 
     await loadSummary();
+
+    if (lunaChannel) lunaChannel.postMessage({ type: 'luna-data-updated' });
 
     toast("Saved & synced to Home Assistant ⚡");
 
@@ -3701,6 +3842,8 @@ async function exportCalendarPdf() {
 
 async function initApp() {
 
+  applyEmbedView();
+
   currentYear  = today.getFullYear();
 
   currentMonth = today.getMonth() + 1;
@@ -3717,7 +3860,7 @@ async function initApp() {
 
   applyTheme(savedTheme);
 
-  initLayoutSystem();
+  if (!EMBED_VIEW) initLayoutSystem();
 
   updateAuthModeUI();
 
@@ -3730,6 +3873,15 @@ async function initApp() {
     setAuthOverlay(false);
 
     await bootstrapData();
+
+    if (lunaChannel && EMBED_VIEW && EMBED_VIEW !== 'logday') {
+      lunaChannel.onmessage = async (e) => {
+        if (e.data && e.data.type === 'luna-data-updated') {
+          await loadCalendar();
+          await loadSummary();
+        }
+      };
+    }
 
   } else {
 
