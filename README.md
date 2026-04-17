@@ -112,6 +112,20 @@ Then: **Developer Tools → YAML → Check Configuration → Restart**
 2. Paste contents of `ha-config/lovelace-card.yaml`
 3. Replace `TRACKER_HOST` with your server's IP
 
+### 10. Embed Luna views directly in Home Assistant iframes
+
+Luna supports direct embedding of key index views as Home Assistant webpage cards (iframes).
+
+Use these routes directly:
+- `http://YOUR_SERVER_IP/calendar`
+- `http://YOUR_SERVER_IP/log-day`
+- `http://YOUR_SERVER_IP/cycle-overview`
+
+If you are using embed token auth, append `?token=YOUR_EMBED_TOKEN` to each URL:
+- `http://YOUR_SERVER_IP/calendar?token=YOUR_EMBED_TOKEN`
+- `http://YOUR_SERVER_IP/log-day?token=YOUR_EMBED_TOKEN`
+- `http://YOUR_SERVER_IP/cycle-overview?token=YOUR_EMBED_TOKEN`
+
 ---
 
 ## API Reference
