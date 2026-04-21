@@ -1,0 +1,19 @@
+[Unit]
+Description=Luna Period Tracker API
+After=network.target mariadb.service
+Requires=mariadb.service
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/period-tracker/backend
+EnvironmentFile=/opt/period-tracker/.env
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=luna
+
+[Install]
+WantedBy=multi-user.target

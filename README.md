@@ -81,12 +81,21 @@ sudo systemctl reload nginx
 ```bash
 cd backend
 npm install
-node server.js &
+
+# Install and enable systemd service (auto-start on boot)
+sudo cp luna.service.example /etc/systemd/system/luna.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now luna
 ```
 
 Wait ~10 seconds for the API to start, then visit:
 - **Web App**: `http://YOUR_SERVER_IP`
 - **API**: `http://YOUR_SERVER_IP/api/health`
+
+To inspect API logs:
+```bash
+sudo journalctl -u luna -f
+```
 
 ### 7. Set up Home Assistant webhook
 
@@ -188,15 +197,27 @@ mysqldump -u tracker -p'YOUR_MYSQL_PASSWORD' period_tracker \
 # Start services
 sudo systemctl start mariadb
 sudo systemctl start nginx
-cd backend && node server.js &
+sudo systemctl start luna
 
 # Stop services
 sudo systemctl stop mariadb
 sudo systemctl stop nginx
-pkill -f "node server.js"
+sudo systemctl stop luna
 
 # View logs
 sudo journalctl -u mariadb -f
 sudo journalctl -u nginx -f
-# For API logs, check the terminal where node is running
+sudo journalctl -u luna -f
+```
+
+## Enable API Auto-Start On Existing Install
+
+If Luna is already installed and you currently run `node server.js` manually, run:
+
+```bash
+cd /opt/period-tracker/backend
+sudo cp luna.service.example /etc/systemd/system/luna.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now luna
+sudo systemctl status luna
 ```
