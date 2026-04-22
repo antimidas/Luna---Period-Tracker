@@ -26,6 +26,11 @@
     --border:  #e5d5d8;
     --card:    #ffffff;
     --card-blur: 0px;
+    --bs-card-border-color: var(--border);
+    --bs-card-cap-bg: transparent;
+    --bs-card-cap-color: var(--rose-dk);
+    --bs-card-color: var(--ink);
+    --bs-card-bg: var(--card);
     --period:  #c2647a;
     --predicted: #d4a0ab;
     --symptom: #7a9cbf;
@@ -94,12 +99,23 @@
     --shadow:  0 2px 20px rgba(194,100,122,0.08);
     --r: 14px;
     /* Bootstrap overrides */
+    --bs-primary: var(--rose);
+    --bs-secondary: var(--muted);
+    --bs-success: #7abf9c;
+    --bs-info: #7a9cbf;
+    --bs-warning: #f0c15f;
+    --bs-danger: #cf6f6f;
+    --bs-light: var(--blush);
+    --bs-dark: var(--ink);
     --bs-body-font-family: 'DM Sans', sans-serif;
     --bs-body-bg: var(--cream);
     --bs-body-color: var(--ink);
+    --bs-link-color: var(--rose-dk);
     --bs-border-color: var(--border);
+    --bs-focus-ring-color: color-mix(in srgb, var(--rose) 25%, transparent);
     --bs-border-radius: var(--r);
     --bs-border-radius-sm: 8px;
+    --bs-box-shadow: var(--shadow);
   }
 
   /* ── Base ───────────────────────────────────── */
@@ -575,6 +591,151 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .studio-value-helper {
+    font-size: 0.74rem;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.45;
+  }
+  .studio-bootstrap-preview {
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 12px;
+    background: rgba(0,0,0,0.15);
+    padding: 12px;
+    margin-bottom: 2px;
+  }
+  .studio-bootstrap-preview-note {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.68);
+    margin-bottom: 10px;
+  }
+  .studio-bootstrap-preview-shell {
+    border-radius: var(--bs-border-radius);
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    box-shadow: var(--bs-box-shadow);
+    border: 1px solid var(--bs-border-color);
+    padding: 14px;
+  }
+  .studio-bootstrap-preview-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+  .studio-bs-preview-card {
+    border-radius: var(--bs-border-radius);
+    border: 1px solid var(--bs-card-border-color);
+    background: var(--bs-card-bg);
+    color: var(--bs-card-color);
+    overflow: hidden;
+    box-shadow: var(--bs-box-shadow);
+  }
+  .studio-bs-preview-card-header {
+    background: var(--bs-card-cap-bg);
+    color: var(--bs-card-cap-color);
+    border-bottom: 1px solid var(--bs-card-border-color);
+    padding: 10px 12px;
+    font-weight: 600;
+  }
+  .studio-bs-preview-card-body {
+    padding: 12px;
+    color: var(--bs-card-color);
+    display: grid;
+    gap: 10px;
+  }
+  .studio-bs-preview-card-body p {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.45;
+  }
+  .studio-bs-preview-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .studio-bs-preview-btn {
+    border: 1px solid transparent;
+    border-radius: var(--bs-border-radius-sm);
+    padding: 7px 11px;
+    font-size: 0.78rem;
+    line-height: 1.2;
+    box-shadow: var(--bs-box-shadow);
+  }
+  .studio-bs-preview-btn-primary {
+    background: var(--bs-primary);
+    color: #fff;
+    border-color: color-mix(in srgb, var(--bs-primary) 72%, black 28%);
+  }
+  .studio-bs-preview-btn-secondary {
+    background: var(--bs-secondary);
+    color: var(--bs-dark);
+    border-color: color-mix(in srgb, var(--bs-secondary) 72%, black 28%);
+  }
+  .studio-bs-preview-link {
+    color: var(--bs-link-color);
+    font-size: 0.8rem;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    width: fit-content;
+  }
+  .studio-bs-preview-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-content: start;
+  }
+  .studio-bs-preview-metric {
+    border: 1px solid color-mix(in srgb, var(--bs-border-color) 80%, transparent);
+    border-radius: var(--bs-border-radius-sm);
+    background: color-mix(in srgb, var(--bs-body-bg) 82%, white 18%);
+    padding: 10px;
+    min-height: 106px;
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+  .studio-bs-preview-metric-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--bs-body-color) 72%, transparent);
+  }
+  .studio-bs-preview-metric-value {
+    font-size: 0.68rem;
+    font-family: monospace;
+    color: color-mix(in srgb, var(--bs-body-color) 82%, transparent);
+    word-break: break-word;
+  }
+  .studio-bs-radius-chip,
+  .studio-bs-shadow-chip,
+  .studio-bs-focus-chip {
+    width: 100%;
+    height: 44px;
+    border: 1px solid var(--bs-border-color);
+    background: color-mix(in srgb, var(--bs-card-bg) 85%, white 15%);
+  }
+  .studio-bs-radius-chip { border-radius: var(--bs-border-radius); }
+  .studio-bs-radius-chip-sm { border-radius: var(--bs-border-radius-sm); }
+  .studio-bs-shadow-chip { border-radius: var(--bs-border-radius-sm); box-shadow: var(--bs-box-shadow); }
+  .studio-bs-focus-chip {
+    border-radius: var(--bs-border-radius-sm);
+    box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+  }
+  .studio-bs-palette {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .studio-bs-palette-chip {
+    height: 28px;
+    border-radius: var(--bs-border-radius-sm);
+    border: 1px solid color-mix(in srgb, var(--bs-body-color) 12%, transparent);
+  }
+  @media (max-width: 780px) {
+    .studio-bootstrap-preview-grid { grid-template-columns: 1fr; }
+    .studio-bs-preview-metrics { grid-template-columns: 1fr 1fr; }
+  }
 
   @media (max-width: 780px) {
     .theme-studio-grid { grid-template-columns: 1fr; }
@@ -586,13 +747,14 @@
 
   /* ── Cards ──────────────────────────────────── */
   .card {
-    background: var(--card);
+    background: var(--bs-card-bg, var(--card));
     background-image: var(--card-art);
     backdrop-filter: blur(var(--card-blur));
     -webkit-backdrop-filter: blur(var(--card-blur));
     position: relative;
     border-radius: var(--r);
-    border: 1px solid var(--border);
+    border: 1px solid var(--bs-card-border-color, var(--border));
+    color: var(--bs-card-color, var(--ink));
     box-shadow: var(--shadow);
     overflow: hidden;
   }
@@ -630,8 +792,9 @@
 
   .card-header {
     padding: 18px 22px 14px;
-    background: var(--card-header-bg);
+    background: var(--bs-card-cap-bg, var(--card-header-bg));
     border-bottom: 1px solid var(--card-header-border);
+    color: var(--bs-card-cap-color, var(--card-header-text));
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -674,7 +837,7 @@
     font-size: 1.25rem;
     font-weight: 400;
     letter-spacing: 0.5px;
-    color: var(--card-header-text);
+    color: var(--bs-card-cap-color, var(--card-header-text));
     margin: 0;
   }
   .header-title { display: inline-flex; align-items: center; gap: 8px; }
@@ -690,7 +853,10 @@
     box-shadow: 0 1px 6px rgba(0,0,0,0.08);
     transform: rotate(-8deg);
   }
-  .card-body { padding: 20px 22px; }
+  .card-body {
+    padding: 20px 22px;
+    color: var(--bs-card-color, var(--ink));
+  }
 
   /* Floating panels */
   .card[data-move-id="overview-card"],
@@ -1485,42 +1651,50 @@
         <!-- hidden select kept for JS compatibility -->
         <select id="themeElementSelect" class="hidden" onchange="onThemeEditorElementChange()"></select>
 
-        <label class="studio-label" for="themeFillType">Fill Type</label>
-        <select id="themeFillType" class="form-select" onchange="onThemeEditorFillTypeChange()">
-          <option value="solid">Solid Color</option>
-          <option value="linear">Linear Gradient</option>
-          <option value="radial">Radial Gradient</option>
-        </select>
+        <div id="themeColorEditorPanel" class="d-grid gap-2">
+          <label class="studio-label" for="themeFillType">Fill Type</label>
+          <select id="themeFillType" class="form-select" onchange="onThemeEditorFillTypeChange()">
+            <option value="solid">Solid Color</option>
+            <option value="linear">Linear Gradient</option>
+            <option value="radial">Radial Gradient</option>
+          </select>
 
-        <label class="studio-label" for="themeColorPicker">Color</label>
-        <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;">
-          <input id="themeColorPicker" type="color" class="form-control form-control-color" style="width:48px;height:40px;padding:2px;border-radius:8px;" value="#c2647a" oninput="onThemeEditorColorInput(this.value)">
-          <input id="themeColorHex" class="form-control" type="text" value="#c2647a" placeholder="#rrggbb" oninput="onThemeEditorHexInput(this.value)" style="font-family:monospace;font-size:0.85rem;">
-        </div>
-
-        <div class="studio-opacity-label-wrap">
-          <label class="studio-label" for="themeColorOpacity" style="margin:0">Opacity</label>
-          <span id="themeColorOpacityValue" style="font-size:0.76rem;color:rgba(255,255,255,0.9);">100%</span>
-        </div>
-        <input id="themeColorOpacity" type="range" min="0" max="100" value="100" style="width:100%;accent-color:#e879a8;height:6px;cursor:pointer;" oninput="onThemeEditorOpacityInput(this.value)">
-
-        <div id="themeGradientControls" class="hidden d-grid gap-2">
-          <label class="studio-label" for="themeGradientAngle">Angle (linear only)</label>
-          <input id="themeGradientAngle" class="form-control" type="number" min="0" max="360" step="1" value="135" style="font-size:0.85rem;">
-
-          <label class="studio-label">Color Stop 1</label>
-          <div class="studio-grad-stop">
-            <input id="themeGradientColor1" type="color" class="form-control form-control-color" value="#c2647a">
-            <input id="themeGradientOpacity1" type="range" min="0" max="100" value="100" oninput="document.getElementById('themeGradientOpacity1Label').textContent=this.value+'%'">
-            <span id="themeGradientOpacity1Label" class="studio-grad-stop-label">100%</span>
+          <label class="studio-label" for="themeColorPicker">Color</label>
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;">
+            <input id="themeColorPicker" type="color" class="form-control form-control-color" style="width:48px;height:40px;padding:2px;border-radius:8px;" value="#c2647a" oninput="onThemeEditorColorInput(this.value)">
+            <input id="themeColorHex" class="form-control" type="text" value="#c2647a" placeholder="#rrggbb" oninput="onThemeEditorHexInput(this.value)" style="font-family:monospace;font-size:0.85rem;">
           </div>
 
-          <label class="studio-label">Color Stop 2</label>
-          <div class="studio-grad-stop">
-            <input id="themeGradientColor2" type="color" class="form-control form-control-color" value="#ffffff">
-            <input id="themeGradientOpacity2" type="range" min="0" max="100" value="100" oninput="document.getElementById('themeGradientOpacity2Label').textContent=this.value+'%'">
-            <span id="themeGradientOpacity2Label" class="studio-grad-stop-label">100%</span>
+          <div class="studio-opacity-label-wrap">
+            <label class="studio-label" for="themeColorOpacity" style="margin:0">Opacity</label>
+            <span id="themeColorOpacityValue" style="font-size:0.76rem;color:rgba(255,255,255,0.9);">100%</span>
           </div>
+          <input id="themeColorOpacity" type="range" min="0" max="100" value="100" style="width:100%;accent-color:#e879a8;height:6px;cursor:pointer;" oninput="onThemeEditorOpacityInput(this.value)">
+
+          <div id="themeGradientControls" class="hidden d-grid gap-2">
+            <label class="studio-label" for="themeGradientAngle">Angle (linear only)</label>
+            <input id="themeGradientAngle" class="form-control" type="number" min="0" max="360" step="1" value="135" style="font-size:0.85rem;">
+
+            <label class="studio-label">Color Stop 1</label>
+            <div class="studio-grad-stop">
+              <input id="themeGradientColor1" type="color" class="form-control form-control-color" value="#c2647a">
+              <input id="themeGradientOpacity1" type="range" min="0" max="100" value="100" oninput="document.getElementById('themeGradientOpacity1Label').textContent=this.value+'%'">
+              <span id="themeGradientOpacity1Label" class="studio-grad-stop-label">100%</span>
+            </div>
+
+            <label class="studio-label">Color Stop 2</label>
+            <div class="studio-grad-stop">
+              <input id="themeGradientColor2" type="color" class="form-control form-control-color" value="#ffffff">
+              <input id="themeGradientOpacity2" type="range" min="0" max="100" value="100" oninput="document.getElementById('themeGradientOpacity2Label').textContent=this.value+'%'">
+              <span id="themeGradientOpacity2Label" class="studio-grad-stop-label">100%</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="themeValueEditorPanel" class="hidden d-grid gap-2">
+          <label class="studio-label" for="themeValueInput">CSS Value</label>
+          <input id="themeValueInput" class="form-control" type="text" placeholder="14px" style="font-family:monospace;font-size:0.85rem;">
+          <div id="themeValueHelper" class="studio-value-helper">Use any valid CSS token for this field.</div>
         </div>
 
         <button class="btn btn-luna" type="button" onclick="applyThemeEditorValue()">Apply To Draft</button>
@@ -1534,6 +1708,61 @@
       <div class="studio-actions" style="margin-top:0;">
         <button class="btn btn-luna btn-sm" type="button" onclick="expandAllStudioSections()">Expand All</button>
         <button class="btn btn-luna btn-luna-muted btn-sm" type="button" onclick="collapseAllStudioSections()">Collapse All</button>
+      </div>
+    </div>
+    <div class="studio-bootstrap-preview" id="themeStudioBootstrapPreview">
+      <div class="studio-bootstrap-preview-note">Bootstrap Layer Preview</div>
+      <div class="studio-bootstrap-preview-shell">
+        <div class="studio-bootstrap-preview-grid">
+          <div class="studio-bs-preview-card">
+            <div class="studio-bs-preview-card-header">Bootstrap Card Header</div>
+            <div class="studio-bs-preview-card-body">
+              <p>Use this area to preview Bootstrap card colors, border radius, and shadow tokens against body and link colors.</p>
+              <div class="studio-bs-preview-actions">
+                <button type="button" class="studio-bs-preview-btn studio-bs-preview-btn-primary">Primary</button>
+                <button type="button" class="studio-bs-preview-btn studio-bs-preview-btn-secondary">Secondary</button>
+              </div>
+              <a href="#" class="studio-bs-preview-link" onclick="return false;">Link preview</a>
+            </div>
+          </div>
+
+          <div class="studio-bs-preview-metrics">
+            <div class="studio-bs-preview-metric">
+              <div class="studio-bs-preview-metric-title">Radius</div>
+              <div class="studio-bs-radius-chip"></div>
+              <div id="studioBsRadiusValue" class="studio-bs-preview-metric-value">—</div>
+            </div>
+            <div class="studio-bs-preview-metric">
+              <div class="studio-bs-preview-metric-title">Small Radius</div>
+              <div class="studio-bs-radius-chip studio-bs-radius-chip-sm"></div>
+              <div id="studioBsRadiusSmValue" class="studio-bs-preview-metric-value">—</div>
+            </div>
+            <div class="studio-bs-preview-metric">
+              <div class="studio-bs-preview-metric-title">Shadow</div>
+              <div class="studio-bs-shadow-chip"></div>
+              <div id="studioBsShadowValue" class="studio-bs-preview-metric-value">—</div>
+            </div>
+            <div class="studio-bs-preview-metric">
+              <div class="studio-bs-preview-metric-title">Focus Ring</div>
+              <div class="studio-bs-focus-chip"></div>
+              <div id="studioBsFocusValue" class="studio-bs-preview-metric-value">—</div>
+            </div>
+            <div class="studio-bs-preview-metric" style="grid-column:1 / -1;">
+              <div class="studio-bs-preview-metric-title">Palette</div>
+              <div class="studio-bs-palette">
+                <div class="studio-bs-palette-chip" style="background:var(--bs-primary);"></div>
+                <div class="studio-bs-palette-chip" style="background:var(--bs-secondary);"></div>
+                <div class="studio-bs-palette-chip" style="background:var(--bs-success);"></div>
+                <div class="studio-bs-palette-chip" style="background:var(--bs-info);"></div>
+                <div class="studio-bs-palette-chip" style="background:var(--bs-warning);"></div>
+                <div class="studio-bs-palette-chip" style="background:var(--bs-danger);"></div>
+                <div class="studio-bs-palette-chip" style="background:var(--bs-light);"></div>
+                <div class="studio-bs-palette-chip" style="background:var(--bs-dark);"></div>
+              </div>
+              <div class="studio-bs-preview-metric-value">Primary, secondary, status, and neutral Bootstrap tokens.</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="studio-swatches" id="themeStudioSwatches"></div>
@@ -1561,6 +1790,19 @@ const THEME_WALLPAPER_KEY = "luna_theme_wallpapers";
 const CUSTOM_THEMES_KEY = "luna_custom_themes";
 
 const STUDIO_SECTION_STATE_KEY = "luna_theme_studio_sections";
+
+const STUDIO_VALUE_FIELD_META = {
+  "--card-blur": { placeholder: "5px", helper: "Use a CSS length like 0px, 5px, or 0.5rem." },
+  "--shadow": { placeholder: "0 2px 20px rgba(0,0,0,0.15)", helper: "Use any valid box-shadow string." },
+  "--btn-border-width": { placeholder: "1px", helper: "Examples: 1px or 2px." },
+  "--btn-radius": { placeholder: "10px", helper: "Examples: 10px, 0.75rem, or 999px." },
+  "--btn-shadow": { placeholder: "none", helper: "Use any valid box-shadow string, or none." },
+  "--btn-pad-y": { placeholder: "10px", helper: "Vertical button padding, such as 8px or 0.65rem." },
+  "--btn-pad-x": { placeholder: "12px", helper: "Horizontal button padding, such as 12px or 1rem." },
+  "--bs-border-radius": { placeholder: "14px", helper: "Bootstrap default radius. Examples: 12px, 0.75rem, or 999px." },
+  "--bs-border-radius-sm": { placeholder: "8px", helper: "Bootstrap small radius for compact components." },
+  "--bs-box-shadow": { placeholder: "0 2px 20px rgba(0,0,0,0.15)", helper: "Bootstrap surface shadow. Use any valid box-shadow string." },
+};
 
 const THEMES = {
   rose: {
@@ -1805,6 +2047,25 @@ const ELEMENT_DEFAULTS = {
   "--header-text": "#ffffff",
   "--header-border": "rgba(255,255,255,0.18)",
   // Cards
+  "--bs-card-border-color": "var(--border)",
+  "--bs-card-cap-bg": "transparent",
+  "--bs-card-cap-color": "var(--card-header-text)",
+  "--bs-card-color": "var(--ink)",
+  "--bs-card-bg": "var(--card)",
+  "--bs-primary": "var(--rose)",
+  "--bs-secondary": "var(--muted)",
+  "--bs-success": "#7abf9c",
+  "--bs-info": "#7a9cbf",
+  "--bs-warning": "#f0c15f",
+  "--bs-danger": "#cf6f6f",
+  "--bs-light": "var(--blush)",
+  "--bs-dark": "var(--ink)",
+  "--bs-body-bg": "var(--cream)",
+  "--bs-body-color": "var(--ink)",
+  "--bs-link-color": "var(--rose-dk)",
+  "--bs-border-color": "var(--border)",
+  "--bs-focus-ring-color": "color-mix(in srgb, var(--rose) 25%, transparent)",
+  "--bs-box-shadow": "var(--shadow)",
   "--card-header-bg": "transparent",
   "--card-header-text": "var(--rose-dk)",
   "--card-header-border": "var(--border)",
@@ -1890,10 +2151,16 @@ const EDITABLE_THEME_FIELDS = [
   { key: "--header-text", label: "Header Text" },
   { key: "--header-border", label: "Header Button Border" },
   // Cards
+  { key: "--bs-card-border-color", label: "Bootstrap Card Border" },
+  { key: "--bs-card-cap-bg", label: "Bootstrap Card Header Background" },
+  { key: "--bs-card-cap-color", label: "Bootstrap Card Header Text" },
+  { key: "--bs-card-color", label: "Bootstrap Card Body Text" },
+  { key: "--bs-card-bg", label: "Bootstrap Card Background" },
   { key: "--card-header-bg", label: "Card Header Background" },
   { key: "--card-header-text", label: "Card Header Text" },
   { key: "--card-header-border", label: "Card Header Border" },
   { key: "--card", label: "Card Body Background" },
+  { key: "--card-blur", label: "Card Backdrop Blur" },
   { key: "--shadow", label: "Card Shadow" },
   // Stat boxes
   { key: "--stat-bg", label: "Stat Box Background" },
@@ -1926,6 +2193,11 @@ const EDITABLE_THEME_FIELDS = [
   { key: "--btn-secondary-text", label: "Button Secondary Text" },
   { key: "--btn-secondary-border", label: "Button Secondary Border" },
   { key: "--btn-secondary-hover-bg", label: "Button Secondary Hover" },
+  { key: "--btn-border-width", label: "Button Border Width" },
+  { key: "--btn-radius", label: "Button Radius" },
+  { key: "--btn-shadow", label: "Button Shadow" },
+  { key: "--btn-pad-y", label: "Button Padding Y" },
+  { key: "--btn-pad-x", label: "Button Padding X" },
   // Inputs
   { key: "--input-bg", label: "Input Background" },
   { key: "--input-text", label: "Input Text" },
@@ -1940,6 +2212,23 @@ const EDITABLE_THEME_FIELDS = [
   { key: "--modal-text", label: "Modal Text" },
   { key: "--modal-muted", label: "Modal Muted Text" },
   { key: "--modal-overlay", label: "Modal Overlay" },
+  // Bootstrap
+  { key: "--bs-primary", label: "Bootstrap Primary" },
+  { key: "--bs-secondary", label: "Bootstrap Secondary" },
+  { key: "--bs-success", label: "Bootstrap Success" },
+  { key: "--bs-info", label: "Bootstrap Info" },
+  { key: "--bs-warning", label: "Bootstrap Warning" },
+  { key: "--bs-danger", label: "Bootstrap Danger" },
+  { key: "--bs-light", label: "Bootstrap Light" },
+  { key: "--bs-dark", label: "Bootstrap Dark" },
+  { key: "--bs-body-bg", label: "Bootstrap Body Background" },
+  { key: "--bs-body-color", label: "Bootstrap Body Text" },
+  { key: "--bs-link-color", label: "Bootstrap Link Color" },
+  { key: "--bs-border-color", label: "Bootstrap Border Color" },
+  { key: "--bs-focus-ring-color", label: "Bootstrap Focus Ring" },
+  { key: "--bs-border-radius", label: "Bootstrap Radius" },
+  { key: "--bs-border-radius-sm", label: "Bootstrap Small Radius" },
+  { key: "--bs-box-shadow", label: "Bootstrap Shadow" },
 ];
 
 
@@ -2021,7 +2310,15 @@ let themeStudioDraftLogo = "🌙";
 
 let studioSectionCollapsed = {};
 
-const STUDIO_SWATCH_GROUP_ORDER = ["Core", "Header", "Cards", "Stats", "Calendar", "Log Day", "Buttons", "Modals", "Other"];
+const STUDIO_SWATCH_GROUP_ORDER = ["Core", "Header", "Cards", "Stats", "Calendar", "Log Day", "Buttons", "Modals", "Bootstrap", "Other"];
+
+function isStudioValueField(key) {
+  return !!STUDIO_VALUE_FIELD_META[key];
+}
+
+function getStudioValueFieldMeta(key) {
+  return STUDIO_VALUE_FIELD_META[key] || { placeholder: "", helper: "Use any valid CSS token for this field." };
+}
 
 const today = new Date();
 
@@ -2483,10 +2780,27 @@ function onThemeEditorElementChange() {
   const gradient1 = document.getElementById("themeGradientColor1");
   const gradient2 = document.getElementById("themeGradientColor2");
   const angleInput = document.getElementById("themeGradientAngle");
-  if (!elementSelect || !fillTypeSelect || !colorPicker || !hexInput || !opacityInput || !gradient1 || !gradient2 || !angleInput) return;
+  const colorEditorPanel = document.getElementById("themeColorEditorPanel");
+  const valueEditorPanel = document.getElementById("themeValueEditorPanel");
+  const valueInput = document.getElementById("themeValueInput");
+  const valueHelper = document.getElementById("themeValueHelper");
+  if (!elementSelect || !fillTypeSelect || !colorPicker || !hexInput || !opacityInput || !gradient1 || !gradient2 || !angleInput || !colorEditorPanel || !valueEditorPanel || !valueInput || !valueHelper) return;
 
   const key = elementSelect.value;
   const value = String(themeStudioDraft[key] || "#c2647a").trim();
+
+  if (isStudioValueField(key)) {
+    const meta = getStudioValueFieldMeta(key);
+    colorEditorPanel.classList.add("hidden");
+    valueEditorPanel.classList.remove("hidden");
+    valueInput.value = value;
+    valueInput.placeholder = meta.placeholder || "";
+    valueHelper.textContent = meta.helper || "Use any valid CSS token for this field.";
+    return;
+  }
+
+  colorEditorPanel.classList.remove("hidden");
+  valueEditorPanel.classList.add("hidden");
 
   if (value.includes("linear-gradient(")) {
     fillTypeSelect.value = "linear";
@@ -2776,6 +3090,7 @@ function applyButtonStylePreset(preset) {
 function applyThemeEditorValue() {
   const elementSelect = document.getElementById("themeElementSelect");
   const fillTypeSelect = document.getElementById("themeFillType");
+  const valueInput = document.getElementById("themeValueInput");
   const hexInput = document.getElementById("themeColorHex");
   const opacityInput = document.getElementById("themeColorOpacity");
   const gradient1 = document.getElementById("themeGradientColor1");
@@ -2783,9 +3098,21 @@ function applyThemeEditorValue() {
   const angleInput = document.getElementById("themeGradientAngle");
   const gradOp1 = document.getElementById("themeGradientOpacity1");
   const gradOp2 = document.getElementById("themeGradientOpacity2");
-  if (!elementSelect || !fillTypeSelect || !hexInput || !opacityInput || !gradient1 || !gradient2 || !angleInput) return;
+  if (!elementSelect || !fillTypeSelect || !valueInput || !hexInput || !opacityInput || !gradient1 || !gradient2 || !angleInput) return;
 
   const key = elementSelect.value;
+
+  if (isStudioValueField(key)) {
+    const raw = String(valueInput.value || "").trim();
+    if (!raw) {
+      toast("Enter a CSS value before applying", true);
+      return;
+    }
+    themeStudioDraft[key] = raw;
+    renderThemeStudioSwatches();
+    return;
+  }
+
   const fillType = fillTypeSelect.value || "solid";
   const opacity = Number(opacityInput.value || 100);
   let value = "";
@@ -2836,12 +3163,13 @@ function renderThemeStudioSwatches() {
   const resolveGroup = (key) => {
     if (coreKeys.has(key)) return "Core";
     if (key.startsWith("--header-")) return "Header";
-    if (key.startsWith("--card-") || key === "--card" || key === "--shadow") return "Cards";
+    if (key.startsWith("--card-") || key.startsWith("--bs-card-") || key === "--card" || key === "--shadow") return "Cards";
     if (key.startsWith("--stat-")) return "Stats";
     if (key.startsWith("--cal-")) return "Calendar";
     if (key.startsWith("--logday-")) return "Log Day";
     if (key.startsWith("--btn-")) return "Buttons";
     if (key.startsWith("--modal-")) return "Modals";
+    if (key.startsWith("--bs-")) return "Bootstrap";
     return "Other";
   };
 
@@ -2886,7 +3214,22 @@ function renderThemeStudioSwatches() {
 
       const color = document.createElement("div");
       color.className = "studio-swatch-color";
-      color.style.background = themeStudioDraft[field.key] || "#999";
+      const draftValue = themeStudioDraft[field.key] || "#999";
+      if (isStudioValueField(field.key)) {
+        color.style.background = "linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.08))";
+        color.style.borderRadius = field.key.includes("radius") ? draftValue : "0";
+        if (field.key.includes("shadow")) {
+          color.style.background = "rgba(255,255,255,0.92)";
+          color.style.boxShadow = draftValue;
+        } else if (field.key.includes("blur")) {
+          color.style.backdropFilter = `blur(${draftValue})`;
+          color.style.webkitBackdropFilter = `blur(${draftValue})`;
+        } else if (field.key.includes("border-width")) {
+          color.style.boxShadow = `inset 0 0 0 ${draftValue} rgba(255,255,255,0.85)`;
+        }
+      } else {
+        color.style.background = draftValue;
+      }
 
       const label = document.createElement("div");
       label.className = "studio-swatch-label";
@@ -2907,6 +3250,26 @@ function renderThemeStudioSwatches() {
     section.appendChild(gridWrap);
     holder.appendChild(section);
   });
+
+  renderThemeStudioBootstrapPreview();
+}
+
+function renderThemeStudioBootstrapPreview() {
+  const root = document.getElementById("themeStudioBootstrapPreview");
+  if (!root) return;
+
+  Object.entries(themeStudioDraft || {}).forEach(([key, value]) => {
+    root.style.setProperty(key, String(value));
+  });
+
+  const radiusValue = document.getElementById("studioBsRadiusValue");
+  const radiusSmValue = document.getElementById("studioBsRadiusSmValue");
+  const shadowValue = document.getElementById("studioBsShadowValue");
+  const focusValue = document.getElementById("studioBsFocusValue");
+  if (radiusValue) radiusValue.textContent = String(themeStudioDraft["--bs-border-radius"] || "var(--r)");
+  if (radiusSmValue) radiusSmValue.textContent = String(themeStudioDraft["--bs-border-radius-sm"] || "8px");
+  if (shadowValue) shadowValue.textContent = String(themeStudioDraft["--bs-box-shadow"] || "var(--shadow)");
+  if (focusValue) focusValue.textContent = String(themeStudioDraft["--bs-focus-ring-color"] || "rgba(0,0,0,0.15)");
 }
 
 function toggleStudioSection(groupName) {
