@@ -10,7 +10,7 @@
 <title>Luna — Period Tracker</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet">
 
 <style>
 
@@ -30,6 +30,64 @@
     --predicted: #d4a0ab;
     --symptom: #7a9cbf;
     --ovulation: #7abf9c;
+    --modal-overlay: rgba(0,0,0,0.45);
+    --modal-bg: #ffffff;
+    --modal-border: var(--rose);
+    --modal-accent: var(--rose);
+    --modal-text: var(--ink);
+    --modal-muted: var(--muted);
+    /* Header */
+    --header-bg: var(--rose-dk);
+    --header-text: #ffffff;
+    --header-border: rgba(255,255,255,0.18);
+    /* Cards / panels */
+    --card-header-bg: transparent;
+    --card-header-text: var(--rose-dk);
+    --card-header-border: var(--border);
+    /* Stat boxes */
+    --stat-bg: rgba(255,255,255,0.42);
+    --stat-border: var(--border);
+    --stat-text: var(--rose-dk);
+    --stat-label: var(--muted);
+    /* Calendar */
+    --cal-bg: var(--card);
+    --cal-day-hover: var(--blush);
+    --cal-day-today-border: var(--rose);
+    --cal-day-other: var(--muted);
+    --cal-header-text: var(--rose-dk);
+    --cal-legend-bg: transparent;
+    --cal-legend-border: var(--border);
+    --cal-legend-text: var(--muted);
+    /* Log Day */
+    --logday-section-label: var(--muted);
+    --logday-toggle-border: var(--border);
+    --logday-toggle-active-bg: var(--rose);
+    --logday-pill-border: var(--border);
+    --logday-pill-active-bg: var(--symptom);
+    /* Buttons */
+    --btn-bg: var(--rose-dk);
+    --btn-text: #ffffff;
+    --btn-border: var(--rose-dk);
+    --btn-hover-bg: var(--rose);
+    --btn-hover-text: #ffffff;
+    --btn-muted-bg: var(--muted);
+    --btn-muted-hover-bg: color-mix(in srgb, var(--muted) 80%, black 20%);
+    --btn-secondary-bg: #f5f0f2;
+    --btn-secondary-text: var(--ink);
+    --btn-secondary-border: var(--border);
+    --btn-secondary-hover-bg: var(--blush);
+    --btn-border-width: 1px;
+    --btn-radius: 10px;
+    --btn-shadow: none;
+    --btn-pad-y: 10px;
+    --btn-pad-x: 12px;
+    /* Inputs */
+    --input-bg: color-mix(in srgb, var(--card) 90%, white 10%);
+    --input-text: var(--ink);
+    --input-border: color-mix(in srgb, var(--ink) 22%, transparent);
+    --input-placeholder: color-mix(in srgb, var(--muted) 85%, white 15%);
+    --input-focus-border: var(--rose);
+    --input-focus-ring: color-mix(in srgb, var(--rose) 25%, transparent);
     --bg-art: none;
     --bg-position: center center;
     --card-art: none;
@@ -61,84 +119,105 @@
 
   /* ── Header ─────────────────────────────────── */
   header {
-    background: var(--rose-dk);
-    color: white;
-    padding: 14px 28px;
+    background: var(--header-bg);
+    color: var(--header-text);
+    padding: 11px 22px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 16px rgba(139,58,80,0.25);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
   }
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-icon { font-size: 26px; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { font-size: 21px; }
   .logo h1 {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.8rem;
+    font-size: 1.45rem;
     font-weight: 300;
-    letter-spacing: 2px;
+    letter-spacing: 1.4px;
     display: flex;
     align-items: baseline;
-    gap: 8px;
+    gap: 6px;
     margin: 0;
   }
-  .brand-name { font-size: 1.8rem; line-height: 1; }
+  .brand-name { font-size: 1.45rem; line-height: 1; }
   .username-script {
     font-family: 'Caveat', cursive;
-    font-size: 1.15rem;
+    font-size: 1.72rem;
     font-weight: 600;
     letter-spacing: 0;
     opacity: 0.95;
     line-height: 1;
   }
-  .logo .logo-subtitle { font-size: 0.75rem; letter-spacing: 3px; opacity: 0.7; text-transform: uppercase; display: block; }
-  .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .logo .logo-subtitle { font-size: 0.62rem; letter-spacing: 2.2px; opacity: 0.7; text-transform: uppercase; display: block; }
+  .header-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .header-controls-top,
+  .header-controls-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-controls-bottom { justify-content: flex-end; }
   .layout-tools { display: inline-flex; gap: 8px; }
 
   /* Header buttons override Bootstrap */
   .layout-action-btn {
-    background: rgba(255,255,255,0.16) !important;
-    color: white !important;
-    border: 1px solid rgba(255,255,255,0.35) !important;
-    font-size: 0.78rem;
+    background: color-mix(in srgb, var(--btn-bg) 30%, transparent) !important;
+    color: var(--btn-text) !important;
+    border: var(--btn-border-width) solid color-mix(in srgb, var(--btn-border) 55%, white 45%) !important;
+    border-radius: var(--btn-radius) !important;
+    box-shadow: var(--btn-shadow) !important;
+    font-size: 0.72rem;
+    padding: 4px 8px !important;
   }
   .layout-action-btn:hover, .layout-action-btn:focus {
-    background: rgba(255,255,255,0.28) !important;
-    color: white !important;
-    box-shadow: none !important;
+    background: color-mix(in srgb, var(--btn-hover-bg) 40%, transparent) !important;
+    color: var(--btn-hover-text) !important;
+    box-shadow: var(--btn-shadow) !important;
   }
   .layout-action-btn.active {
-    background: rgba(255,255,255,0.28) !important;
+    background: color-mix(in srgb, var(--btn-hover-bg) 50%, transparent) !important;
   }
 
   /* Theme select */
   .theme-select {
     background: rgba(255,255,255,0.18);
-    border: 1px solid rgba(255,255,255,0.35) !important;
-    color: white;
-    font-size: 0.8rem;
-    padding: 6px 28px 6px 10px !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    border: 1px solid var(--header-border) !important;
+    color: var(--header-text);
+    font-size: 0.74rem;
+    padding: 4px 8px !important;
+    background-image: none !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
   }
   .theme-select:focus {
     background: rgba(255,255,255,0.24) !important;
     border-color: rgba(255,255,255,0.5) !important;
     box-shadow: none !important;
-    color: white !important;
+    color: var(--header-text) !important;
   }
   .theme-select option { color: #1a1a1a; background: white; }
 
   /* User menu */
   .user-menu { position: relative; }
   .user-menu-btn {
-    background: rgba(255,255,255,0.16) !important;
-    color: white !important;
-    border: 1px solid rgba(255,255,255,0.35) !important;
-    font-size: 0.8rem;
+    background: color-mix(in srgb, var(--btn-bg) 30%, transparent) !important;
+    color: var(--btn-text) !important;
+    border: var(--btn-border-width) solid color-mix(in srgb, var(--btn-border) 55%, white 45%) !important;
+    border-radius: var(--btn-radius) !important;
+    box-shadow: var(--btn-shadow) !important;
+    font-size: 0.74rem;
+    padding: 4px 8px !important;
   }
   .user-menu-btn:hover, .user-menu-btn:focus {
-    background: rgba(255,255,255,0.28) !important;
-    color: white !important;
-    box-shadow: none !important;
+    background: color-mix(in srgb, var(--btn-hover-bg) 40%, transparent) !important;
+    color: var(--btn-hover-text) !important;
+    box-shadow: var(--btn-shadow) !important;
   }
   .user-menu-panel {
     position: absolute;
@@ -165,14 +244,14 @@
     transition: background 0.12s;
   }
   .user-menu-panel button:hover { background: var(--blush); }
-  .header-status { text-align: right; font-size: 0.82rem; opacity: 0.9; line-height: 1.7; }
+  .header-status { text-align: right; font-size: 0.72rem; opacity: 0.9; line-height: 1.25; }
 
   /* ── Layout Editor Modal ───────────────────── */
   .layout-modal-backdrop {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: var(--modal-overlay);
     z-index: 9000;
     align-items: flex-start;
     justify-content: center;
@@ -180,8 +259,8 @@
   }
   .layout-modal-backdrop.visible { display: flex; }
   .layout-modal {
-    background: var(--card);
-    border: 2px solid var(--rose);
+    background: var(--modal-bg);
+    border: 2px solid var(--modal-border);
     border-radius: 18px;
     padding: 28px 32px 24px;
     max-width: 420px;
@@ -194,10 +273,10 @@
     from { transform: scale(0.88); opacity: 0; }
     to   { transform: scale(1);    opacity: 1; }
   }
-  .layout-modal h2 { margin: 0 0 10px; font-size: 1.2rem; color: var(--rose); }
+  .layout-modal h2 { margin: 0 0 10px; font-size: 1.2rem; color: var(--modal-accent); }
   .layout-modal .lm-badge {
     display: inline-block;
-    background: var(--rose);
+    background: var(--modal-accent);
     color: #fff;
     font-weight: 700;
     font-size: 0.82rem;
@@ -206,10 +285,10 @@
     padding: 3px 12px;
     margin-bottom: 14px;
   }
-  .layout-modal p { margin: 0 0 8px; color: var(--muted); font-size: 0.92rem; line-height: 1.5; }
-  .layout-modal ul { text-align: left; margin: 10px 0 18px 18px; padding: 0; color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
+  .layout-modal p { margin: 0 0 8px; color: var(--modal-muted); font-size: 0.92rem; line-height: 1.5; }
+  .layout-modal ul { text-align: left; margin: 10px 0 18px 18px; padding: 0; color: var(--modal-muted); font-size: 0.88rem; line-height: 1.7; }
   .layout-modal .lm-close {
-    background: var(--rose);
+    background: var(--modal-accent);
     color: #fff;
     border: none;
     border-radius: 20px;
@@ -219,6 +298,288 @@
     font-family: inherit;
   }
   .layout-modal .lm-close:hover { opacity: 0.85; }
+
+  .wallpaper-modal {
+    max-width: 760px;
+    width: min(92vw, 760px);
+    text-align: left;
+    padding: 20px;
+  }
+  .wallpaper-modal h2 { margin-bottom: 6px; }
+  .wallpaper-add-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    margin: 10px 0;
+  }
+  .layout-modal .form-control,
+  .layout-modal .form-select {
+    border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent) !important;
+    color: var(--ink) !important;
+    background-color: color-mix(in srgb, var(--modal-bg) 85%, var(--ink) 15%) !important;
+  }
+  .wallpaper-selection {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .wallpaper-grid-wrap { margin-bottom: 12px; }
+  .wallpaper-grid-wrap h3 {
+    font-size: 0.9rem;
+    margin: 0 0 8px;
+    color: var(--modal-accent);
+  }
+  .wallpaper-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 2px;
+  }
+  .wallpaper-thumb {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transition: transform 0.12s ease, border-color 0.12s ease;
+  }
+  .wallpaper-thumb:hover { transform: translateY(-1px); }
+  .wallpaper-thumb.selected {
+    border-color: var(--rose);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--rose) 35%, transparent);
+  }
+  .wallpaper-preview {
+    height: 78px;
+    background-size: cover;
+    background-position: center;
+    background-color: #f4f4f4;
+  }
+  .wallpaper-meta {
+    padding: 6px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wallpaper-tags {
+    display: block;
+    margin-top: 4px;
+    color: var(--modal-accent);
+    font-size: 0.67rem;
+  }
+  .studio-icon-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+
+  .theme-studio-page {
+    position: fixed;
+    inset: 0;
+    z-index: 9200;
+    overflow: auto;
+    background: linear-gradient(145deg, rgba(19, 26, 42, 0.94), rgba(43, 30, 57, 0.92));
+    color: #fff;
+    padding: 20px;
+  }
+  .theme-studio-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .theme-studio-topbar h2 { margin: 0; font-family: 'Cormorant Garamond', serif; }
+  .theme-studio-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .studio-card {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.24);
+    border-radius: 12px;
+    padding: 14px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .studio-card h3 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    color: #fff;
+  }
+  .studio-label {
+    color: rgba(255,255,255,0.9);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .studio-opacity-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .studio-opacity-row input[type="range"] {
+    width: 100%;
+    accent-color: #e879a8;
+    height: 6px;
+    cursor: pointer;
+  }
+  #themeColorOpacityValue {
+    font-size: 0.76rem;
+    color: rgba(255,255,255,0.9);
+    min-width: 42px;
+    text-align: right;
+  }
+  /* Make opacity row label more prominent */
+  .studio-opacity-label-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+  }
+  #themeGradientControls {
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 10px;
+    margin-top: 4px;
+  }
+  /* Gradient color rows with opacity each */
+  .studio-grad-stop {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .studio-grad-stop input[type="color"] {
+    width: 36px;
+    height: 36px;
+    padding: 2px;
+    border-radius: 6px;
+  }
+  .studio-grad-stop input[type="range"] {
+    accent-color: #e879a8;
+    cursor: pointer;
+  }
+  .studio-grad-stop-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.7);
+    min-width: 28px;
+    text-align: right;
+  }
+  .studio-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .studio-preview { margin-top: 12px; }
+  .studio-preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .studio-preview-head h3 {
+    margin: 0;
+  }
+  .studio-swatches {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .studio-swatch-section {
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    background: rgba(0,0,0,0.18);
+    padding: 8px;
+  }
+  .studio-swatch-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+  }
+  .studio-swatch-section-title {
+    font-size: 0.74rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.72);
+    margin-bottom: 0;
+    padding-left: 2px;
+  }
+  .studio-swatch-section-caret {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.8rem;
+    line-height: 1;
+    transition: transform 0.12s ease;
+  }
+  .studio-swatch-section-caret.collapsed {
+    transform: rotate(-90deg);
+  }
+  .studio-swatch-grid-wrap {
+    margin-top: 7px;
+  }
+  .studio-swatch-grid-wrap.collapsed {
+    display: none;
+  }
+  .studio-swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+  }
+  .studio-swatch {
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    overflow: hidden;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+    text-align: left;
+    width: 100%;
+    padding: 0;
+  }
+  .studio-swatch:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    border-color: rgba(255,255,255,0.55);
+  }
+  .studio-swatch.studio-swatch-active {
+    border-color: #e879a8 !important;
+    box-shadow: 0 0 0 2px rgba(232,121,168,0.5) !important;
+  }
+  .studio-swatch-color { height: 42px; }
+  .studio-swatch-label {
+    padding: 5px 6px 2px;
+    font-size: 0.72rem;
+    background: rgba(0,0,0,0.2);
+    color: #fff;
+  }
+  .studio-swatch-value {
+    padding: 0 6px 5px;
+    font-size: 0.62rem;
+    font-family: monospace;
+    color: rgba(255,255,255,0.55);
+    background: rgba(0,0,0,0.2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (max-width: 780px) {
+    .theme-studio-grid { grid-template-columns: 1fr; }
+    .wallpaper-add-row { grid-template-columns: 1fr; }
+  }
 
   /* ── Container ──────────────────────────────── */
   .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
@@ -269,7 +630,8 @@
 
   .card-header {
     padding: 18px 22px 14px;
-    border-bottom: 1px solid var(--border);
+    background: var(--card-header-bg);
+    border-bottom: 1px solid var(--card-header-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -312,7 +674,7 @@
     font-size: 1.25rem;
     font-weight: 400;
     letter-spacing: 0.5px;
-    color: var(--rose-dk);
+    color: var(--card-header-text);
     margin: 0;
   }
   .header-title { display: inline-flex; align-items: center; gap: 8px; }
@@ -339,19 +701,37 @@
     --calendar-scale: 1;
     display: flex; flex-direction: column;
     position: relative; z-index: 1;
+    background: var(--cal-bg) !important;
   }
   .card[data-move-id="calendar-card"] .card-body { display: flex; flex: 1; flex-direction: column; min-height: 0; }
   .card[data-move-id="calendar-card"].collapsed .card-body { display: none; }
+  .card[data-move-id="calendar-card"] .card-header {
+    padding: 12px 16px 10px;
+    padding-right: 48px;
+  }
+  .card[data-move-id="calendar-card"] .card-header h2 {
+    font-size: 1.12rem;
+    color: var(--cal-header-text);
+  }
+  .card[data-move-id="calendar-card"] .tiny-flower {
+    width: 18px;
+    height: 18px;
+    font-size: 0.68rem;
+  }
+  .card[data-move-id="calendar-card"] .collapse-btn {
+    top: 7px;
+    right: 8px;
+  }
 
   /* ── Calendar ───────────────────────────────── */
-  .cal-nav { display: flex; align-items: center; gap: 16px; }
+  .cal-nav { display: flex; align-items: center; gap: 10px; }
   .cal-nav button {
     background: none;
     border: 1px solid var(--border);
     border-radius: 8px;
-    width: 34px; height: 34px;
+    width: 30px; height: 30px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.92rem;
     color: var(--rose-dk);
     transition: all 0.15s;
     display: flex; align-items: center; justify-content: center;
@@ -360,10 +740,11 @@
   .cal-nav button:hover { background: var(--blush); }
   .cal-nav span {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.3rem;
+    font-size: 1.08rem;
     font-weight: 400;
-    letter-spacing: 1px;
-    min-width: 160px;
+    letter-spacing: 0.6px;
+    min-width: 130px;
+    line-height: 1.1;
     text-align: center;
   }
 
@@ -397,9 +778,9 @@
     min-height: 0;
     padding: calc(4px * var(--calendar-scale));
   }
-  .cal-day:hover { background: var(--blush); border-color: var(--rose-lt); }
-  .cal-day.today { border-color: var(--rose); font-weight: 500; }
-  .cal-day.other-month { color: var(--muted); opacity: 0.4; }
+  .cal-day:hover { background: var(--cal-day-hover); border-color: var(--rose-lt); }
+  .cal-day.today { border-color: var(--cal-day-today-border); font-weight: 500; }
+  .cal-day.other-month { color: var(--cal-day-other); opacity: 0.4; }
   .cal-day.period { background: var(--period); color: white; }
   .cal-day.period:hover { background: var(--rose-dk); }
   .cal-day.predicted { background: var(--blush); border-color: var(--predicted); }
@@ -416,9 +797,10 @@
     display: flex; flex-wrap: wrap;
     gap: calc(12px * var(--calendar-scale));
     margin-top: 16px; padding-top: 14px;
-    border-top: 1px solid var(--border);
+    background: var(--cal-legend-bg);
+    border-top: 1px solid var(--cal-legend-border);
     font-size: calc(0.78rem * var(--calendar-scale));
-    color: var(--muted);
+    color: var(--cal-legend-text);
   }
   .legend-item { display: flex; align-items: center; gap: 6px; }
   .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
@@ -443,13 +825,13 @@
 
   /* ── Stats ──────────────────────────────────── */
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .stat-box { background: var(--blush); border-radius: 10px; padding: 14px; text-align: center; }
+  .stat-box { background: var(--stat-bg); border: 1px solid var(--stat-border); border-radius: 10px; padding: 14px; text-align: center; }
   .stat-val {
     font-family: 'Cormorant Garamond', serif;
     font-size: 1.8rem; font-weight: 300;
-    color: var(--rose-dk); line-height: 1;
+    color: var(--stat-text); line-height: 1;
   }
-  .stat-label { font-size: 0.72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-label { font-size: 0.72rem; color: var(--stat-label); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* ── Day Logger ─────────────────────────────── */
   .selected-date-label {
@@ -458,65 +840,84 @@
   }
   .section-label {
     font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px;
-    color: var(--muted); font-weight: 500; margin-bottom: 8px; margin-top: 14px;
+    color: var(--logday-section-label); font-weight: 500; margin-bottom: 8px; margin-top: 14px;
   }
   .period-toggle {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 14px; border-radius: 10px;
-    border: 1.5px solid var(--border);
+    border: 1.5px solid var(--logday-toggle-border);
     cursor: pointer; transition: all 0.15s;
     font-size: 0.88rem; background: white; color: var(--ink);
   }
   .period-toggle:hover { border-color: var(--rose); }
-  .period-toggle.active { background: var(--rose); color: white; border-color: var(--rose); }
+  .period-toggle.active { background: var(--logday-toggle-active-bg); color: white; border-color: var(--logday-toggle-active-bg); }
 
   /* Flow buttons — Bootstrap btn base + Luna overrides */
   .flow-btns { display: flex; gap: 6px; }
   .flow-btns .btn {
-    flex: 1; padding: 7px 4px;
-    border: 1.5px solid var(--border) !important;
-    border-radius: 8px !important;
-    background: white !important;
+    flex: 1; padding: calc(var(--btn-pad-y) * 0.7) calc(var(--btn-pad-x) * 0.35);
+    border: var(--btn-border-width) solid color-mix(in srgb, var(--btn-border) 35%, var(--border) 65%) !important;
+    border-radius: var(--btn-radius) !important;
+    background: var(--btn-secondary-bg) !important;
     font-size: 0.78rem;
-    color: var(--ink) !important;
+    color: var(--btn-secondary-text) !important;
     font-family: 'DM Sans', sans-serif;
     transition: all 0.15s;
+    box-shadow: var(--btn-shadow);
   }
-  .flow-btns .btn:hover { border-color: var(--rose) !important; color: var(--rose) !important; }
-  .flow-btns .btn.active { background: var(--rose) !important; color: white !important; border-color: var(--rose) !important; }
+  .flow-btns .btn:hover { border-color: var(--btn-border) !important; color: var(--btn-bg) !important; background: var(--btn-secondary-hover-bg) !important; }
+  .flow-btns .btn.active { background: var(--btn-bg) !important; color: var(--btn-text) !important; border-color: var(--btn-border) !important; }
   .flow-btns .btn:focus { box-shadow: none !important; }
 
   /* Symptom pills */
   .symptom-pills { display: flex; flex-wrap: wrap; gap: 6px; }
   .pill {
     padding: 5px 12px; border-radius: 20px;
-    border: 1.5px solid var(--border);
+    border: 1.5px solid var(--logday-pill-border);
     font-size: 0.78rem; cursor: pointer;
     transition: all 0.15s; background: white; color: var(--ink);
   }
   .pill:hover { border-color: var(--symptom); }
-  .pill.active { background: var(--symptom); color: white; border-color: var(--symptom); }
+  .pill.active { background: var(--logday-pill-active-bg); color: white; border-color: var(--logday-pill-active-bg); }
 
   /* Mood buttons */
   .mood-btns { display: flex; gap: 8px; flex-wrap: wrap; }
   .mood-btn {
-    padding: 6px 10px; border-radius: 8px;
-    border: 1.5px solid var(--border) !important;
-    background: white !important;
+    padding: calc(var(--btn-pad-y) * 0.6) calc(var(--btn-pad-x) * 0.85); border-radius: var(--btn-radius);
+    border: var(--btn-border-width) solid color-mix(in srgb, var(--btn-border) 35%, var(--border) 65%) !important;
+    background: var(--btn-secondary-bg) !important;
     cursor: pointer; font-size: 1.2rem;
     transition: all 0.15s; line-height: 1;
     display: flex; align-items: center; gap: 4px;
-    color: var(--ink) !important;
+    color: var(--btn-secondary-text) !important;
+    box-shadow: var(--btn-shadow);
   }
   .mood-btn span { font-size: 0.72rem; color: var(--muted); }
-  .mood-btn:hover { border-color: #f0b429 !important; background: #fffbee !important; }
-  .mood-btn.active { border-color: #f0b429 !important; background: #fef3c7 !important; }
+  .mood-btn:hover { border-color: var(--btn-border) !important; background: var(--btn-secondary-hover-bg) !important; }
+  .mood-btn.active { border-color: var(--btn-border) !important; background: color-mix(in srgb, var(--btn-bg) 18%, white 82%) !important; }
   .mood-btn:focus { box-shadow: none !important; }
 
   /* Bootstrap form control accent */
+  .form-select {
+    background-image: none !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 0.75rem !important;
+  }
+  .form-control,
+  .form-select {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border: 1px solid var(--input-border) !important;
+  }
+  .form-control::placeholder {
+    color: var(--input-placeholder);
+    opacity: 1;
+  }
   .form-control:focus, .form-select:focus {
-    border-color: var(--rose);
-    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--rose) 25%, transparent);
+    border-color: var(--input-focus-border) !important;
+    box-shadow: 0 0 0 0.2rem var(--input-focus-ring) !important;
   }
   .form-range { accent-color: var(--rose); }
   .form-range:focus { box-shadow: none; }
@@ -524,30 +925,30 @@
 
   /* Luna primary button */
   .btn-luna {
-    padding: 11px; background: var(--rose-dk); color: white;
-    border: none; border-radius: 10px;
+    padding: var(--btn-pad-y) var(--btn-pad-x); background: var(--btn-bg); color: var(--btn-text);
+    border: var(--btn-border-width) solid var(--btn-border); border-radius: var(--btn-radius);
     font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
-    cursor: pointer; letter-spacing: 0.5px; transition: all 0.15s;
+    cursor: pointer; letter-spacing: 0.5px; transition: all 0.15s; box-shadow: var(--btn-shadow);
   }
-  .btn-luna:hover, .btn-luna:focus { background: var(--rose); color: white; box-shadow: none; }
-  .btn-luna-muted { background: var(--muted); }
-  .btn-luna-muted:hover, .btn-luna-muted:focus { background: color-mix(in srgb, var(--muted) 80%, black 20%); }
+  .btn-luna:hover, .btn-luna:focus { background: var(--btn-hover-bg); color: var(--btn-hover-text); box-shadow: var(--btn-shadow); }
+  .btn-luna-muted { background: var(--btn-muted-bg); border-color: var(--btn-muted-bg); }
+  .btn-luna-muted:hover, .btn-luna-muted:focus { background: var(--btn-muted-hover-bg); border-color: var(--btn-muted-hover-bg); color: var(--btn-hover-text); }
 
   /* Auth buttons */
   .btn-auth-primary {
-    flex: 1; border: none; border-radius: 10px; padding: 10px 12px;
+    flex: 1; border: var(--btn-border-width) solid var(--btn-border); border-radius: var(--btn-radius); padding: var(--btn-pad-y) var(--btn-pad-x);
     cursor: pointer; font-weight: 600;
-    background: var(--rose-dk); color: white;
-    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; transition: background 0.15s;
+    background: var(--btn-bg); color: var(--btn-text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; transition: background 0.15s; box-shadow: var(--btn-shadow);
   }
-  .btn-auth-primary:hover { background: var(--rose); }
+  .btn-auth-primary:hover { background: var(--btn-hover-bg); color: var(--btn-hover-text); }
   .btn-auth-secondary {
-    flex: 1; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
+    flex: 1; border: var(--btn-border-width) solid var(--btn-secondary-border); border-radius: var(--btn-radius); padding: var(--btn-pad-y) var(--btn-pad-x);
     cursor: pointer; font-weight: 600;
-    background: #f5f0f2; color: var(--ink);
-    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; transition: background 0.15s;
+    background: var(--btn-secondary-bg); color: var(--btn-secondary-text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; transition: background 0.15s; box-shadow: var(--btn-shadow);
   }
-  .btn-auth-secondary:hover { background: var(--blush); }
+  .btn-auth-secondary:hover { background: var(--btn-secondary-hover-bg); }
 
   /* ── Toast ──────────────────────────────────── */
   .toast {
@@ -573,22 +974,23 @@
   /* ── Auth Overlay ────────────────────────────── */
   .auth-overlay {
     position: fixed; inset: 0;
-    background: rgba(20,10,14,0.62);
+    background: color-mix(in srgb, var(--modal-overlay) 85%, black 15%);
     display: flex; align-items: center; justify-content: center;
     z-index: 300; padding: 16px;
   }
   .auth-card, .password-modal-card {
     width: min(420px, 100%);
-    background: white; border-radius: 16px;
-    border: 1px solid var(--border);
+    background: var(--modal-bg); border-radius: 16px;
+    border: 1px solid color-mix(in srgb, var(--modal-border) 60%, transparent);
     box-shadow: 0 14px 44px rgba(0,0,0,0.2);
     padding: 28px;
+    color: var(--modal-text);
   }
   .auth-title {
     font-family: 'Cormorant Garamond', serif;
-    color: var(--rose-dk); font-size: 1.8rem; margin-bottom: 6px;
+    color: var(--modal-accent); font-size: 1.8rem; margin-bottom: 6px;
   }
-  .auth-subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 16px; }
+  .auth-subtitle { color: var(--modal-muted); font-size: 0.9rem; margin-bottom: 16px; }
   .auth-actions { display: flex; gap: 10px; margin-top: 16px; }
   .auth-error { min-height: 18px; margin-top: 10px; color: #b94a4a; font-size: 0.82rem; }
 
@@ -672,7 +1074,7 @@
 
   <div class="logo movable" data-move-id="logo-block">
 
-    <div class="logo-icon">🌙</div>
+    <div class="logo-icon logo-icon-theme">🌙</div>
 
     <div>
 
@@ -686,35 +1088,49 @@
 
   <div class="header-controls movable" data-move-id="header-controls">
 
+    <div class="header-controls-top">
+
+      <select class="form-select form-select-sm theme-select" id="themeSelect" onchange="onThemeChange()">
+
+        <option value="rose">Rose</option>
+
+        <option value="ocean">Ocean</option>
+
+        <option value="sage">Sage</option>
+
+        <option value="sunset">Sunset</option>
+
+        <option value="blossom">Blossom Garden</option>
+
+        <option value="petal">Petal Pink</option>
+
+        <option value="lavender">Lavender Lace</option>
+
+        <option value="pearl">Pearl Bouquet</option>
+
+        <option value="quartz">Quartz</option>
+
+        <option value="demonslayer">Demon Slayer</option>
+
+      </select>
+
+      <div class="header-status" id="headerStatus">Loading...</div>
+
+    </div>
+
+    <div class="header-controls-bottom">
+
     <div class="layout-tools">
 
       <button class="btn btn-sm layout-action-btn" onclick="resetLayout()">Reset Layout</button>
 
       <button class="btn btn-sm layout-action-btn" onclick="exportCalendarPdf()">Print Calendar</button>
 
+      <button class="btn btn-sm layout-action-btn" onclick="openWallpaperModal()">Wallpapers</button>
+
+      <button class="btn btn-sm layout-action-btn" onclick="openThemeStudio()">Theme Studio</button>
+
     </div>
-
-    <select class="form-select form-select-sm theme-select" id="themeSelect" onchange="onThemeChange()">
-
-      <option value="rose">Rose</option>
-
-      <option value="ocean">Ocean</option>
-
-      <option value="sage">Sage</option>
-
-      <option value="sunset">Sunset</option>
-
-      <option value="blossom">Blossom Garden</option>
-
-      <option value="petal">Petal Pink</option>
-
-      <option value="lavender">Lavender Lace</option>
-
-      <option value="pearl">Pearl Bouquet</option>
-
-      <option value="demonslayer">Demon Slayer</option>
-
-    </select>
 
     <div class="user-menu hidden" id="userMenu">
 
@@ -734,7 +1150,7 @@
 
     </div>
 
-    <div class="header-status" id="headerStatus">Loading...</div>
+    </div>
 
   </div>
 
@@ -961,6 +1377,169 @@
   </div>
 </div>
 
+<div class="layout-modal-backdrop" id="wallpaperModalBackdrop" onclick="handleWallpaperBackdropClick(event)">
+  <div class="layout-modal wallpaper-modal" role="dialog" aria-modal="true" aria-labelledby="wallpaperModalTitle">
+    <div class="lm-badge">🖼 WALLPAPER MANAGER</div>
+    <h2 id="wallpaperModalTitle">Theme Wallpapers</h2>
+    <p>Add image links and apply wallpapers to the currently selected theme.</p>
+    <div class="wallpaper-add-row">
+      <input id="wallpaperUrlInput" class="form-control" type="url" placeholder="https://example.com/wallpaper.jpg" autocomplete="off">
+      <button class="btn btn-luna" type="button" onclick="addWallpaperLink()">Add Link</button>
+    </div>
+    <div class="wallpaper-selection" id="wallpaperSelectionInfo">No wallpaper selected</div>
+
+    <div class="wallpaper-grid-wrap">
+      <h3>Saved Wallpapers</h3>
+      <div class="wallpaper-grid" id="wallpaperSavedGrid"></div>
+    </div>
+
+    <div class="wallpaper-grid-wrap">
+      <h3>Wallpapers Used In Themes</h3>
+      <div class="wallpaper-grid" id="wallpaperUsedGrid"></div>
+    </div>
+
+    <div class="studio-actions">
+      <button class="btn btn-luna" type="button" onclick="useSelectedWallpaperForCurrentTheme()">Use On Current Theme</button>
+      <button class="btn btn-luna btn-luna-muted" type="button" onclick="closeWallpaperModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="theme-studio-page hidden" id="themeStudioPage">
+  <div class="theme-studio-topbar">
+    <h2>Theme Studio</h2>
+    <button class="btn btn-luna btn-luna-muted" type="button" onclick="closeThemeStudio()">Back</button>
+  </div>
+
+  <div class="theme-studio-grid">
+    <section class="studio-card">
+      <h3>Create / Save Theme</h3>
+      <div class="d-grid gap-2">
+        <label class="studio-label" for="themeStudioBaseSelect">Base Theme</label>
+        <select id="themeStudioBaseSelect" class="form-select" onchange="onThemeStudioBaseChange()"></select>
+
+        <label class="studio-label" for="themeStudioName">Custom Theme Name</label>
+        <input id="themeStudioName" class="form-control" type="text" placeholder="My Theme">
+
+        <div class="studio-icon-row">
+          <div>
+            <label class="studio-label" for="themeStudioFlowerIcon">Card Icon</label>
+            <select id="themeStudioFlowerIcon" class="form-select" onchange="onThemeStudioIconChange()"></select>
+          </div>
+          <div>
+            <label class="studio-label" for="themeStudioLogoIcon">Header Icon</label>
+            <select id="themeStudioLogoIcon" class="form-select" onchange="onThemeStudioIconChange()"></select>
+          </div>
+        </div>
+
+        <div class="studio-actions">
+          <button class="btn btn-luna" type="button" onclick="saveCustomThemeFromStudio()">Save Custom Theme</button>
+          <button class="btn btn-luna" type="button" onclick="renameCurrentThemeFromStudio()">Rename Selected Theme</button>
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="previewThemeStudioDraft()">Preview Draft</button>
+        </div>
+
+        <label class="studio-label" style="margin-top:6px;">Button Style Presets</label>
+        <div class="studio-actions">
+          <button class="btn btn-luna" type="button" onclick="applyButtonStylePreset('soft')">Soft</button>
+          <button class="btn btn-luna" type="button" onclick="applyButtonStylePreset('minimal')">Minimal</button>
+          <button class="btn btn-luna" type="button" onclick="applyButtonStylePreset('pill')">Pill</button>
+          <button class="btn btn-luna" type="button" onclick="applyButtonStylePreset('sharp')">Sharp</button>
+          <button class="btn btn-luna" type="button" onclick="applyButtonStylePreset('glass')">Glass</button>
+        </div>
+
+        <label class="studio-label" style="margin-top:8px;">Glass Background (Quartz Style)</label>
+        <div class="d-grid gap-2" style="border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:10px;background:rgba(255,255,255,0.06);">
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;">
+            <input id="glassCardTintColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <div class="studio-opacity-row">
+              <input id="glassCardTintOpacity" type="range" min="0" max="100" value="55" oninput="onGlassCardOpacityInput(this.value);applyGlassBackgroundToDraft(true)">
+              <span id="glassCardTintOpacityValue">55%</span>
+            </div>
+          </div>
+
+          <div class="studio-opacity-row">
+            <input id="glassCardBlur" type="range" min="0" max="20" step="1" value="5" oninput="onGlassCardBlurInput(this.value);applyGlassBackgroundToDraft(true)">
+            <span id="glassCardBlurValue">5px</span>
+          </div>
+
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.76rem;color:rgba(255,255,255,0.9);">
+            <input id="glassApplyToCalendar" type="checkbox" checked onchange="applyGlassBackgroundToDraft(true)">
+            Apply same clear background to calendar card
+          </label>
+
+          <div class="studio-actions" style="margin-top:0;">
+            <button class="btn btn-luna" type="button" onclick="applyQuartzGlassPreset()">Apply Quartz Glass</button>
+            <button class="btn btn-luna btn-luna-muted" type="button" onclick="resetCardBackgroundToSolid()">Reset Solid</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="studio-card">
+      <h3>Element Colors</h3>
+      <div class="d-grid gap-2">
+        <div id="themeEditorActiveLabel" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:8px;padding:8px 12px;">
+          <span style="color:rgba(255,255,255,0.45);font-size:0.72rem;display:block;margin-bottom:2px;">Editing</span>
+          <span id="themeEditorActiveName" style="color:#fff;font-weight:600;font-size:0.85rem;">— click a swatch below to edit —</span>
+        </div>
+        <!-- hidden select kept for JS compatibility -->
+        <select id="themeElementSelect" class="hidden" onchange="onThemeEditorElementChange()"></select>
+
+        <label class="studio-label" for="themeFillType">Fill Type</label>
+        <select id="themeFillType" class="form-select" onchange="onThemeEditorFillTypeChange()">
+          <option value="solid">Solid Color</option>
+          <option value="linear">Linear Gradient</option>
+          <option value="radial">Radial Gradient</option>
+        </select>
+
+        <label class="studio-label" for="themeColorPicker">Color</label>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;">
+          <input id="themeColorPicker" type="color" class="form-control form-control-color" style="width:48px;height:40px;padding:2px;border-radius:8px;" value="#c2647a" oninput="onThemeEditorColorInput(this.value)">
+          <input id="themeColorHex" class="form-control" type="text" value="#c2647a" placeholder="#rrggbb" oninput="onThemeEditorHexInput(this.value)" style="font-family:monospace;font-size:0.85rem;">
+        </div>
+
+        <div class="studio-opacity-label-wrap">
+          <label class="studio-label" for="themeColorOpacity" style="margin:0">Opacity</label>
+          <span id="themeColorOpacityValue" style="font-size:0.76rem;color:rgba(255,255,255,0.9);">100%</span>
+        </div>
+        <input id="themeColorOpacity" type="range" min="0" max="100" value="100" style="width:100%;accent-color:#e879a8;height:6px;cursor:pointer;" oninput="onThemeEditorOpacityInput(this.value)">
+
+        <div id="themeGradientControls" class="hidden d-grid gap-2">
+          <label class="studio-label" for="themeGradientAngle">Angle (linear only)</label>
+          <input id="themeGradientAngle" class="form-control" type="number" min="0" max="360" step="1" value="135" style="font-size:0.85rem;">
+
+          <label class="studio-label">Color Stop 1</label>
+          <div class="studio-grad-stop">
+            <input id="themeGradientColor1" type="color" class="form-control form-control-color" value="#c2647a">
+            <input id="themeGradientOpacity1" type="range" min="0" max="100" value="100" oninput="document.getElementById('themeGradientOpacity1Label').textContent=this.value+'%'">
+            <span id="themeGradientOpacity1Label" class="studio-grad-stop-label">100%</span>
+          </div>
+
+          <label class="studio-label">Color Stop 2</label>
+          <div class="studio-grad-stop">
+            <input id="themeGradientColor2" type="color" class="form-control form-control-color" value="#ffffff">
+            <input id="themeGradientOpacity2" type="range" min="0" max="100" value="100" oninput="document.getElementById('themeGradientOpacity2Label').textContent=this.value+'%'">
+            <span id="themeGradientOpacity2Label" class="studio-grad-stop-label">100%</span>
+          </div>
+        </div>
+
+        <button class="btn btn-luna" type="button" onclick="applyThemeEditorValue()">Apply To Draft</button>
+      </div>
+    </section>
+  </div>
+
+  <section class="studio-card studio-preview">
+    <div class="studio-preview-head">
+      <h3>Draft Preview</h3>
+      <div class="studio-actions" style="margin-top:0;">
+        <button class="btn btn-luna btn-sm" type="button" onclick="expandAllStudioSections()">Expand All</button>
+        <button class="btn btn-luna btn-luna-muted btn-sm" type="button" onclick="collapseAllStudioSections()">Collapse All</button>
+      </div>
+    </div>
+    <div class="studio-swatches" id="themeStudioSwatches"></div>
+  </section>
+</div>
+
 
 
 <script>
@@ -974,6 +1553,14 @@ const TOKEN_KEY = "luna_auth_token";
 const THEME_KEY = "luna_theme";
 
 const LAYOUT_KEY = "luna_layout_positions";
+
+const WALLPAPERS_KEY = "luna_wallpaper_library";
+
+const THEME_WALLPAPER_KEY = "luna_theme_wallpapers";
+
+const CUSTOM_THEMES_KEY = "luna_custom_themes";
+
+const STUDIO_SECTION_STATE_KEY = "luna_theme_studio_sections";
 
 const THEMES = {
   rose: {
@@ -1121,6 +1708,41 @@ const THEMES = {
     "--card-art": "linear-gradient(150deg, rgba(255,255,255,0.97), rgba(252,244,249,0.9))",
     "--shadow": "0 2px 22px rgba(203,124,161,0.14)",
   },
+  quartz: {
+    "--rose": "#e83283",
+    "--rose-lt": "#f6adcd",
+    "--rose-dk": "#5d1434",
+    "--blush": "rgba(255, 255, 255, 0.88)",
+    "--cream": "#686dc3",
+    "--ink": "#7b0d35",
+    "--muted": "rgba(255, 255, 255, 0.75)",
+    "--border": "rgba(255, 255, 255, 0.2)",
+    "--card": "transparent",
+    "--card-blur": "5px",
+    "--period": "#e83283",
+    "--predicted": "#f6adcd",
+    "--symptom": "#39cbfb",
+    "--ovulation": "#41d7a7",
+    "--bg-art": "linear-gradient(90deg, #33b7e2, #5e62b0, #dc307c)",
+    "--card-art": "linear-gradient(125deg, rgba(255,255,255,0.3), rgba(255,255,255,0.2) 70%)",
+    "--shadow": "1px 3px 24px -1px rgba(0, 0, 0, 0.15)",
+    "--bs-primary": "#e83283",
+    "--bs-secondary": "rgba(255, 255, 255, 0.4)",
+    "--bs-success": "#41d7a7",
+    "--bs-info": "#39cbfb",
+    "--bs-warning": "#ffc107",
+    "--bs-danger": "#fd7e14",
+    "--bs-light": "#e9e9e8",
+    "--bs-dark": "#212529",
+    "--bs-body-color": "#ffffff",
+    "--bs-body-bg": "#686dc3",
+    "--bs-link-color": "#ffffff",
+    "--bs-border-color": "rgba(255, 255, 255, 0.2)",
+    "--bs-focus-ring-color": "rgba(232, 50, 131, 0.25)",
+    "--bs-border-radius": "0.5rem",
+    "--bs-border-radius-sm": "0.6rem",
+    "--bs-box-shadow": "1px 3px 24px -1px rgba(0, 0, 0, 0.15)",
+  },
   demonslayer: {
     "--rose": "#c14f3d",
     "--rose-lt": "#e49f95",
@@ -1151,8 +1773,174 @@ const THEME_FLOWERS = {
   petal: "🌷",
   lavender: "💜",
   pearl: "💮",
+  quartz: "💎",
   demonslayer: "⚔",
 };
+
+const THEME_LOGO_ICONS = {
+  rose: "🌙",
+  ocean: "🌊",
+  sage: "🌿",
+  sunset: "🌅",
+  blossom: "🌸",
+  petal: "🌷",
+  lavender: "💜",
+  pearl: "🫧",
+  quartz: "💎",
+  demonslayer: "⚔",
+};
+
+const ICON_OPTIONS = ["🌙", "🌸", "🌷", "🪷", "🌿", "🌺", "💎", "⚔", "✨", "🦋", "🌈", "🌊", "🫧"];
+
+const ELEMENT_DEFAULTS = {
+  // Modal
+  "--modal-overlay": "rgba(0,0,0,0.45)",
+  "--modal-bg": "#ffffff",
+  "--modal-border": "var(--rose)",
+  "--modal-accent": "var(--rose)",
+  "--modal-text": "var(--ink)",
+  "--modal-muted": "var(--muted)",
+  // Header
+  "--header-bg": "var(--rose-dk)",
+  "--header-text": "#ffffff",
+  "--header-border": "rgba(255,255,255,0.18)",
+  // Cards
+  "--card-header-bg": "transparent",
+  "--card-header-text": "var(--rose-dk)",
+  "--card-header-border": "var(--border)",
+  // Stat boxes
+  "--stat-bg": "rgba(255,255,255,0.42)",
+  "--stat-border": "var(--border)",
+  "--stat-text": "var(--rose-dk)",
+  "--stat-label": "var(--muted)",
+  // Calendar
+  "--cal-bg": "var(--card)",
+  "--cal-day-hover": "var(--blush)",
+  "--cal-day-today-border": "var(--rose)",
+  "--cal-day-other": "var(--muted)",
+  "--cal-header-text": "var(--rose-dk)",
+  "--cal-legend-bg": "transparent",
+  "--cal-legend-border": "var(--border)",
+  "--cal-legend-text": "var(--muted)",
+  // Log Day
+  "--logday-section-label": "var(--muted)",
+  "--logday-toggle-border": "var(--border)",
+  "--logday-toggle-active-bg": "var(--rose)",
+  "--logday-pill-border": "var(--border)",
+  "--logday-pill-active-bg": "var(--symptom)",
+  // Buttons
+  "--btn-bg": "var(--rose-dk)",
+  "--btn-text": "#ffffff",
+  "--btn-border": "var(--rose-dk)",
+  "--btn-hover-bg": "var(--rose)",
+  "--btn-hover-text": "#ffffff",
+  "--btn-muted-bg": "var(--muted)",
+  "--btn-muted-hover-bg": "color-mix(in srgb, var(--muted) 80%, black 20%)",
+  "--btn-secondary-bg": "#f5f0f2",
+  "--btn-secondary-text": "var(--ink)",
+  "--btn-secondary-border": "var(--border)",
+  "--btn-secondary-hover-bg": "var(--blush)",
+  "--btn-border-width": "1px",
+  "--btn-radius": "10px",
+  "--btn-shadow": "none",
+  "--btn-pad-y": "10px",
+  "--btn-pad-x": "12px",
+  // Inputs
+  "--input-bg": "color-mix(in srgb, var(--card) 90%, white 10%)",
+  "--input-text": "var(--ink)",
+  "--input-border": "color-mix(in srgb, var(--border) 80%, rgba(255,255,255,0.4))",
+  "--input-placeholder": "color-mix(in srgb, var(--muted) 85%, white 15%)",
+  "--input-focus-border": "var(--rose)",
+  "--input-focus-ring": "color-mix(in srgb, var(--rose) 25%, transparent)",
+};
+// Backward compat alias
+const MODAL_THEME_DEFAULTS = ELEMENT_DEFAULTS;
+
+const BUILTIN_THEME_NAMES = Object.keys(THEMES);
+
+const THEME_LABELS = {
+  rose: "Rose",
+  ocean: "Ocean",
+  sage: "Sage",
+  sunset: "Sunset",
+  blossom: "Blossom Garden",
+  petal: "Petal Pink",
+  lavender: "Lavender Lace",
+  pearl: "Pearl Bouquet",
+  quartz: "Quartz",
+  demonslayer: "Demon Slayer",
+};
+
+const EDITABLE_THEME_FIELDS = [
+  { key: "--rose", label: "Primary Accent" },
+  { key: "--rose-dk", label: "Primary Dark" },
+  { key: "--rose-lt", label: "Primary Light" },
+  { key: "--blush", label: "Blush" },
+  { key: "--cream", label: "Page Background" },
+  { key: "--ink", label: "Text Color" },
+  { key: "--muted", label: "Muted Text" },
+  { key: "--border", label: "Border Color" },
+  { key: "--period", label: "Period Dot" },
+  { key: "--predicted", label: "Predicted Dot" },
+  { key: "--symptom", label: "Symptom Dot" },
+  { key: "--ovulation", label: "Ovulation Dot" },
+  { key: "--bg-art", label: "Page Background Art" },
+  // Header
+  { key: "--header-bg", label: "Header Background" },
+  { key: "--header-text", label: "Header Text" },
+  { key: "--header-border", label: "Header Button Border" },
+  // Cards
+  { key: "--card-header-bg", label: "Card Header Background" },
+  { key: "--card-header-text", label: "Card Header Text" },
+  { key: "--card-header-border", label: "Card Header Border" },
+  { key: "--card", label: "Card Body Background" },
+  { key: "--shadow", label: "Card Shadow" },
+  // Stat boxes
+  { key: "--stat-bg", label: "Stat Box Background" },
+  { key: "--stat-border", label: "Stat Box Border" },
+  { key: "--stat-text", label: "Stat Value Text" },
+  { key: "--stat-label", label: "Stat Label Text" },
+  // Calendar
+  { key: "--cal-day-hover", label: "Calendar Day Hover" },
+  { key: "--cal-day-today-border", label: "Calendar Today Border" },
+  { key: "--cal-day-other", label: "Calendar Other Month" },
+  { key: "--cal-header-text", label: "Calendar Header Text" },
+  { key: "--cal-legend-bg", label: "Calendar Legend Background" },
+  { key: "--cal-legend-border", label: "Calendar Legend Border" },
+  { key: "--cal-legend-text", label: "Calendar Legend Text" },
+  // Log Day
+  { key: "--logday-section-label", label: "Log Day Section Label" },
+  { key: "--logday-toggle-border", label: "Period Toggle Border" },
+  { key: "--logday-toggle-active-bg", label: "Period Toggle Active" },
+  { key: "--logday-pill-border", label: "Symptom Pill Border" },
+  { key: "--logday-pill-active-bg", label: "Symptom Pill Active" },
+  // Buttons
+  { key: "--btn-bg", label: "Button Primary Background" },
+  { key: "--btn-text", label: "Button Primary Text" },
+  { key: "--btn-border", label: "Button Primary Border" },
+  { key: "--btn-hover-bg", label: "Button Hover Background" },
+  { key: "--btn-hover-text", label: "Button Hover Text" },
+  { key: "--btn-muted-bg", label: "Button Muted Background" },
+  { key: "--btn-muted-hover-bg", label: "Button Muted Hover Background" },
+  { key: "--btn-secondary-bg", label: "Button Secondary Background" },
+  { key: "--btn-secondary-text", label: "Button Secondary Text" },
+  { key: "--btn-secondary-border", label: "Button Secondary Border" },
+  { key: "--btn-secondary-hover-bg", label: "Button Secondary Hover" },
+  // Inputs
+  { key: "--input-bg", label: "Input Background" },
+  { key: "--input-text", label: "Input Text" },
+  { key: "--input-border", label: "Input Border" },
+  { key: "--input-placeholder", label: "Input Placeholder" },
+  { key: "--input-focus-border", label: "Input Focus Border" },
+  { key: "--input-focus-ring", label: "Input Focus Ring" },
+  // Modals
+  { key: "--modal-accent", label: "Modal Accent" },
+  { key: "--modal-border", label: "Modal Border" },
+  { key: "--modal-bg", label: "Modal Background" },
+  { key: "--modal-text", label: "Modal Text" },
+  { key: "--modal-muted", label: "Modal Muted Text" },
+  { key: "--modal-overlay", label: "Modal Overlay" },
+];
 
 
 
@@ -1214,6 +2002,26 @@ let layoutPositions = {};
 let resizedCards = {};
 
 let collapsedCards = {};
+
+let wallpaperLibrary = [];
+
+let themeWallpapers = {};
+
+let customThemes = {};
+
+let selectedWallpaperUrl = "";
+
+let activeStudioTheme = "rose";
+
+let themeStudioDraft = {};
+
+let themeStudioDraftFlower = "🌸";
+
+let themeStudioDraftLogo = "🌙";
+
+let studioSectionCollapsed = {};
+
+const STUDIO_SWATCH_GROUP_ORDER = ["Core", "Header", "Cards", "Stats", "Calendar", "Log Day", "Buttons", "Modals", "Other"];
 
 const today = new Date();
 
@@ -1290,12 +2098,29 @@ function applyTheme(themeName) {
 
   const root = document.documentElement;
 
+  // Apply base theme vars first so var() refs in ELEMENT_DEFAULTS resolve correctly
   Object.entries(THEMES[chosen]).forEach(([k, v]) => root.style.setProperty(k, v));
 
+  // Apply element defaults (use var() refs so they inherit the active theme)
+  Object.entries(ELEMENT_DEFAULTS).forEach(([k, v]) => {
+    // Only set default if the theme itself didn't explicitly override it
+    if (!THEMES[chosen][k]) root.style.setProperty(k, v);
+  });
+
+  if (themeWallpapers[chosen]) {
+    root.style.setProperty("--bg-art", `url('${themeWallpapers[chosen]}')`);
+    root.style.setProperty("--bg-position", "center center");
+  }
+
   const flower = THEME_FLOWERS[chosen] || "🌸";
+  const logoIcon = THEME_LOGO_ICONS[chosen] || "🌙";
 
   document.querySelectorAll(".tiny-flower").forEach((el) => {
     el.textContent = flower;
+  });
+
+  document.querySelectorAll(".logo-icon-theme").forEach((el) => {
+    el.textContent = logoIcon;
   });
 
   localStorage.setItem(THEME_KEY, chosen);
@@ -1310,6 +2135,979 @@ function onThemeChange() {
 
   applyTheme(document.getElementById("themeSelect").value);
 
+}
+
+function readJsonStorage(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function saveJsonStorage(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function sanitizeThemeId(name) {
+  return `custom-${String(name || "theme")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "theme"}`;
+}
+
+function normalizeWallpaperUrl(url) {
+  try {
+    return new URL(String(url || "").trim()).href;
+  } catch (_) {
+    return "";
+  }
+}
+
+function extractUrlsFromBgArt(bgArt) {
+  if (!bgArt) return [];
+  const urls = [];
+  const regex = /url\((['"]?)(.*?)\1\)/g;
+  let match;
+  while ((match = regex.exec(String(bgArt))) !== null) {
+    const normalized = normalizeWallpaperUrl(match[2]);
+    if (normalized) urls.push(normalized);
+  }
+  return urls;
+}
+
+function loadThemeCustomizationData() {
+  wallpaperLibrary = Array.isArray(readJsonStorage(WALLPAPERS_KEY, []))
+    ? readJsonStorage(WALLPAPERS_KEY, [])
+    : [];
+  themeWallpapers = readJsonStorage(THEME_WALLPAPER_KEY, {});
+  customThemes = readJsonStorage(CUSTOM_THEMES_KEY, {});
+
+  Object.entries(customThemes).forEach(([themeId, payload]) => {
+    if (!payload || typeof payload !== "object" || !payload.vars) return;
+    THEMES[themeId] = payload.vars;
+    THEME_FLOWERS[themeId] = payload.flower || "✨";
+    THEME_LOGO_ICONS[themeId] = payload.logoIcon || "🌙";
+    THEME_LABELS[themeId] = payload.label || themeId;
+  });
+
+  wallpaperLibrary = wallpaperLibrary
+    .map((entry) => {
+      const url = normalizeWallpaperUrl(entry.url || entry);
+      if (!url) return null;
+      return {
+        id: entry.id || `wp-${Math.random().toString(36).slice(2, 10)}`,
+        url,
+        addedAt: entry.addedAt || new Date().toISOString(),
+      };
+    })
+    .filter(Boolean);
+}
+
+function persistWallpaperData() {
+  saveJsonStorage(WALLPAPERS_KEY, wallpaperLibrary);
+  saveJsonStorage(THEME_WALLPAPER_KEY, themeWallpapers);
+}
+
+function persistCustomThemes() {
+  saveJsonStorage(CUSTOM_THEMES_KEY, customThemes);
+}
+
+function themeNames() {
+  const builtins = BUILTIN_THEME_NAMES.filter((name) => THEMES[name]);
+  const customs = Object.keys(THEMES)
+    .filter((name) => !BUILTIN_THEME_NAMES.includes(name))
+    .sort((a, b) => (THEME_LABELS[a] || a).localeCompare(THEME_LABELS[b] || b));
+  return [...builtins, ...customs];
+}
+
+function renderThemeSelectOptions() {
+  const select = document.getElementById("themeSelect");
+  if (!select) return;
+  const current = select.value || localStorage.getItem(THEME_KEY) || "rose";
+  select.innerHTML = "";
+  themeNames().forEach((name) => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = THEME_LABELS[name] || name;
+    select.appendChild(option);
+  });
+  select.value = THEMES[current] ? current : "rose";
+}
+
+function wallpaperUsageMap() {
+  const usage = new Map();
+  Object.entries(themeWallpapers).forEach(([theme, url]) => {
+    const normalized = normalizeWallpaperUrl(url);
+    if (!normalized) return;
+    if (!usage.has(normalized)) usage.set(normalized, new Set());
+    usage.get(normalized).add(theme);
+  });
+  Object.entries(THEMES).forEach(([theme, vars]) => {
+    extractUrlsFromBgArt(vars["--bg-art"]).forEach((url) => {
+      if (!usage.has(url)) usage.set(url, new Set());
+      usage.get(url).add(theme);
+    });
+  });
+  return usage;
+}
+
+function makeWallpaperThumb(url, tags = []) {
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = `wallpaper-thumb${selectedWallpaperUrl === url ? " selected" : ""}`;
+  card.onclick = () => {
+    selectedWallpaperUrl = url;
+    updateWallpaperSelectionInfo();
+    renderWallpaperGrids();
+  };
+
+  const preview = document.createElement("div");
+  preview.className = "wallpaper-preview";
+  preview.style.backgroundImage = `url('${url}')`;
+
+  const meta = document.createElement("div");
+  meta.className = "wallpaper-meta";
+  meta.textContent = url;
+
+  if (tags.length) {
+    const tagEl = document.createElement("span");
+    tagEl.className = "wallpaper-tags";
+    tagEl.textContent = `Used by: ${tags.map((t) => THEME_LABELS[t] || t).join(", ")}`;
+    meta.appendChild(tagEl);
+  }
+
+  card.appendChild(preview);
+  card.appendChild(meta);
+  return card;
+}
+
+function renderWallpaperGrids() {
+  const savedGrid = document.getElementById("wallpaperSavedGrid");
+  const usedGrid = document.getElementById("wallpaperUsedGrid");
+  if (!savedGrid || !usedGrid) return;
+
+  savedGrid.innerHTML = "";
+  usedGrid.innerHTML = "";
+
+  const usage = wallpaperUsageMap();
+  const savedUrls = wallpaperLibrary.map((w) => w.url);
+
+  if (!savedUrls.length) {
+    const empty = document.createElement("div");
+    empty.className = "wallpaper-meta";
+    empty.textContent = "No wallpapers saved yet.";
+    savedGrid.appendChild(empty);
+  } else {
+    savedUrls.forEach((url) => {
+      const tags = usage.get(url) ? Array.from(usage.get(url)) : [];
+      savedGrid.appendChild(makeWallpaperThumb(url, tags));
+    });
+  }
+
+  const usedOnly = Array.from(usage.entries())
+    .filter(([url]) => !savedUrls.includes(url))
+    .sort((a, b) => a[0].localeCompare(b[0]));
+
+  if (!usedOnly.length) {
+    const empty = document.createElement("div");
+    empty.className = "wallpaper-meta";
+    empty.textContent = "No theme wallpapers currently in use.";
+    usedGrid.appendChild(empty);
+  } else {
+    usedOnly.forEach(([url, themes]) => {
+      usedGrid.appendChild(makeWallpaperThumb(url, Array.from(themes)));
+    });
+  }
+}
+
+function updateWallpaperSelectionInfo() {
+  const info = document.getElementById("wallpaperSelectionInfo");
+  if (!info) return;
+  if (!selectedWallpaperUrl) {
+    info.textContent = "No wallpaper selected";
+    return;
+  }
+  info.textContent = `Selected: ${selectedWallpaperUrl}`;
+}
+
+function openWallpaperModal() {
+  const currentTheme = (document.getElementById("themeSelect") || {}).value || "rose";
+  selectedWallpaperUrl = themeWallpapers[currentTheme] || selectedWallpaperUrl || "";
+  updateWallpaperSelectionInfo();
+  renderWallpaperGrids();
+  document.getElementById("wallpaperModalBackdrop").classList.add("visible");
+}
+
+function closeWallpaperModal() {
+  document.getElementById("wallpaperModalBackdrop").classList.remove("visible");
+}
+
+function handleWallpaperBackdropClick(e) {
+  if (e.target === document.getElementById("wallpaperModalBackdrop")) closeWallpaperModal();
+}
+
+function addWallpaperLink() {
+  const input = document.getElementById("wallpaperUrlInput");
+  const normalized = normalizeWallpaperUrl(input.value);
+  if (!normalized) {
+    toast("Enter a valid wallpaper link", true);
+    return;
+  }
+  if (!wallpaperLibrary.some((entry) => entry.url === normalized)) {
+    wallpaperLibrary.unshift({
+      id: `wp-${Date.now().toString(36)}`,
+      url: normalized,
+      addedAt: new Date().toISOString(),
+    });
+    persistWallpaperData();
+  }
+  selectedWallpaperUrl = normalized;
+  input.value = "";
+  updateWallpaperSelectionInfo();
+  renderWallpaperGrids();
+}
+
+function useSelectedWallpaperForCurrentTheme() {
+  if (!selectedWallpaperUrl) {
+    toast("Select a wallpaper first", true);
+    return;
+  }
+  const select = document.getElementById("themeSelect");
+  const themeName = select ? select.value : "rose";
+  themeWallpapers[themeName] = selectedWallpaperUrl;
+  if (!wallpaperLibrary.some((entry) => entry.url === selectedWallpaperUrl)) {
+    wallpaperLibrary.unshift({
+      id: `wp-${Date.now().toString(36)}`,
+      url: selectedWallpaperUrl,
+      addedAt: new Date().toISOString(),
+    });
+  }
+  persistWallpaperData();
+  applyTheme(themeName);
+  renderWallpaperGrids();
+  toast(`Wallpaper set for ${THEME_LABELS[themeName] || themeName}`);
+}
+
+function renderThemeStudioBaseSelect() {
+  const baseSelect = document.getElementById("themeStudioBaseSelect");
+  if (!baseSelect) return;
+  const current = activeStudioTheme || (document.getElementById("themeSelect") || {}).value || "rose";
+  baseSelect.innerHTML = "";
+  themeNames().forEach((name) => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = THEME_LABELS[name] || name;
+    baseSelect.appendChild(opt);
+  });
+  baseSelect.value = THEMES[current] ? current : "rose";
+}
+
+function renderThemeStudioIconSelects() {
+  const flowerSelect = document.getElementById("themeStudioFlowerIcon");
+  const logoSelect = document.getElementById("themeStudioLogoIcon");
+  if (!flowerSelect || !logoSelect) return;
+
+  if (!flowerSelect.options.length) {
+    ICON_OPTIONS.forEach((icon) => {
+      const option = document.createElement("option");
+      option.value = icon;
+      option.textContent = icon;
+      flowerSelect.appendChild(option);
+    });
+  }
+  if (!logoSelect.options.length) {
+    ICON_OPTIONS.forEach((icon) => {
+      const option = document.createElement("option");
+      option.value = icon;
+      option.textContent = icon;
+      logoSelect.appendChild(option);
+    });
+  }
+}
+
+function renderThemeEditorElements() {
+  const select = document.getElementById("themeElementSelect");
+  if (!select || select.options.length) return;
+  EDITABLE_THEME_FIELDS.forEach((field) => {
+    const option = document.createElement("option");
+    option.value = field.key;
+    option.textContent = field.label;
+    select.appendChild(option);
+  });
+}
+
+function loadThemeStudioDraft(themeName) {
+  activeStudioTheme = THEMES[themeName] ? themeName : "rose";
+  // Start with element defaults so all fields exist in draft
+  themeStudioDraft = { ...ELEMENT_DEFAULTS, ...THEMES[activeStudioTheme] };
+  themeStudioDraftFlower = THEME_FLOWERS[activeStudioTheme] || "✨";
+  themeStudioDraftLogo = THEME_LOGO_ICONS[activeStudioTheme] || "🌙";
+  const nameInput = document.getElementById("themeStudioName");
+  if (nameInput) {
+    nameInput.value = customThemes[activeStudioTheme]?.label || "";
+    nameInput.placeholder = `Copy of ${THEME_LABELS[activeStudioTheme] || activeStudioTheme}`;
+  }
+  const flowerSelect = document.getElementById("themeStudioFlowerIcon");
+  const logoSelect = document.getElementById("themeStudioLogoIcon");
+  if (flowerSelect) flowerSelect.value = themeStudioDraftFlower;
+  if (logoSelect) logoSelect.value = themeStudioDraftLogo;
+
+  loadGlassBackgroundControls();
+  onThemeEditorElementChange();
+  renderThemeStudioSwatches();
+}
+
+function onThemeStudioIconChange() {
+  const flowerSelect = document.getElementById("themeStudioFlowerIcon");
+  const logoSelect = document.getElementById("themeStudioLogoIcon");
+  themeStudioDraftFlower = (flowerSelect && flowerSelect.value) || "✨";
+  themeStudioDraftLogo = (logoSelect && logoSelect.value) || "🌙";
+}
+
+function onThemeStudioBaseChange() {
+  const baseSelect = document.getElementById("themeStudioBaseSelect");
+  loadThemeStudioDraft(baseSelect ? baseSelect.value : "rose");
+}
+
+function onThemeEditorElementChange() {
+  const elementSelect = document.getElementById("themeElementSelect");
+  const fillTypeSelect = document.getElementById("themeFillType");
+  const colorPicker = document.getElementById("themeColorPicker");
+  const hexInput = document.getElementById("themeColorHex");
+  const opacityInput = document.getElementById("themeColorOpacity");
+  const gradient1 = document.getElementById("themeGradientColor1");
+  const gradient2 = document.getElementById("themeGradientColor2");
+  const angleInput = document.getElementById("themeGradientAngle");
+  if (!elementSelect || !fillTypeSelect || !colorPicker || !hexInput || !opacityInput || !gradient1 || !gradient2 || !angleInput) return;
+
+  const key = elementSelect.value;
+  const value = String(themeStudioDraft[key] || "#c2647a").trim();
+
+  if (value.includes("linear-gradient(")) {
+    fillTypeSelect.value = "linear";
+    const parsed = parseGradientTokens(value);
+    gradient1.value = parsed.c1;
+    gradient2.value = parsed.c2;
+    angleInput.value = parsed.angle;
+    opacityInput.value = String(parsed.opacity);
+    colorPicker.value = parsed.c1;
+    hexInput.value = parsed.c1;
+    const gop1 = document.getElementById("themeGradientOpacity1");
+    const gop2 = document.getElementById("themeGradientOpacity2");
+    const gop1Label = document.getElementById("themeGradientOpacity1Label");
+    const gop2Label = document.getElementById("themeGradientOpacity2Label");
+    if (gop1) { gop1.value = String(parsed.opacity); if (gop1Label) gop1Label.textContent = `${parsed.opacity}%`; }
+    if (gop2) { gop2.value = String(parsed.opacity2 || parsed.opacity); if (gop2Label) gop2Label.textContent = `${parsed.opacity2 || parsed.opacity}%`; }
+  } else if (value.includes("radial-gradient(")) {
+    fillTypeSelect.value = "radial";
+    const parsed = parseGradientTokens(value);
+    gradient1.value = parsed.c1;
+    gradient2.value = parsed.c2;
+    angleInput.value = parsed.angle;
+    opacityInput.value = String(parsed.opacity);
+    colorPicker.value = parsed.c1;
+    hexInput.value = parsed.c1;
+    const gop1 = document.getElementById("themeGradientOpacity1");
+    const gop2 = document.getElementById("themeGradientOpacity2");
+    const gop1Label = document.getElementById("themeGradientOpacity1Label");
+    const gop2Label = document.getElementById("themeGradientOpacity2Label");
+    if (gop1) { gop1.value = String(parsed.opacity); if (gop1Label) gop1Label.textContent = `${parsed.opacity}%`; }
+    if (gop2) { gop2.value = String(parsed.opacity2 || parsed.opacity); if (gop2Label) gop2Label.textContent = `${parsed.opacity2 || parsed.opacity}%`; }
+  } else {
+    fillTypeSelect.value = "solid";
+    const parsed = parseColorToken(value);
+    colorPicker.value = parsed.hex;
+    hexInput.value = parsed.hex;
+    opacityInput.value = String(parsed.opacity);
+    gradient1.value = parsed.hex;
+    gradient2.value = "#ffffff";
+    angleInput.value = "135";
+  }
+
+  onThemeEditorOpacityInput(opacityInput.value);
+  onThemeEditorFillTypeChange();
+}
+
+function onThemeEditorColorInput(value) {
+  const hexInput = document.getElementById("themeColorHex");
+  if (hexInput) hexInput.value = value;
+
+  const gradient1 = document.getElementById("themeGradientColor1");
+  if (gradient1) gradient1.value = value;
+}
+
+function onThemeEditorHexInput(value) {
+  const colorPicker = document.getElementById("themeColorPicker");
+  const normalized = String(value || "").trim();
+  if (colorPicker && /^#([0-9a-f]{6})$/i.test(normalized)) {
+    colorPicker.value = normalized;
+    const gradient1 = document.getElementById("themeGradientColor1");
+    if (gradient1) gradient1.value = normalized;
+  }
+}
+
+function onThemeEditorOpacityInput(value) {
+  const label = document.getElementById("themeColorOpacityValue");
+  const parsed = Number(value);
+  const safe = Number.isFinite(parsed) ? Math.max(0, Math.min(100, parsed)) : 100;
+  if (label) label.textContent = `${safe}%`;
+}
+
+function onThemeEditorFillTypeChange() {
+  const fillType = (document.getElementById("themeFillType") || {}).value || "solid";
+  const gradientControls = document.getElementById("themeGradientControls");
+  if (gradientControls) {
+    gradientControls.classList.toggle("hidden", fillType === "solid");
+  }
+}
+
+function toHex(n) {
+  return Math.max(0, Math.min(255, n)).toString(16).padStart(2, "0");
+}
+
+function parseColorToken(token) {
+  const value = String(token || "").trim();
+
+  // Treat transparent as white with 0 opacity so the opacity slider can represent it.
+  if (value.toLowerCase() === "transparent") {
+    return { hex: "#ffffff", opacity: 0 };
+  }
+
+  // Resolve CSS variable tokens like var(--cal-legend-bg) to their current draft/computed value.
+  const varMatch = value.match(/^var\((--[a-z0-9-]+)\)$/i);
+  if (varMatch) {
+    const varName = varMatch[1];
+    const draftValue = themeStudioDraft && themeStudioDraft[varName] ? String(themeStudioDraft[varName]).trim() : "";
+    const computedValue = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    const resolved = draftValue || computedValue;
+    if (resolved && resolved !== value) return parseColorToken(resolved);
+  }
+
+  const shortHexMatch = value.match(/^#([0-9a-f]{3})$/i);
+  if (shortHexMatch) {
+    const [r, g, b] = shortHexMatch[1].split("");
+    return { hex: `#${r}${r}${g}${g}${b}${b}`, opacity: 100 };
+  }
+
+  const hexMatch = value.match(/^#([0-9a-f]{6})$/i);
+  if (hexMatch) return { hex: `#${hexMatch[1]}`, opacity: 100 };
+
+  const rgbaMatch = value.match(/^rgba?\(([^)]+)\)$/i);
+  if (rgbaMatch) {
+    const parts = rgbaMatch[1].split(",").map((p) => p.trim());
+    const r = Number(parts[0]);
+    const g = Number(parts[1]);
+    const b = Number(parts[2]);
+    const a = parts.length > 3 ? Number(parts[3]) : 1;
+    if ([r, g, b].every((n) => Number.isFinite(n))) {
+      return {
+        hex: `#${toHex(r)}${toHex(g)}${toHex(b)}`,
+        opacity: Math.round((Number.isFinite(a) ? Math.max(0, Math.min(1, a)) : 1) * 100),
+      };
+    }
+  }
+
+  return { hex: "#c2647a", opacity: 100 };
+}
+
+function parseGradientTokens(value) {
+  const colorTokens = String(value).match(/#(?:[0-9a-fA-F]{6})|rgba?\([^)]+\)/g) || [];
+  const first = parseColorToken(colorTokens[0] || "#c2647a");
+  const second = parseColorToken(colorTokens[1] || "#ffffff");
+  const angleMatch = String(value).match(/linear-gradient\(([-\d.]+)deg/i);
+  return {
+    c1: first.hex,
+    c2: second.hex,
+    opacity: first.opacity,
+    opacity2: second.opacity,
+    angle: angleMatch ? Math.round(Number(angleMatch[1]) || 135) : 135,
+  };
+}
+
+function composeColorValue(hex, opacityPercent) {
+  const parsed = parseColorToken(hex);
+  const alpha = Math.max(0, Math.min(100, Number(opacityPercent))) / 100;
+  if (alpha >= 0.999) return parsed.hex;
+  const r = parseInt(parsed.hex.slice(1, 3), 16);
+  const g = parseInt(parsed.hex.slice(3, 5), 16);
+  const b = parseInt(parsed.hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
+}
+
+function onGlassCardOpacityInput(value) {
+  const out = document.getElementById("glassCardTintOpacityValue");
+  if (out) out.textContent = `${Math.max(0, Math.min(100, Number(value) || 0))}%`;
+}
+
+function onGlassCardBlurInput(value) {
+  const out = document.getElementById("glassCardBlurValue");
+  if (out) out.textContent = `${Math.max(0, Math.min(20, Number(value) || 0))}px`;
+}
+
+function loadGlassBackgroundControls() {
+  const tintColor = document.getElementById("glassCardTintColor");
+  const tintOpacity = document.getElementById("glassCardTintOpacity");
+  const blurInput = document.getElementById("glassCardBlur");
+  const applyCal = document.getElementById("glassApplyToCalendar");
+  if (!tintColor || !tintOpacity || !blurInput || !applyCal) return;
+
+  const parsedCard = parseColorToken(themeStudioDraft["--card"] || "rgba(255,255,255,0.55)");
+  tintColor.value = parsedCard.hex;
+  tintOpacity.value = String(parsedCard.opacity);
+  onGlassCardOpacityInput(parsedCard.opacity);
+
+  const blurRaw = String(themeStudioDraft["--card-blur"] || "0px").trim();
+  const blurValue = Math.max(0, Math.min(20, Number.parseFloat(blurRaw) || 0));
+  blurInput.value = String(blurValue);
+  onGlassCardBlurInput(blurValue);
+
+  const calValue = String(themeStudioDraft["--cal-bg"] || "").trim();
+  const cardValue = String(themeStudioDraft["--card"] || "").trim();
+  applyCal.checked = !calValue || calValue === cardValue || calValue === "var(--card)";
+}
+
+function applyGlassBackgroundToDraft(silent = false) {
+  const tintColor = document.getElementById("glassCardTintColor");
+  const tintOpacity = document.getElementById("glassCardTintOpacity");
+  const blurInput = document.getElementById("glassCardBlur");
+  const applyCal = document.getElementById("glassApplyToCalendar");
+  if (!tintColor || !tintOpacity || !blurInput || !applyCal) return;
+
+  const color = String(tintColor.value || "#ffffff").trim();
+  const opacity = Math.max(0, Math.min(100, Number(tintOpacity.value || 55)));
+  const blur = Math.max(0, Math.min(20, Number(blurInput.value || 5)));
+  const glassColor = composeColorValue(color, opacity);
+
+  themeStudioDraft["--card"] = glassColor;
+  themeStudioDraft["--card-blur"] = `${Math.round(blur)}px`;
+  if (applyCal.checked) themeStudioDraft["--cal-bg"] = glassColor;
+
+  renderThemeStudioSwatches();
+  if (!silent) toast("Applied glass background");
+}
+
+function applyQuartzGlassPreset() {
+  const tintColor = document.getElementById("glassCardTintColor");
+  const tintOpacity = document.getElementById("glassCardTintOpacity");
+  const blurInput = document.getElementById("glassCardBlur");
+  const applyCal = document.getElementById("glassApplyToCalendar");
+  if (tintColor) tintColor.value = "#ffffff";
+  if (tintOpacity) {
+    tintOpacity.value = "38";
+    onGlassCardOpacityInput(38);
+  }
+  if (blurInput) {
+    blurInput.value = "5";
+    onGlassCardBlurInput(5);
+  }
+  if (applyCal) applyCal.checked = true;
+
+  themeStudioDraft["--card-art"] = "linear-gradient(125deg, rgba(255,255,255,0.3), rgba(255,255,255,0.2) 70%)";
+  themeStudioDraft["--shadow"] = "1px 3px 24px -1px rgba(0, 0, 0, 0.15)";
+  applyGlassBackgroundToDraft(true);
+  toast("Quartz-style glass applied");
+}
+
+function resetCardBackgroundToSolid() {
+  themeStudioDraft["--card"] = "#ffffff";
+  themeStudioDraft["--card-blur"] = "0px";
+  themeStudioDraft["--card-art"] = "none";
+  if (String(themeStudioDraft["--cal-bg"] || "") !== "var(--card)") {
+    themeStudioDraft["--cal-bg"] = "var(--card)";
+  }
+  loadGlassBackgroundControls();
+  renderThemeStudioSwatches();
+  toast("Card background reset to solid");
+}
+
+function applyButtonStylePreset(preset) {
+  const presets = {
+    soft: {
+      "--btn-radius": "10px",
+      "--btn-border-width": "1px",
+      "--btn-shadow": "none",
+      "--btn-pad-y": "10px",
+      "--btn-pad-x": "12px",
+    },
+    minimal: {
+      "--btn-radius": "4px",
+      "--btn-border-width": "1px",
+      "--btn-shadow": "none",
+      "--btn-pad-y": "7px",
+      "--btn-pad-x": "10px",
+    },
+    pill: {
+      "--btn-radius": "999px",
+      "--btn-border-width": "1px",
+      "--btn-shadow": "none",
+      "--btn-pad-y": "9px",
+      "--btn-pad-x": "16px",
+    },
+    sharp: {
+      "--btn-radius": "4px",
+      "--btn-border-width": "2px",
+      "--btn-shadow": "none",
+      "--btn-pad-y": "10px",
+      "--btn-pad-x": "12px",
+    },
+    glass: {
+      "--btn-radius": "12px",
+      "--btn-border-width": "1px",
+      "--btn-shadow": "0 6px 18px color-mix(in srgb, var(--btn-bg) 28%, transparent)",
+      "--btn-pad-y": "10px",
+      "--btn-pad-x": "14px",
+    },
+  };
+
+  const chosen = presets[preset];
+  if (!chosen) return;
+  Object.entries(chosen).forEach(([k, v]) => {
+    themeStudioDraft[k] = v;
+  });
+  renderThemeStudioSwatches();
+  toast(`Applied ${preset} button style preset`);
+}
+
+function applyThemeEditorValue() {
+  const elementSelect = document.getElementById("themeElementSelect");
+  const fillTypeSelect = document.getElementById("themeFillType");
+  const hexInput = document.getElementById("themeColorHex");
+  const opacityInput = document.getElementById("themeColorOpacity");
+  const gradient1 = document.getElementById("themeGradientColor1");
+  const gradient2 = document.getElementById("themeGradientColor2");
+  const angleInput = document.getElementById("themeGradientAngle");
+  const gradOp1 = document.getElementById("themeGradientOpacity1");
+  const gradOp2 = document.getElementById("themeGradientOpacity2");
+  if (!elementSelect || !fillTypeSelect || !hexInput || !opacityInput || !gradient1 || !gradient2 || !angleInput) return;
+
+  const key = elementSelect.value;
+  const fillType = fillTypeSelect.value || "solid";
+  const opacity = Number(opacityInput.value || 100);
+  let value = "";
+
+  if (fillType === "solid") {
+    const hex = String(hexInput.value || "").trim();
+    if (!/^#([0-9a-f]{6})$/i.test(hex)) {
+      toast("Use a valid hex color like #aabbcc", true);
+      return;
+    }
+    value = composeColorValue(hex, opacity);
+  } else {
+    const c1 = String(gradient1.value || "").trim();
+    const c2 = String(gradient2.value || "").trim();
+    if (!/^#([0-9a-f]{6})$/i.test(c1) || !/^#([0-9a-f]{6})$/i.test(c2)) {
+      toast("Gradient colors must be valid hex values", true);
+      return;
+    }
+    const op1 = gradOp1 ? Number(gradOp1.value) : 100;
+    const op2 = gradOp2 ? Number(gradOp2.value) : 100;
+    const gc1 = composeColorValue(c1, op1);
+    const gc2 = composeColorValue(c2, op2);
+    if (fillType === "radial") {
+      value = `radial-gradient(circle, ${gc1}, ${gc2})`;
+    } else {
+      const angle = Math.max(0, Math.min(360, Number(angleInput.value || 135)));
+      value = `linear-gradient(${Math.round(angle)}deg, ${gc1}, ${gc2})`;
+    }
+  }
+
+  themeStudioDraft[key] = value;
+  renderThemeStudioSwatches();
+}
+
+function renderThemeStudioSwatches() {
+  const holder = document.getElementById("themeStudioSwatches");
+  if (!holder) return;
+  holder.innerHTML = "";
+  const activeKey = (document.getElementById("themeElementSelect") || {}).value || "";
+
+  const coreKeys = new Set([
+    "--rose", "--rose-dk", "--rose-lt", "--blush", "--cream", "--ink", "--muted", "--border",
+    "--period", "--predicted", "--symptom", "--ovulation", "--bg-art"
+  ]);
+
+  const groups = Object.fromEntries(STUDIO_SWATCH_GROUP_ORDER.map((name) => [name, []]));
+
+  const resolveGroup = (key) => {
+    if (coreKeys.has(key)) return "Core";
+    if (key.startsWith("--header-")) return "Header";
+    if (key.startsWith("--card-") || key === "--card" || key === "--shadow") return "Cards";
+    if (key.startsWith("--stat-")) return "Stats";
+    if (key.startsWith("--cal-")) return "Calendar";
+    if (key.startsWith("--logday-")) return "Log Day";
+    if (key.startsWith("--btn-")) return "Buttons";
+    if (key.startsWith("--modal-")) return "Modals";
+    return "Other";
+  };
+
+  EDITABLE_THEME_FIELDS.forEach((field) => {
+    groups[resolveGroup(field.key)].push(field);
+  });
+
+  STUDIO_SWATCH_GROUP_ORDER.forEach((groupName) => {
+    const fields = groups[groupName];
+    if (!fields || !fields.length) return;
+
+    const section = document.createElement("div");
+    section.className = "studio-swatch-section";
+
+    const header = document.createElement("button");
+    header.type = "button";
+    header.className = "studio-swatch-section-header";
+    header.onclick = () => toggleStudioSection(groupName);
+
+    const title = document.createElement("div");
+    title.className = "studio-swatch-section-title";
+    title.textContent = groupName;
+
+    const caret = document.createElement("span");
+    caret.className = "studio-swatch-section-caret" + (studioSectionCollapsed[groupName] ? " collapsed" : "");
+    caret.textContent = "▾";
+
+    header.appendChild(title);
+    header.appendChild(caret);
+
+    const gridWrap = document.createElement("div");
+    gridWrap.className = "studio-swatch-grid-wrap" + (studioSectionCollapsed[groupName] ? " collapsed" : "");
+    const grid = document.createElement("div");
+    grid.className = "studio-swatch-grid";
+
+    fields.forEach((field) => {
+      const swatch = document.createElement("button");
+      swatch.type = "button";
+      swatch.className = "studio-swatch" + (field.key === activeKey ? " studio-swatch-active" : "");
+      swatch.title = `Edit: ${field.label}`;
+      swatch.onclick = () => selectStudioElement(field.key);
+
+      const color = document.createElement("div");
+      color.className = "studio-swatch-color";
+      color.style.background = themeStudioDraft[field.key] || "#999";
+
+      const label = document.createElement("div");
+      label.className = "studio-swatch-label";
+      label.textContent = field.label;
+
+      const val = document.createElement("div");
+      val.className = "studio-swatch-value";
+      val.textContent = themeStudioDraft[field.key] || "-";
+
+      swatch.appendChild(color);
+      swatch.appendChild(label);
+      swatch.appendChild(val);
+      grid.appendChild(swatch);
+    });
+
+    gridWrap.appendChild(grid);
+    section.appendChild(header);
+    section.appendChild(gridWrap);
+    holder.appendChild(section);
+  });
+}
+
+function toggleStudioSection(groupName) {
+  studioSectionCollapsed[groupName] = !studioSectionCollapsed[groupName];
+  persistStudioSectionState();
+  renderThemeStudioSwatches();
+}
+
+function expandAllStudioSections() {
+  STUDIO_SWATCH_GROUP_ORDER.forEach((groupName) => {
+    studioSectionCollapsed[groupName] = false;
+  });
+  persistStudioSectionState();
+  renderThemeStudioSwatches();
+}
+
+function collapseAllStudioSections() {
+  STUDIO_SWATCH_GROUP_ORDER.forEach((groupName) => {
+    studioSectionCollapsed[groupName] = true;
+  });
+  persistStudioSectionState();
+  renderThemeStudioSwatches();
+}
+
+function loadStudioSectionState() {
+  try {
+    const raw = localStorage.getItem(STUDIO_SECTION_STATE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return;
+    const next = {};
+    STUDIO_SWATCH_GROUP_ORDER.forEach((groupName) => {
+      next[groupName] = !!parsed[groupName];
+    });
+    studioSectionCollapsed = next;
+  } catch (_) {
+    studioSectionCollapsed = {};
+  }
+}
+
+function persistStudioSectionState() {
+  const payload = {};
+  STUDIO_SWATCH_GROUP_ORDER.forEach((groupName) => {
+    payload[groupName] = !!studioSectionCollapsed[groupName];
+  });
+  localStorage.setItem(STUDIO_SECTION_STATE_KEY, JSON.stringify(payload));
+}
+
+function selectStudioElement(key) {
+  const select = document.getElementById("themeElementSelect");
+  if (select) select.value = key;
+  const field = EDITABLE_THEME_FIELDS.find((f) => f.key === key);
+  const nameEl = document.getElementById("themeEditorActiveName");
+  if (nameEl) nameEl.textContent = field ? field.label : key;
+  onThemeEditorElementChange();
+  renderThemeStudioSwatches();
+}
+
+function previewThemeStudioDraft() {
+  THEMES[activeStudioTheme] = { ...themeStudioDraft };
+  THEME_FLOWERS[activeStudioTheme] = themeStudioDraftFlower;
+  THEME_LOGO_ICONS[activeStudioTheme] = themeStudioDraftLogo;
+  applyTheme(activeStudioTheme);
+  toast("Draft preview applied");
+}
+
+function saveCustomThemeFromStudio() {
+  const nameInput = document.getElementById("themeStudioName");
+  const requestedName = String(nameInput?.value || "").trim();
+  if (!requestedName) {
+    toast("Enter a custom theme name before saving", true);
+    return;
+  }
+
+  const label = requestedName;
+  const themeId = sanitizeThemeId(requestedName);
+
+  if (BUILTIN_THEME_NAMES.includes(themeId)) {
+    toast("Choose a different name for your custom theme", true);
+    return;
+  }
+
+  customThemes[themeId] = {
+    label,
+    vars: { ...themeStudioDraft },
+    flower: themeStudioDraftFlower,
+    logoIcon: themeStudioDraftLogo,
+  };
+  THEMES[themeId] = { ...themeStudioDraft };
+  THEME_FLOWERS[themeId] = themeStudioDraftFlower;
+  THEME_LOGO_ICONS[themeId] = themeStudioDraftLogo;
+  THEME_LABELS[themeId] = label;
+  persistCustomThemes();
+  renderThemeSelectOptions();
+  renderThemeStudioBaseSelect();
+
+  const select = document.getElementById("themeSelect");
+  if (select) {
+    select.value = themeId;
+    applyTheme(themeId);
+  }
+  toast(`Saved custom theme: ${label}`);
+}
+
+function renameCurrentThemeFromStudio() {
+  const baseSelect = document.getElementById("themeStudioBaseSelect");
+  const nameInput = document.getElementById("themeStudioName");
+  const sourceId = (baseSelect && baseSelect.value) || activeStudioTheme;
+
+  if (!sourceId || BUILTIN_THEME_NAMES.includes(sourceId) || !customThemes[sourceId]) {
+    toast("Only custom themes can be renamed", true);
+    return;
+  }
+
+  const requestedName = String(nameInput?.value || "").trim();
+  if (!requestedName) {
+    toast("Enter a new theme name to rename", true);
+    return;
+  }
+
+  const targetId = sanitizeThemeId(requestedName);
+  if (BUILTIN_THEME_NAMES.includes(targetId)) {
+    toast("That name conflicts with a built-in theme", true);
+    return;
+  }
+
+  if (targetId !== sourceId && THEMES[targetId]) {
+    toast("A theme with that name already exists", true);
+    return;
+  }
+
+  const sourcePayload = customThemes[sourceId];
+  const nextPayload = {
+    ...sourcePayload,
+    label: requestedName,
+    vars: { ...(THEMES[sourceId] || sourcePayload.vars || {}) },
+    flower: THEME_FLOWERS[sourceId] || sourcePayload.flower || "✨",
+    logoIcon: THEME_LOGO_ICONS[sourceId] || sourcePayload.logoIcon || "🌙",
+  };
+
+  customThemes[targetId] = nextPayload;
+  THEMES[targetId] = { ...nextPayload.vars };
+  THEME_FLOWERS[targetId] = nextPayload.flower;
+  THEME_LOGO_ICONS[targetId] = nextPayload.logoIcon;
+  THEME_LABELS[targetId] = requestedName;
+
+  if (targetId !== sourceId) {
+    delete customThemes[sourceId];
+    delete THEMES[sourceId];
+    delete THEME_FLOWERS[sourceId];
+    delete THEME_LOGO_ICONS[sourceId];
+    delete THEME_LABELS[sourceId];
+
+    if (themeWallpapers[sourceId]) {
+      themeWallpapers[targetId] = themeWallpapers[sourceId];
+      delete themeWallpapers[sourceId];
+      persistWallpaperData();
+    }
+  }
+
+  persistCustomThemes();
+
+  if (localStorage.getItem(THEME_KEY) === sourceId) {
+    localStorage.setItem(THEME_KEY, targetId);
+  }
+
+  activeStudioTheme = targetId;
+  themeStudioDraft = { ...THEMES[targetId] };
+  themeStudioDraftFlower = THEME_FLOWERS[targetId];
+  themeStudioDraftLogo = THEME_LOGO_ICONS[targetId];
+
+  renderThemeSelectOptions();
+  renderThemeStudioBaseSelect();
+
+  const select = document.getElementById("themeSelect");
+  if (select) select.value = targetId;
+  if (baseSelect) baseSelect.value = targetId;
+  if (nameInput) nameInput.value = requestedName;
+
+  applyTheme(targetId);
+  toast(`Renamed theme to: ${requestedName}`);
+}
+
+function openThemeStudio() {
+  loadStudioSectionState();
+  renderThemeEditorElements();
+  renderThemeStudioIconSelects();
+  renderThemeStudioBaseSelect();
+  const current = (document.getElementById("themeSelect") || {}).value || "rose";
+  loadThemeStudioDraft(current);
+  document.getElementById("themeStudioPage").classList.remove("hidden");
+}
+
+function closeThemeStudio() {
+  document.getElementById("themeStudioPage").classList.add("hidden");
+}
+
+function initThemeCustomizationSystem() {
+  loadThemeCustomizationData();
+  renderThemeSelectOptions();
+  renderThemeEditorElements();
 }
 
 function saveLayoutState() {
@@ -3068,6 +4866,8 @@ async function initApp() {
 
   window.addEventListener("resize", () => updateCalendarScale());
 
+  initThemeCustomizationSystem();
+
   const savedTheme = localStorage.getItem(THEME_KEY) || "rose";
 
   applyTheme(savedTheme);
@@ -3108,7 +4908,7 @@ async function initApp() {
 initApp();
 
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

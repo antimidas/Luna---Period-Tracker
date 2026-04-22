@@ -221,3 +221,121 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now luna
 sudo systemctl status luna
 ```
+
+---
+
+## Theming
+
+### Built-in Themes
+
+Luna ships with several built-in colour themes selectable from the dropdown in the top-right of the header:
+
+| Theme | Description |
+|---|---|
+| **Luna** | Default soft rose/pink |
+| **Azure** | Cool blue tones |
+| **Sage** | Muted green |
+| **Peach** | Warm peach/terracotta |
+| **Blossom** | Bright pink blossom |
+| **Rosé** | Deep dusty rose |
+| **Lavender** | Soft purple |
+| **Dusk** | Warm dusk/mauve |
+| **Quartz** | Glassmorphism — transparent cards over a gradient background |
+| **Demon Slayer** | Dark anime-inspired with custom wallpaper |
+
+---
+
+### Theme Studio
+
+Theme Studio lets you create and save fully custom themes. Open it by clicking **🎨 Theme Studio** in the header.
+
+#### Layout
+
+Theme Studio has two panels:
+
+- **Left — Draft Preview**: A live miniature preview of the app rendered using your current draft colours. Click any coloured swatch to select that element for editing.
+- **Right — Create / Save**: Controls for editing the selected element's colour, button style presets, glass background options, and saving.
+
+#### Swatch Sections
+
+Swatches are grouped into collapsible sections:
+
+| Section | What it controls |
+|---|---|
+| **Core** | Primary accent, background gradient, text, muted text, border |
+| **Header** | Header bar background, text, border |
+| **Cards** | Card background, card art overlay, drop shadow |
+| **Stats** | Stat tile background, border, text, label |
+| **Calendar** | Calendar grid background, day hover, today border, other-month days, header text, legend |
+| **Log Day** | Section labels, toggle borders/active states, pill borders/active states |
+| **Buttons** | Primary button background, text, border, hover background, hover text, muted button, muted hover, secondary button variants |
+| **Inputs** | Input background, text, border, placeholder, focus border, focus ring |
+| **Modals** | Overlay, modal background, border, accent, text, muted text |
+| **Other** | Any remaining CSS variables |
+
+Click a section header to collapse or expand it. Use **Collapse All** / **Expand All** buttons at the top.
+
+#### Editing a Colour
+
+1. Click any swatch in the Draft Preview — it highlights and the right panel updates to show that element's name.
+2. Use the **colour picker** to choose a new colour.
+3. Use the **opacity slider** to set transparency (useful for overlays and glass effects).
+4. Switch the **Fill Type** dropdown to *Gradient* to set a two-colour gradient instead of a solid.
+5. The Draft Preview updates live.
+
+#### Button Style Presets
+
+Quick presets that apply a coordinated set of button CSS variables:
+
+| Preset | Style |
+|---|---|
+| **Soft** | Slightly transparent, rounded — default Luna look |
+| **Minimal** | Outline-only, no fill |
+| **Pill** | Fully rounded pill shape |
+| **Sharp** | Square corners |
+| **Glass** | Frosted glass appearance |
+
+#### Glass Background (Quartz Style)
+
+Adds a transparent/frosted card background to any theme:
+
+1. Choose a **tint colour** with the colour picker.
+2. Drag the **Opacity** slider to control how transparent the cards are.
+3. Drag the **Blur** slider to control backdrop blur strength (0–20 px).
+4. Tick **Apply same clear background to calendar card** to match the calendar card.
+5. Click **Apply Quartz Glass** for a one-click preset (white tint, 38% opacity, 5 px blur, gradient art).
+6. Click **Reset Solid** to return cards to a plain white solid background.
+
+#### Saving a Theme
+
+1. Select a **Base Theme** from the dropdown — your custom theme inherits all values from it, then applies your overrides on top.
+2. Enter a **Name** for your theme.
+3. Optionally pick a **Flower icon** and **Logo icon**.
+4. Click **Save Theme**. The theme is stored in `localStorage` under `luna_custom_themes` and immediately appears in the theme selector dropdown.
+
+#### Deleting a Custom Theme
+
+Custom themes appear in the theme selector with a **🗑** delete button next to their name.
+
+---
+
+### Wallpaper Manager
+
+The Wallpaper Manager lets you attach background images to any theme. Open it by clicking **🖼 Wallpapers** in the header.
+
+#### Adding a Wallpaper
+
+1. Paste an image URL into the input field and click **Add Link**. The image is saved to your wallpaper library in `localStorage`.
+2. Click any thumbnail in **Saved Wallpapers** to select it (highlighted with a border).
+3. Click **Use On Current Theme** to attach the selected wallpaper to the currently active theme.
+
+#### Wallpapers Used In Themes
+
+The **Wallpapers Used In Themes** section shows all images currently assigned to any theme, so you can quickly reuse them.
+
+#### How Wallpapers Are Stored
+
+- Wallpaper URLs are stored in `localStorage` under `luna_wallpaper_library`.
+- Theme-to-wallpaper associations are stored under `luna_theme_wallpapers`.
+- When a theme is applied, its wallpaper (if any) is set as the `--bg-art` CSS variable, replacing the gradient background.
+
