@@ -17,6 +17,78 @@ All services run directly on your Linux host.
 
 ## Quick Start
 
+### Docker Compose (Ubuntu 24.04 image, all-in-one container)
+
+This repo now includes:
+- `Dockerfile` based on `ubuntu:24.04`
+- `docker-compose.yml`
+- Single-container runtime with **MariaDB + Node API + Nginx + OpenSSH**
+- `nano` and `sudo` installed in the image
+
+Start it from the project root:
+
+```bash
+docker compose up -d --build
+```
+
+Then open:
+- Web app: `http://YOUR_SERVER_IP`
+- API health: `http://YOUR_SERVER_IP/api/health`
+- SSH: `ssh luna@YOUR_SERVER_IP -p 2222`
+
+Default compose credentials are placeholders. Update `DB_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `API_KEY`, `JWT_SECRET`, and `SSH_PASSWORD` in `docker-compose.yml` before production use.
+
+### Hardened Production Variant
+
+Use the production compose variant for stronger defaults:
+- disables SSH password authentication (SSH key-only)
+- does not expose MariaDB port `3306` on the host
+- requires explicit secrets via environment variables
+
+Setup:
+
+```bash
+cp .env.prod.example .env
+# edit .env and set strong values, including SSH_PUBLIC_KEY
+docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+```
+
+Notes:
+- SSH login uses key auth only on port `2222`
+- Database remains internal to the container network only
+- Required secrets are enforced by compose variable checks
+
+### Docker Setup Details
+
+#### Included Compose Profiles
+
+| File | Purpose |
+|---|---|
+| `docker-compose.yml` | Development/all-in-one defaults (includes host DB port mapping) |
+| `docker-compose.prod.yml` | Hardened production defaults (no host DB port mapping, key-only SSH) |
+
+#### Production Environment File
+
+1. Copy `.env.prod.example` to `.env`
+2. Set strong random values for `DB_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `API_KEY`, and `JWT_SECRET`
+3. Set `SSH_PUBLIC_KEY` to a valid single-line OpenSSH public key
+
+#### Common Docker Operations
+
+```bash
+# Build and start production
+docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+
+# View logs
+docker compose -f docker-compose.prod.yml logs -f
+
+# Restart service
+docker compose -f docker-compose.prod.yml restart
+
+# Stop and remove container
+docker compose -f docker-compose.prod.yml down
+```
+
 ### One-command installer (recommended)
 
 Run the guided setup script from the project root:
@@ -152,6 +224,45 @@ If you are using embed token auth, append `?token=YOUR_EMBED_TOKEN` to each URL:
 - `http://YOUR_SERVER_IP/calendar?token=YOUR_EMBED_TOKEN`
 - `http://YOUR_SERVER_IP/log-day?token=YOUR_EMBED_TOKEN`
 - `http://YOUR_SERVER_IP/cycle-overview?token=YOUR_EMBED_TOKEN`
+
+### 11. Embed the full Diary view in Home Assistant
+
+You can embed the full diary page directly:
+- `http://YOUR_SERVER_IP/diary`
+
+With embed token auth:
+- `http://YOUR_SERVER_IP/diary?token=YOUR_EMBED_TOKEN`
+
+---
+
+## Journal / Diary Feature
+
+Luna now includes a full journal system in addition to cycle, mood, and symptom tracking.
+
+### What it includes
+
+- Full-page diary experience with themed visuals
+- Desktop diary widget and dedicated full diary route
+- Multi-entry support (multiple entries on the same date)
+- Archive list of saved entries
+- Open existing entries for read/edit
+- Delete entries from the archive
+
+### How save behavior works
+
+- Saving an entry creates or updates the selected entry
+- After save, the editor is ready for the next entry workflow
+- Entries are persisted in MariaDB (`journal_entries`) and tied to the authenticated user
+
+### Journal API endpoints
+
+All journal endpoints require authentication token.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/journal?date=YYYY-MM-DD` | Get journal entries for a date |
+| `POST` | `/api/journal` | Create or update an entry (by `id` when provided) |
+| `DELETE` | `/api/journal/:id` | Delete one journal entry |
 
 ---
 

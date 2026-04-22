@@ -1,0 +1,31 @@
+services:
+  luna:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: luna-all-in-one
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "2222:22"
+      - "3306:3306"
+    environment:
+      PORT: 3001
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: period_tracker
+      DB_USER: tracker
+      DB_PASSWORD: changeme_tracker
+      MYSQL_ROOT_PASSWORD: rootpass
+      API_KEY: mysecretapikey
+      JWT_SECRET: change-me-in-env
+      HA_WEBHOOK_URL: ""
+      HA_TOKEN: ""
+      SSH_USER: luna
+      SSH_PASSWORD: luna
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./backups:/opt/period-tracker/backups
+
+volumes:
+  mariadb_data:
