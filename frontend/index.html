@@ -205,6 +205,8 @@
 
     <div class="layout-tools">
       <button class="btn btn-sm layout-action-btn" onclick="exportCalendarPdf()">Print Calendar</button>
+      <button class="btn btn-sm layout-action-btn" onclick="openDiaryPage()">Diary</button>
+      <button class="btn btn-sm layout-action-btn" onclick="resetDashboardLayout()">Reset Layout</button>
 
       <button class="btn btn-sm layout-action-btn" onclick="openWallpaperModal()">Wallpapers</button>
 
@@ -252,6 +254,8 @@
 
         <div class="cal-nav">
 
+          <button class="panel-reset-btn" type="button" onclick="resetPanelLayout('calendar-card')" title="Reset this panel">↺</button>
+
           <button class="collapse-btn" data-collapse-target="calendar-card" onclick="toggleCardCollapse('calendar-card')" title="Collapse">−</button>
 
           <button onclick="changeMonth(-1)">‹</button>
@@ -280,6 +284,8 @@
 
           <div class="legend-item"><div class="legend-dot" style="background:#f0b429"></div> Mood logged</div>
 
+          <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div> Diary entry</div>
+
           <div class="ha-badge">⚡ HA connected</div>
 
         </div>
@@ -294,7 +300,7 @@
 
   <div class="card movable" data-move-id="overview-card">
 
-      <div class="card-header"><h2 class="header-title">Cycle Overview <span class="tiny-flower"></span></h2><button class="collapse-btn" data-collapse-target="overview-card" onclick="toggleCardCollapse('overview-card')" title="Collapse">−</button></div>
+      <div class="card-header"><h2 class="header-title">Cycle Overview <span class="tiny-flower"></span></h2><div class="card-header-actions"><button class="panel-reset-btn" type="button" onclick="resetPanelLayout('overview-card')" title="Reset this panel">↺</button><button class="collapse-btn" data-collapse-target="overview-card" onclick="toggleCardCollapse('overview-card')" title="Collapse">−</button></div></div>
 
       <div class="card-body">
 
@@ -351,6 +357,8 @@
         <div class="logday-header-tools">
 
           <div class="selected-date-label" id="selectedDateLabel">Select a date</div>
+
+          <button class="panel-reset-btn" type="button" onclick="resetPanelLayout('logday-card')" title="Reset this panel">↺</button>
 
           <button class="collapse-btn" data-collapse-target="logday-card" onclick="toggleCardCollapse('logday-card')" title="Collapse">−</button>
 
@@ -433,6 +441,109 @@
         </div>
 
       </div>
+
+  </div>
+
+  <div class="card movable resizable" data-move-id="journal-card">
+
+      <div class="card-header">
+
+        <h2 class="header-title">Diary Page <span class="tiny-flower"></span></h2>
+
+        <div class="logday-header-tools">
+
+          <div class="selected-date-label" id="journalDateLabel">Select a date</div>
+
+          <button class="panel-reset-btn" type="button" onclick="resetPanelLayout('journal-card')" title="Reset this panel">↺</button>
+
+          <button class="collapse-btn" data-collapse-target="journal-card" onclick="toggleCardCollapse('journal-card')" title="Collapse">−</button>
+
+        </div>
+
+      </div>
+
+      <div class="card-body journal-card-body">
+
+        <div class="journal-card-actions journal-home-only" style="margin-top:4px;">
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="goHome()">Return Home</button>
+        </div>
+
+        <div class="journal-full-only">
+          <div class="section-label">Rendered page</div>
+
+          <div class="journal-page-preview" id="journalPreview">
+            <div class="journal-empty-state">Pick a date and start writing your page.</div>
+          </div>
+
+          <div class="journal-card-actions">
+            <button class="btn btn-luna btn-luna-muted" type="button" onclick="openDiaryPage()">Open Full Diary</button>
+          </div>
+
+          <div class="journal-book-stage">
+            <div class="journal-window-graphic" aria-hidden="true">
+              <div class="journal-window-sky">
+                <span class="journal-window-cloud cloud-one"></span>
+                <span class="journal-window-cloud cloud-two"></span>
+                <span class="journal-window-sun"></span>
+              </div>
+              <div class="journal-window-frame vertical"></div>
+              <div class="journal-window-frame horizontal"></div>
+            </div>
+
+            <div class="journal-book-shell">
+              <div class="journal-book-toolbar">
+                <button class="btn btn-luna btn-luna-muted" type="button" onclick="stepJournalEntry(-1)">Older</button>
+                <div class="journal-book-meta">
+                  <div class="journal-book-date" id="journalBookDateLabel">No entry selected</div>
+                  <div class="journal-book-subtitle" id="journalBookEntryLabel">Diary window</div>
+                </div>
+                <button class="btn btn-luna btn-luna-muted" type="button" onclick="stepJournalEntry(1)">Newer</button>
+              </div>
+
+              <div class="journal-book-viewer" id="journalBookViewer">
+                <button class="journal-page-turn prev" type="button" aria-label="Previous page" onclick="stepJournalPage(-1)"></button>
+                <div class="journal-book-spread">
+                  <article class="journal-book-page left" id="journalBookPageLeft"></article>
+                  <article class="journal-book-page right" id="journalBookPageRight"></article>
+                </div>
+                <button class="journal-page-turn next" type="button" aria-label="Next page" onclick="stepJournalPage(1)"></button>
+              </div>
+
+              <div class="journal-book-footer">
+                <button class="btn btn-luna btn-luna-muted" type="button" onclick="stepJournalPage(-1)">Previous Page</button>
+                <span id="journalPageCounter">Page 0 of 0</span>
+                <button class="btn btn-luna btn-luna-muted" type="button" onclick="stepJournalPage(1)">Next Page</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journal-card-actions journal-desktop-only" style="margin-top:4px;">
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="openDiaryPage()">Open Full Diary</button>
+        </div>
+
+        <div class="section-label" style="margin-top:16px;">Saved Entries</div>
+
+        <div class="journal-archive-list" id="journalArchiveList"></div>
+
+        <div class="section-label" style="margin-top:16px;">Write here</div>
+
+        <textarea id="journalEntryInput" class="form-control journal-entry-input" placeholder="Dear diary..." oninput="onJournalDraftInput()"></textarea>
+
+        <div class="journal-editor-meta">
+          <span id="journalWordCount">0 words</span>
+          <span id="journalSaveHint">Open full diary to view rendered pages.</span>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn btn-luna" style="flex:1;" onclick="saveJournalEntry()">Save Entry ✎</button>
+          <button class="btn btn-luna btn-luna-muted" style="flex:1;" onclick="startNewJournalEntry()">New Page</button>
+          <button class="btn btn-luna btn-luna-muted" style="flex:1;" onclick="clearJournalEntry()">Clear Entry</button>
+        </div>
+
+      </div>
+
+      <div class="resize-handle" data-resize-target="journal-card" data-resize-always="true" title="Resize diary">↘</div>
 
   </div>
 
@@ -842,6 +953,7 @@
           <button class="studio-scene-tab is-active" type="button" data-scene="all" onclick="setThemeStudioPreviewScene('all')">All</button>
           <button class="studio-scene-tab" type="button" data-scene="calendar" onclick="setThemeStudioPreviewScene('calendar')">Calendar</button>
           <button class="studio-scene-tab" type="button" data-scene="logday" onclick="setThemeStudioPreviewScene('logday')">Log Day</button>
+          <button class="studio-scene-tab" type="button" data-scene="journal" onclick="setThemeStudioPreviewScene('journal')">Diary</button>
           <button class="studio-scene-tab" type="button" data-scene="buttons" onclick="setThemeStudioPreviewScene('buttons')">Buttons</button>
           <button class="studio-scene-tab" type="button" data-scene="modals" onclick="setThemeStudioPreviewScene('modals')">Modals</button>
         </div>
@@ -854,6 +966,7 @@
           <option value="overview">Cycle Overview</option>
           <option value="buttons">Buttons</option>
           <option value="inputs">Inputs</option>
+          <option value="journal">Diary</option>
           <option value="modals">Modals</option>
           <option value="calendar">Calendar</option>
           <option value="logday">Log Day</option>
@@ -921,6 +1034,15 @@
           <span data-key="--logday-title-color" onclick="selectStudioElement('--logday-title-color')">Log Day</span>
           <span class="studio-node-pill" data-key="--section-label-color" onclick="selectStudioElement('--section-label-color')">Section Label</span>
           <span class="studio-node-pill" data-key="--selected-date-label-color" onclick="selectStudioElement('--selected-date-label-color')">Date Label</span>
+        </div>
+      </div>
+
+      <div class="studio-preview-group" data-group="journal">
+        <div class="studio-node studio-logday-node" data-key="--journal-card-bg" onclick="selectStudioElement('--journal-card-bg')">
+          <span data-key="--journal-title-color" onclick="selectStudioElement('--journal-title-color')">Diary</span>
+          <span class="studio-node-pill" data-key="--journal-paper-bg" onclick="selectStudioElement('--journal-paper-bg')">Paper</span>
+          <span class="studio-node-pill" data-key="--journal-ink-color" onclick="selectStudioElement('--journal-ink-color')">Ink</span>
+          <span class="studio-node-pill" data-key="--journal-window-sky" onclick="selectStudioElement('--journal-window-sky')">Window</span>
         </div>
       </div>
 
@@ -1260,6 +1382,9 @@ const ELEMENT_DEFAULTS = {
   "--logday-card-border": "var(--bs-card-border-color)",
   "--logday-card-blur": "var(--card-blur)",
   "--logday-card-shadow": "var(--shadow)",
+  "--journal-card-bg": "linear-gradient(180deg, color-mix(in srgb, var(--card) 88%, white 12%) 0%, color-mix(in srgb, var(--card) 96%, white 4%) 100%)",
+  "--journal-card-border": "color-mix(in srgb, var(--rose-lt) 46%, var(--border) 54%)",
+  "--journal-card-shadow": "0 18px 40px rgba(87, 48, 79, 0.16)",
   "--calendar-card-bg": "var(--cal-bg)",
   "--calendar-card-border": "var(--bs-card-border-color)",
   "--calendar-card-blur": "var(--card-blur)",
@@ -1322,6 +1447,21 @@ const ELEMENT_DEFAULTS = {
   "--overview-flower-color": "var(--rose-dk)",
   "--overview-flower-bg": "var(--blush)",
   "--overview-flower-border": "var(--rose-lt)",
+  // Diary
+  "--journal-title-color": "color-mix(in srgb, var(--rose-dk) 82%, var(--ink) 18%)",
+  "--journal-flower-color": "var(--rose-dk)",
+  "--journal-flower-bg": "color-mix(in srgb, var(--blush) 86%, white 14%)",
+  "--journal-flower-border": "color-mix(in srgb, var(--rose-lt) 80%, white 20%)",
+  "--journal-paper-bg": "linear-gradient(180deg, rgba(255, 252, 246, 0.98) 0%, rgba(255, 249, 243, 0.96) 100%)",
+  "--journal-paper-line": "rgba(194, 171, 205, 0.42)",
+  "--journal-paper-margin": "rgba(222, 132, 167, 0.42)",
+  "--journal-paper-border": "color-mix(in srgb, var(--rose-lt) 48%, var(--border) 52%)",
+  "--journal-ink-color": "color-mix(in srgb, var(--ink) 78%, #54344b 22%)",
+  "--journal-archive-excerpt-color": "var(--journal-ink-color)",
+  "--journal-window-sky": "linear-gradient(180deg, #cde9ff 0%, #f7d7ec 100%)",
+  "--journal-window-frame": "color-mix(in srgb, var(--rose-lt) 58%, white 42%)",
+  "--journal-book-cover": "linear-gradient(180deg, color-mix(in srgb, var(--rose-dk) 85%, #3a2433 15%) 0%, color-mix(in srgb, var(--rose) 78%, #4f3041 22%) 100%)",
+  "--journal-book-shadow": "0 18px 38px rgba(60, 33, 50, 0.22)",
   // Buttons
   "--btn-bg": "var(--rose-dk)",
   "--btn-text": "#ffffff",
@@ -1467,6 +1607,23 @@ const EDITABLE_THEME_FIELDS = [
   { key: "--overview-flower-color", label: "Overview Flower Icon" },
   { key: "--overview-flower-bg", label: "Overview Flower Background" },
   { key: "--overview-flower-border", label: "Overview Flower Border" },
+  { key: "--journal-card-bg", label: "Diary Card Background" },
+  { key: "--journal-card-border", label: "Diary Card Border" },
+  { key: "--journal-card-shadow", label: "Diary Card Shadow" },
+  { key: "--journal-title-color", label: "Diary Title" },
+  { key: "--journal-flower-color", label: "Diary Flower Icon" },
+  { key: "--journal-flower-bg", label: "Diary Flower Background" },
+  { key: "--journal-flower-border", label: "Diary Flower Border" },
+  { key: "--journal-paper-bg", label: "Diary Paper Background" },
+  { key: "--journal-paper-line", label: "Diary Paper Lines" },
+  { key: "--journal-paper-margin", label: "Diary Paper Margin Line" },
+  { key: "--journal-paper-border", label: "Diary Paper Border" },
+  { key: "--journal-ink-color", label: "Diary Ink Color" },
+  { key: "--journal-archive-excerpt-color", label: "Diary Archive Excerpt (.journal-archive-excerpt)" },
+  { key: "--journal-window-sky", label: "Diary Window Sky" },
+  { key: "--journal-window-frame", label: "Diary Window Frame" },
+  { key: "--journal-book-cover", label: "Diary Book Cover" },
+  { key: "--journal-book-shadow", label: "Diary Book Shadow" },
   // Buttons
   { key: "--btn-bg", label: "Button Primary Background" },
   { key: "--btn-text", label: "Button Primary Text" },
@@ -1559,11 +1716,19 @@ function symptomEmoji(sym) {
 
 let currentYear, currentMonth, selectedDate;
 
-let calData = { cycles: [], symptoms: [], moods: [] };
+let calData = { cycles: [], symptoms: [], moods: [], journals: [] };
 
 let summary = {};
 
 let isPeriod = false, selectedFlow = "medium", selectedMood = null;
+
+let selectedJournalText = "";
+
+let selectedJournalEntryId = null;
+
+let journalArchive = [];
+
+let journalPageIndex = 0;
 
 let selectedSymptoms = new Set();
 
@@ -1624,6 +1789,7 @@ function getEmbedView() {
   if (segment === "calendar") return "calendar";
   if (segment === "log-day" || segment === "logday") return "logday";
   if (segment === "cycle-overview" || segment === "overview") return "overview";
+  if (segment === "diary" || segment === "journal") return "diary";
   return "";
 }
 
@@ -1633,6 +1799,7 @@ function applyEmbedView() {
   if (EMBED_VIEW === "calendar") document.title = "Luna Calendar";
   if (EMBED_VIEW === "logday") document.title = "Luna Log Day";
   if (EMBED_VIEW === "overview") document.title = "Luna Cycle Overview";
+  if (EMBED_VIEW === "diary") document.title = "Luna Diary";
 
   // Accept ?token= in embed URLs for auto-login (e.g. from HA iframes)
   const urlParams = new URLSearchParams(window.location.search);
@@ -1730,7 +1897,7 @@ function extractUrlsFromBgArt(bgArt) {
   return urls;
 }
 
-function applyTheme(themeName) {
+function applyTheme(themeName, { persistLocal = true, persistServer = true } = {}) {
 
   const chosen = THEMES[themeName] ? themeName : "rose";
 
@@ -1768,7 +1935,13 @@ function applyTheme(themeName) {
     el.textContent = logoIcon;
   });
 
-  localStorage.setItem(THEME_KEY, chosen);
+  if (persistLocal) localStorage.setItem(THEME_KEY, chosen);
+
+  if (persistServer && authToken) {
+    api("POST", "/theme-customization", {
+      selectedTheme: chosen,
+    }).catch((e) => console.error("Theme selection save failed:", e.message));
+  }
 
   const select = document.getElementById("themeSelect");
 
@@ -1805,20 +1978,75 @@ function sanitizeThemeId(name) {
     .replace(/^-+|-+$/g, "") || "theme"}`;
 }
 
-function loadThemeCustomizationData() {
-  wallpaperLibrary = Array.isArray(readJsonStorage(WALLPAPERS_KEY, []))
-    ? readJsonStorage(WALLPAPERS_KEY, [])
-    : [];
-  themeWallpapers = readJsonStorage(THEME_WALLPAPER_KEY, {});
-  customThemes = readJsonStorage(CUSTOM_THEMES_KEY, {});
+function getLocalThemeCustomizationPayload() {
+  return {
+    wallpaperLibrary: Array.isArray(readJsonStorage(WALLPAPERS_KEY, []))
+      ? readJsonStorage(WALLPAPERS_KEY, [])
+      : [],
+    themeWallpapers: readJsonStorage(THEME_WALLPAPER_KEY, {}),
+    customThemes: readJsonStorage(CUSTOM_THEMES_KEY, {}),
+  };
+}
 
-  Object.entries(customThemes).forEach(([themeId, payload]) => {
-    if (!payload || typeof payload !== "object" || !payload.vars) return;
-    THEMES[themeId] = payload.vars;
-    THEME_FLOWERS[themeId] = payload.flower || "✨";
-    THEME_LOGO_ICONS[themeId] = payload.logoIcon || "🌙";
-    THEME_LABELS[themeId] = payload.label || themeId;
+function clearLocalThemeCustomizationPayload() {
+  localStorage.removeItem(WALLPAPERS_KEY);
+  localStorage.removeItem(THEME_WALLPAPER_KEY);
+  localStorage.removeItem(CUSTOM_THEMES_KEY);
+}
+
+function hasThemeCustomizationData(payload = {}) {
+  return Boolean(
+    (Array.isArray(payload.wallpaperLibrary) && payload.wallpaperLibrary.length)
+    || (payload.themeWallpapers && Object.keys(payload.themeWallpapers).length)
+    || (payload.customThemes && Object.keys(payload.customThemes).length)
+    || (payload.selectedTheme && String(payload.selectedTheme).trim())
+  );
+}
+
+function resetRuntimeCustomThemes() {
+  Object.keys(THEMES)
+    .filter((name) => !BUILTIN_THEME_NAMES.includes(name))
+    .forEach((name) => {
+      delete THEMES[name];
+      delete THEME_FLOWERS[name];
+      delete THEME_LOGO_ICONS[name];
+      delete THEME_LABELS[name];
+    });
+}
+
+function applyThemeCustomizationPayload(payload = {}) {
+  resetRuntimeCustomThemes();
+
+  wallpaperLibrary = Array.isArray(payload.wallpaperLibrary) ? payload.wallpaperLibrary : [];
+  themeWallpapers = (payload.themeWallpapers && typeof payload.themeWallpapers === "object") ? payload.themeWallpapers : {};
+  customThemes = (payload.customThemes && typeof payload.customThemes === "object") ? payload.customThemes : {};
+
+  let migratedLegacyTheme = false;
+
+  Object.entries(customThemes).forEach(([themeId, payloadValue]) => {
+    if (!payloadValue || typeof payloadValue !== "object") return;
+
+    const legacyVars = Object.keys(payloadValue).some((key) => key.startsWith("--")) ? payloadValue : null;
+    const vars = (payloadValue.vars && typeof payloadValue.vars === "object") ? payloadValue.vars : legacyVars;
+    if (!vars) return;
+
+    if (!payloadValue.vars) {
+      customThemes[themeId] = {
+        label: payloadValue.label || themeId,
+        vars,
+        flower: payloadValue.flower || "✨",
+        logoIcon: payloadValue.logoIcon || "🌙",
+      };
+      migratedLegacyTheme = true;
+    }
+
+    THEMES[themeId] = vars;
+    THEME_FLOWERS[themeId] = payloadValue.flower || "✨";
+    THEME_LOGO_ICONS[themeId] = payloadValue.logoIcon || "🌙";
+    THEME_LABELS[themeId] = payloadValue.label || themeId;
   });
+
+  if (migratedLegacyTheme) persistCustomThemes();
 
   wallpaperLibrary = wallpaperLibrary
     .map((entry) => {
@@ -1833,13 +2061,57 @@ function loadThemeCustomizationData() {
     .filter(Boolean);
 }
 
+function loadThemeCustomizationData() {
+  applyThemeCustomizationPayload(getLocalThemeCustomizationPayload());
+}
+
+async function loadThemeCustomizationDataFromServer() {
+  if (!authToken) return;
+
+  try {
+    const serverPayload = await api("GET", "/theme-customization");
+    const localPayload = getLocalThemeCustomizationPayload();
+
+    if (!hasThemeCustomizationData(serverPayload) && hasThemeCustomizationData(localPayload)) {
+      applyThemeCustomizationPayload(localPayload);
+      await api("POST", "/theme-customization", {
+        wallpaperLibrary,
+        themeWallpapers,
+        customThemes,
+        selectedTheme: localStorage.getItem(THEME_KEY) || "",
+      });
+      clearLocalThemeCustomizationPayload();
+    } else {
+      applyThemeCustomizationPayload(serverPayload);
+      clearLocalThemeCustomizationPayload();
+    }
+
+    renderThemeSelectOptions();
+    const selected = (serverPayload && serverPayload.selectedTheme) || localStorage.getItem(THEME_KEY) || "rose";
+    applyTheme(THEMES[selected] ? selected : "rose", { persistLocal: true, persistServer: false });
+  } catch (e) {
+    console.error("Theme customization sync failed:", e.message);
+  }
+}
+
 function persistWallpaperData() {
-  saveJsonStorage(WALLPAPERS_KEY, wallpaperLibrary);
-  saveJsonStorage(THEME_WALLPAPER_KEY, themeWallpapers);
+  if (!authToken) return;
+  api("POST", "/theme-customization", {
+    wallpaperLibrary,
+    themeWallpapers,
+    customThemes,
+    selectedTheme: localStorage.getItem(THEME_KEY) || "",
+  }).catch((e) => console.error("Theme customization save failed:", e.message));
 }
 
 function persistCustomThemes() {
-  saveJsonStorage(CUSTOM_THEMES_KEY, customThemes);
+  if (!authToken) return;
+  api("POST", "/theme-customization", {
+    wallpaperLibrary,
+    themeWallpapers,
+    customThemes,
+    selectedTheme: localStorage.getItem(THEME_KEY) || "",
+  }).catch((e) => console.error("Theme customization save failed:", e.message));
 }
 
 function themeNames() {
@@ -2073,6 +2345,7 @@ function getThemeFieldCategory(field) {
   if (key.startsWith("--header-")) return "header";
   if (key.startsWith("--card-") || key.startsWith("--shadow") || key.startsWith("--bs-card-")) return "cards";
   if (key.startsWith("--overview-") || key.startsWith("--stat-")) return "overview";
+  if (key.startsWith("--journal-")) return "journal";
   if (key.startsWith("--btn-")) return "buttons";
   if (key.startsWith("--input-")) return "inputs";
   if (key.startsWith("--modal-")) return "modals";
@@ -2092,6 +2365,7 @@ function renderThemeEditorCategoryOptions() {
     header: "Header",
     cards: "Cards",
     overview: "Cycle Overview",
+    journal: "Diary",
     buttons: "Buttons",
     inputs: "Inputs",
     modals: "Modals",
@@ -2226,6 +2500,7 @@ function setThemeStudioPreviewScene(scene) {
     all: "all",
     calendar: "calendar",
     logday: "logday",
+    journal: "journal",
     buttons: "buttons",
     modals: "modals",
   };
@@ -2399,6 +2674,7 @@ function onThemeStudioPreviewFilterChange() {
     all: "all",
     calendar: "calendar",
     logday: "logday",
+    journal: "journal",
     buttons: "buttons",
     modals: "modals",
   };
@@ -2744,6 +3020,9 @@ function applyGlassBackgroundToDraft(silent = false) {
   themeStudioDraft["--calendar-card-border"] = calendarBorderGlass;
   themeStudioDraft["--calendar-card-blur"] = `${Math.round(calendarBlurValue)}px`;
   themeStudioDraft["--cal-bg"] = calendarGlassColor;
+
+  THEMES[activeStudioTheme] = { ...themeStudioDraft };
+  applyTheme(activeStudioTheme);
 
   renderThemeStudioSwatches();
   if (!silent) toast("Applied glass background");
@@ -3476,6 +3755,38 @@ function toggleCardCollapse(cardId) {
 
 }
 
+function resetPanelLayout(cardId) {
+
+  if (!cardId) return;
+
+  delete layoutPositions[cardId];
+  delete resizedCards[cardId];
+  delete collapsedCards[cardId];
+
+  applyCardSizes();
+  applyCollapsedState();
+  applyLayoutPositions();
+  saveLayoutState();
+
+  toast("Panel layout reset");
+
+}
+
+function resetDashboardLayout() {
+
+  layoutPositions = {};
+  resizedCards = {};
+  collapsedCards = {};
+
+  applyCardSizes();
+  applyCollapsedState();
+  applyLayoutPositions();
+  saveLayoutState();
+
+  toast("Layout reset");
+
+}
+
 function enableLayoutDragging() {
 
   document.querySelectorAll(".movable").forEach((el) => {
@@ -4104,7 +4415,11 @@ async function tryResumeSession() {
 
 async function bootstrapData() {
 
+  await loadThemeCustomizationDataFromServer();
+
   await loadCalendar();
+
+  await loadJournalArchive();
 
   await loadSummary();
 
@@ -4124,11 +4439,13 @@ async function loadCalendar() {
 
   } catch (e) {
 
-    calData = { cycles: [], symptoms: [], moods: [] };
+    calData = { cycles: [], symptoms: [], moods: [], journals: [] };
 
   }
 
   renderCalendar();
+
+  if (selectedDate) selectDate(selectedDate);
 
 }
 
@@ -4290,6 +4607,7 @@ function renderCalendar() {
   });
 
   const moodDays    = new Set(calData.moods.map(m => m.log_date?.split("T")[0] || m.log_date));
+  const journalDays = new Set((calData.journals || []).map(j => j.log_date?.split("T")[0] || j.log_date));
 
 
 
@@ -4377,6 +4695,8 @@ function renderCalendar() {
 
     if (moodDays.has(dateStr))    { const dot = document.createElement("div"); dot.className="dot mood"; dots.appendChild(dot); }
 
+    if (journalDays.has(dateStr)) { const dot = document.createElement("div"); dot.className="dot journal"; dots.appendChild(dot); }
+
     if (dots.children.length) el.appendChild(dots);
 
     el.onclick = () => selectDate(dateStr);
@@ -4413,11 +4733,12 @@ function renderCalendar() {
 
 // ── Date Selection ─────────────────────────────────────────────────
 
-async function selectDate(dateStr) {
+async function selectDate(dateStr, journalEntryId = null) {
 
   selectedDate = dateStr;
 
   document.getElementById("selectedDateLabel").textContent = fmtDate(dateStr);
+  document.getElementById("journalDateLabel").textContent = fmtDate(dateStr);
 
 
 
@@ -4442,6 +4763,15 @@ async function selectDate(dateStr) {
 
   if (mood) { selectedMood = mood.mood; }
 
+  const journalEntries = getJournalEntriesForDate(dateStr);
+  const selectedEntry = journalEntryId != null
+    ? journalEntries.find((entry) => Number(entry.id) === Number(journalEntryId))
+    : journalEntries[journalEntries.length - 1];
+
+  selectedJournalEntryId = selectedEntry ? Number(selectedEntry.id) : null;
+  selectedJournalText = selectedEntry?.entry_text || "";
+  journalPageIndex = 0;
+
 
 
   // Check period
@@ -4461,6 +4791,8 @@ async function selectDate(dateStr) {
 
 
   updateLoggerUI();
+
+  renderJournalUI();
 
   renderCalendar();
 
@@ -4526,14 +4858,20 @@ async function clearDay() {
     // Remove mood for this date
     await api("DELETE", `/moods?date=${selectedDate}`);
 
+    // Remove journal entry for this date
+    await api("DELETE", `/journal?date=${selectedDate}`);
+
     // Reset UI state
     isPeriod = false;
     selectedFlow = "medium";
     selectedSymptoms = new Set();
     selectedMood = "";
+    selectedJournalEntryId = null;
+    selectedJournalText = "";
     document.getElementById("energySlider").value = 3;
     document.getElementById("energyLabel").textContent = "3";
     updateLoggerUI();
+    renderJournalUI();
     buildSymptomPills();
 
     await loadCalendar();
@@ -4629,6 +4967,8 @@ async function saveDay() {
 
     }
 
+    await persistJournalEntry({ reloadCalendar: false, showToast: false });
+
 
 
     await loadCalendar();
@@ -4682,6 +5022,514 @@ function setMood(el, mood) {
   document.querySelectorAll(".mood-btn").forEach(b => b.classList.remove("active"));
 
   el.classList.add("active");
+
+}
+
+function getJournalDateOnly(entry) {
+
+  return String(entry?.log_date || "").split("T")[0];
+
+}
+
+function compareJournalEntries(a, b) {
+
+  return getJournalDateOnly(a).localeCompare(getJournalDateOnly(b))
+    || String(a?.created_at || "").localeCompare(String(b?.created_at || ""))
+    || (Number(a?.id || 0) - Number(b?.id || 0));
+
+}
+
+function getKnownJournalEntries() {
+
+  const seen = new Set();
+
+  return [...journalArchive, ...(calData.journals || [])].filter((entry) => {
+    const key = entry?.id ? `id:${entry.id}` : `fallback:${getJournalDateOnly(entry)}:${entry?.entry_text || ""}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+}
+
+function getJournalEntriesForDate(dateStr) {
+
+  if (!dateStr) return [];
+
+  const day = dateStr.substring(0, 10);
+  return getKnownJournalEntries()
+    .filter((entry) => getJournalDateOnly(entry) === day)
+    .sort(compareJournalEntries);
+
+}
+
+function getJournalEntryById(entryId) {
+
+  if (entryId == null) return null;
+
+  return getKnownJournalEntries().find((entry) => Number(entry.id) === Number(entryId)) || null;
+
+}
+
+function getSelectedJournalEntry() {
+
+  return getJournalEntryById(selectedJournalEntryId);
+
+}
+
+function getJournalTextForDate(dateStr, entryId = selectedJournalEntryId) {
+
+  if (!dateStr) return "";
+
+  const entries = getJournalEntriesForDate(dateStr);
+  if (!entries.length) return "";
+
+  if (entryId != null) {
+    const matchingEntry = entries.find((entry) => Number(entry.id) === Number(entryId));
+    if (matchingEntry) return matchingEntry.entry_text || "";
+  }
+
+  return entries[entries.length - 1]?.entry_text || "";
+
+}
+
+function getJournalEntriesSorted(order = "asc") {
+
+  const entries = getKnownJournalEntries().sort(compareJournalEntries);
+
+  return order === "desc" ? entries.reverse() : entries;
+
+}
+
+function escapeHtml(value) {
+
+  return String(value)
+
+    .replaceAll("&", "&amp;")
+
+    .replaceAll("<", "&lt;")
+
+    .replaceAll(">", "&gt;")
+
+    .replaceAll('"', "&quot;")
+
+    .replaceAll("'", "&#39;");
+
+}
+
+function paginateJournalText(text, charsPerPage = 520) {
+
+  const normalized = String(text || "").replace(/\r/g, "").trim();
+
+  if (!normalized) return [];
+
+  const paragraphs = normalized.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
+  const pages = [];
+  let current = "";
+
+  paragraphs.forEach((paragraph) => {
+    const candidate = current ? `${current}\n\n${paragraph}` : paragraph;
+
+    if (candidate.length <= charsPerPage) {
+      current = candidate;
+      return;
+    }
+
+    if (current) pages.push(current);
+
+    let remaining = paragraph;
+    while (remaining.length > charsPerPage) {
+      const slice = remaining.slice(0, charsPerPage);
+      const splitAt = Math.max(slice.lastIndexOf(" "), slice.lastIndexOf("\n"));
+      const cutoff = splitAt > 220 ? splitAt : charsPerPage;
+      pages.push(remaining.slice(0, cutoff).trim());
+      remaining = remaining.slice(cutoff).trim();
+    }
+
+    current = remaining;
+  });
+
+  if (current) pages.push(current);
+  return pages.filter(Boolean);
+
+}
+
+function renderJournalBookPage(targetId, content) {
+
+  const target = document.getElementById(targetId);
+
+  if (!target) return;
+
+  if (!content) {
+    target.innerHTML = '<div class="journal-book-empty">Turn the page for more memories.</div>';
+    return;
+  }
+
+  target.innerHTML = content
+    .split(/\n{2,}/)
+    .map((paragraph) => `<p class="journal-book-line">${escapeHtml(paragraph).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+
+}
+
+function syncJournalArchiveSelection() {
+
+  const entries = getJournalEntriesSorted("asc");
+
+  if (!entries.length) {
+    selectedJournalEntryId = null;
+    return;
+  }
+
+  const selectedEntry = getJournalEntryById(selectedJournalEntryId);
+  if (selectedEntry) {
+    selectedDate = getJournalDateOnly(selectedEntry);
+    return;
+  }
+
+  if (selectedDate) {
+    const entriesForDate = getJournalEntriesForDate(selectedDate);
+    if (entriesForDate.length) {
+      const latestEntryForDate = entriesForDate[entriesForDate.length - 1];
+      selectedJournalEntryId = Number(latestEntryForDate.id) || null;
+      if (!selectedJournalText.trim()) selectedJournalText = latestEntryForDate.entry_text || "";
+    }
+    return;
+  }
+
+  const latestEntry = entries[entries.length - 1];
+  selectedDate = getJournalDateOnly(latestEntry);
+  selectedJournalEntryId = Number(latestEntry.id) || null;
+  if (!selectedJournalText.trim()) selectedJournalText = latestEntry.entry_text || "";
+
+}
+
+function renderJournalBook() {
+
+  const entries = getJournalEntriesSorted("asc");
+  const pageCounter = document.getElementById("journalPageCounter");
+  const entryLabel = document.getElementById("journalBookEntryLabel");
+  const dateLabel = document.getElementById("journalBookDateLabel");
+  if (!pageCounter || !entryLabel || !dateLabel) return;
+
+  const activeEntry = getSelectedJournalEntry();
+  const sourceText = selectedJournalText || activeEntry?.entry_text || "";
+  const pages = paginateJournalText(sourceText);
+  const spreadCount = Math.max(1, Math.ceil(pages.length / 2));
+  journalPageIndex = Math.min(Math.max(journalPageIndex, 0), spreadCount - 1);
+
+  renderJournalBookPage("journalBookPageLeft", pages[journalPageIndex * 2] || "");
+  renderJournalBookPage("journalBookPageRight", pages[journalPageIndex * 2 + 1] || "");
+
+  const matchingEntry = activeEntry || null;
+  const entryIndex = matchingEntry ? entries.findIndex((entry) => entry === matchingEntry) + 1 : 0;
+  dateLabel.textContent = selectedDate ? fmtDate(selectedDate) : "No entry selected";
+  entryLabel.textContent = matchingEntry ? `Saved entry ${entryIndex} of ${entries.length}` : "Draft page";
+  pageCounter.textContent = `Page ${pages.length ? journalPageIndex + 1 : 0} of ${spreadCount}`;
+
+}
+
+function renderJournalArchive() {
+
+  const archive = document.getElementById("journalArchiveList");
+
+  if (!archive) return;
+
+  archive.innerHTML = "";
+
+  const entries = getJournalEntriesSorted("desc");
+
+  if (!entries.length) {
+    archive.innerHTML = '<div class="journal-archive-empty">Saved diary pages will appear here.</div>';
+    return;
+  }
+
+  entries.forEach((entry, index) => {
+    const dateStr = getJournalDateOnly(entry);
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = `journal-archive-item${Number(entry.id) === Number(selectedJournalEntryId) ? " is-active" : ""}`;
+    card.onclick = () => openJournalEntry(entry.id, "edit");
+
+    const excerpt = String(entry.entry_text || "").replace(/\s+/g, " ").trim();
+    const shortExcerpt = excerpt.length > 140 ? `${excerpt.slice(0, 140).trimEnd()}...` : excerpt;
+
+    card.innerHTML = `
+      <div class="journal-archive-item-top">
+        <span class="journal-archive-index">#${entries.length - index}</span>
+        <span class="journal-archive-date">${fmtDate(dateStr)}</span>
+      </div>
+      <div class="journal-archive-excerpt">${escapeHtml(shortExcerpt || "No text")}</div>
+      <div class="journal-archive-actions">
+        <span class="journal-archive-link" data-journal-action="edit">Edit</span>
+        <span class="journal-archive-link" data-journal-action="read">Read full</span>
+        <span class="journal-archive-link" data-journal-action="delete">Delete</span>
+      </div>
+    `;
+
+    card.querySelectorAll("[data-journal-action]").forEach((link) => {
+      link.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        const action = link.dataset.journalAction || "read";
+        if (action === "delete") {
+          await deleteJournalEntry(entry.id);
+          return;
+        }
+        await openJournalEntry(entry.id, action);
+      });
+    });
+
+    archive.appendChild(card);
+  });
+
+}
+
+function renderJournalUI() {
+
+  const input = document.getElementById("journalEntryInput");
+
+  if (!input) return;
+
+
+
+  input.value = selectedJournalText || "";
+
+
+
+  const preview = document.getElementById("journalPreview");
+
+  const sections = (selectedJournalText || "")
+
+    .split(/\n{2,}/)
+
+    .map(part => part.trim())
+
+    .filter(Boolean);
+
+
+
+  if (!sections.length) {
+
+    preview.innerHTML = '<div class="journal-empty-state">Your diary page will appear here in a handwritten style.</div>';
+
+  } else {
+
+    preview.innerHTML = sections
+
+      .map(part => `<p class="journal-line">${escapeHtml(part).replace(/\n/g, "<br>")}</p>`)
+
+      .join("");
+
+  }
+
+
+
+  const wordCount = (selectedJournalText || "").trim().split(/\s+/).filter(Boolean).length;
+  const activeEntry = getSelectedJournalEntry();
+
+  document.getElementById("journalWordCount").textContent = `${wordCount} ${wordCount === 1 ? "word" : "words"}`;
+
+  document.getElementById("journalSaveHint").textContent = activeEntry
+
+    ? `Editing entry for ${fmtDate(getJournalDateOnly(activeEntry))}`
+
+    : (selectedDate ? `New page for ${fmtDate(selectedDate)}` : "Select a date to start writing.");
+
+  renderJournalArchive();
+
+  renderJournalBook();
+
+}
+
+function onJournalDraftInput() {
+
+  selectedJournalText = document.getElementById("journalEntryInput").value;
+
+  renderJournalUI();
+
+}
+
+async function persistJournalEntry({ reloadCalendar = true, showToast = false } = {}) {
+
+  if (!selectedDate) {
+
+    if (showToast) toast("Select a date first", true);
+
+    return false;
+
+  }
+
+
+
+  const trimmed = selectedJournalText.trim();
+
+  const hadExistingEntry = selectedJournalEntryId != null;
+
+
+
+  if (!trimmed) {
+
+    if (hadExistingEntry) await api("DELETE", `/journal?id=${selectedJournalEntryId}`);
+
+    selectedJournalEntryId = null;
+
+    await loadJournalArchive();
+
+    if (reloadCalendar) await loadCalendar();
+
+    if (showToast) toast(hadExistingEntry ? "Diary entry cleared" : "Nothing to save", !hadExistingEntry);
+
+    return hadExistingEntry;
+
+  }
+
+
+
+  const payload = {
+
+    log_date: selectedDate,
+
+    entry_text: trimmed,
+
+  };
+
+  if (selectedJournalEntryId != null) payload.id = selectedJournalEntryId;
+
+  const result = await api("POST", "/journal", payload);
+
+  if (result?.entry?.id != null) {
+    selectedJournalEntryId = Number(result.entry.id);
+    selectedDate = getJournalDateOnly(result.entry);
+    selectedJournalText = result.entry.entry_text || trimmed;
+  }
+
+  await loadJournalArchive();
+
+
+
+  if (reloadCalendar) await loadCalendar();
+
+  if (showToast) toast("Diary entry saved");
+
+  return true;
+
+}
+
+async function saveJournalEntry() {
+
+  try {
+
+    const savedDate = selectedDate;
+    const saved = await persistJournalEntry({ reloadCalendar: true, showToast: false });
+
+    if (!saved) return;
+
+    await prepareNextJournalEntryDate(savedDate);
+    toast(`Diary entry saved for ${fmtDate(savedDate)}. Ready for the next page.`);
+
+  } catch (e) {
+
+    toast("Error saving entry: " + e.message, true);
+
+  }
+
+}
+
+async function clearJournalEntry() {
+
+  if (!selectedDate) return toast("Select a date first", true);
+
+
+
+  try {
+
+    selectedJournalText = "";
+
+    renderJournalUI();
+
+    if (selectedJournalEntryId == null) {
+      toast("Draft cleared");
+      return;
+    }
+
+    await persistJournalEntry({ reloadCalendar: true, showToast: true });
+
+  } catch (e) {
+
+    toast("Error clearing entry: " + e.message, true);
+
+  }
+
+}
+
+async function prepareNextJournalEntryDate(dateStr) {
+
+  const base = new Date(`${dateStr}T12:00:00`);
+  base.setDate(base.getDate() + 1);
+  const nextDate = base.toISOString().split("T")[0];
+  const nextYear = base.getFullYear();
+  const nextMonth = base.getMonth() + 1;
+
+  selectedDate = nextDate;
+  selectedJournalEntryId = null;
+  selectedJournalText = "";
+
+  if (nextYear !== currentYear || nextMonth !== currentMonth) {
+    currentYear = nextYear;
+    currentMonth = nextMonth;
+    await loadCalendar();
+    return;
+  }
+
+  await selectDate(nextDate);
+
+}
+
+function startNewJournalEntry() {
+
+  if (!selectedDate) return toast("Select a date first", true);
+
+  selectedJournalEntryId = null;
+  selectedJournalText = "";
+  journalPageIndex = 0;
+  renderJournalUI();
+  document.getElementById("journalEntryInput")?.focus();
+
+}
+
+async function deleteJournalEntry(entryId) {
+
+  const entry = getJournalEntryById(entryId);
+  if (!entry) return;
+
+  if (!confirm(`Delete this diary entry from ${fmtDate(getJournalDateOnly(entry))}?`)) return;
+
+  await api("DELETE", `/journal?id=${entryId}`);
+
+  if (Number(selectedJournalEntryId) === Number(entryId)) {
+    selectedJournalEntryId = null;
+    selectedJournalText = "";
+  }
+
+  await loadJournalArchive();
+  await loadCalendar();
+  toast("Diary entry deleted");
+
+}
+
+async function openJournalEntry(entryId, mode = "edit") {
+
+  const entry = getJournalEntryById(entryId);
+  if (!entry) return;
+
+  await selectDate(getJournalDateOnly(entry), entry.id);
+
+  if (mode === "read") {
+    document.getElementById("journalBookViewer")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
+  document.getElementById("journalEntryInput")?.focus();
 
 }
 
@@ -4778,7 +5626,6 @@ function showCustomSymptomInput(container) {
   container.insertBefore(wrap, otherPill);
   inp.focus();
 }
-
 
 
 function changeMonth(dir) {
@@ -4893,6 +5740,59 @@ function monthsBetween(start, end) {
     cursor.setMonth(cursor.getMonth() + 1);
   }
   return out;
+}
+
+
+async function loadJournalArchive() {
+
+  try {
+    journalArchive = await api("GET", "/journal");
+  } catch (_) {
+    journalArchive = [];
+  }
+
+  syncJournalArchiveSelection();
+  renderJournalUI();
+
+}
+
+function stepJournalEntry(direction) {
+
+  const entries = getJournalEntriesSorted();
+
+  if (!entries.length) return;
+
+  const currentIndex = entries.findIndex((entry) => Number(entry.id) === Number(selectedJournalEntryId));
+  const safeCurrentIndex = currentIndex >= 0 ? currentIndex : Math.max(0, entries.length - 1);
+  const nextIndex = Math.min(entries.length - 1, Math.max(0, safeCurrentIndex + Number(direction || 0)));
+  const nextEntry = entries[nextIndex];
+
+  journalPageIndex = 0;
+  selectDate(getJournalDateOnly(nextEntry), nextEntry.id);
+
+}
+
+function stepJournalPage(direction) {
+
+  const activeEntry = getSelectedJournalEntry();
+  const spreadCount = Math.max(1, Math.ceil(paginateJournalText(selectedJournalText || activeEntry?.entry_text || "").length / 2));
+  journalPageIndex = Math.min(spreadCount - 1, Math.max(0, journalPageIndex + Number(direction || 0)));
+  renderJournalBook();
+
+}
+
+function openDiaryPage() {
+
+  const url = new URL(`${window.location.origin}/diary`);
+  if (selectedDate) url.searchParams.set("date", selectedDate);
+  window.location.href = url.toString();
+
+}
+
+function goHome() {
+
+  window.location.href = `${window.location.origin}/`;
+
 }
 
 function getExportMonthRange(data) {
@@ -5129,16 +6029,21 @@ async function exportCalendarPdf() {
 async function initApp() {
 
   applyEmbedView();
+  
+  const requestedDate = new URLSearchParams(window.location.search).get("date");
 
   currentYear  = today.getFullYear();
 
   currentMonth = today.getMonth() + 1;
 
-  selectedDate = today.toISOString().split("T")[0];
+  selectedDate = requestedDate || today.toISOString().split("T")[0];
 
   document.getElementById("selectedDateLabel").textContent = fmtDate(selectedDate);
+  document.getElementById("journalDateLabel").textContent = fmtDate(selectedDate);
 
   buildSymptomPills();
+
+  renderJournalUI();
 
   renderCalendar();
 
@@ -5148,7 +6053,7 @@ async function initApp() {
 
   const savedTheme = localStorage.getItem(THEME_KEY) || "rose";
 
-  applyTheme(savedTheme);
+  applyTheme(savedTheme, { persistLocal: false, persistServer: false });
 
   if (!EMBED_VIEW) initLayoutSystem();
 

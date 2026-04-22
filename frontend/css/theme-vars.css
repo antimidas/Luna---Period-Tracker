@@ -42,6 +42,9 @@
     --logday-card-border: var(--bs-card-border-color);
     --logday-card-blur: var(--card-blur);
     --logday-card-shadow: var(--shadow);
+    --journal-card-bg: linear-gradient(180deg, color-mix(in srgb, var(--card) 88%, white 12%) 0%, color-mix(in srgb, var(--card) 96%, white 4%) 100%);
+    --journal-card-border: color-mix(in srgb, var(--rose-lt) 46%, var(--border) 54%);
+    --journal-card-shadow: 0 18px 40px rgba(87, 48, 79, 0.16);
     --calendar-card-bg: var(--cal-bg);
     --calendar-card-border: var(--bs-card-border-color);
     --calendar-card-blur: var(--card-blur);
@@ -104,6 +107,21 @@
     --overview-flower-color: var(--rose-dk);
     --overview-flower-bg: var(--blush);
     --overview-flower-border: var(--rose-lt);
+    /* Diary */
+    --journal-title-color: color-mix(in srgb, var(--rose-dk) 82%, var(--ink) 18%);
+    --journal-flower-color: var(--rose-dk);
+    --journal-flower-bg: color-mix(in srgb, var(--blush) 86%, white 14%);
+    --journal-flower-border: color-mix(in srgb, var(--rose-lt) 80%, white 20%);
+    --journal-paper-bg: linear-gradient(180deg, rgba(255, 252, 246, 0.98) 0%, rgba(255, 249, 243, 0.96) 100%);
+    --journal-paper-line: rgba(194, 171, 205, 0.42);
+    --journal-paper-margin: rgba(222, 132, 167, 0.42);
+    --journal-paper-border: color-mix(in srgb, var(--rose-lt) 48%, var(--border) 52%);
+    --journal-ink-color: color-mix(in srgb, var(--ink) 78%, #54344b 22%);
+    --journal-archive-excerpt-color: var(--journal-ink-color);
+    --journal-window-sky: linear-gradient(180deg, #cde9ff 0%, #f7d7ec 100%);
+    --journal-window-frame: color-mix(in srgb, var(--rose-lt) 58%, white 42%);
+    --journal-book-cover: linear-gradient(180deg, color-mix(in srgb, var(--rose-dk) 85%, #3a2433 15%) 0%, color-mix(in srgb, var(--rose) 78%, #4f3041 22%) 100%);
+    --journal-book-shadow: 0 18px 38px rgba(60, 33, 50, 0.22);
     /* Buttons */
     --btn-bg: var(--rose-dk);
     --btn-text: #ffffff;

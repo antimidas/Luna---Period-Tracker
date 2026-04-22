@@ -103,6 +103,21 @@ async function ensureSchema() {
   await runMigration(`ALTER TABLE symptoms ADD COLUMN user_id INT NULL`, ["ER_DUP_FIELDNAME"]);
   await runMigration(`ALTER TABLE moods ADD COLUMN user_id INT NULL`, ["ER_DUP_FIELDNAME"]);
   await runMigration(`ALTER TABLE settings ADD COLUMN user_id INT NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(
+    `CREATE TABLE IF NOT EXISTS journal_entries (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      log_date DATE NOT NULL,
+      entry_text TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      UNIQUE KEY unique_journal_per_day (user_id, log_date),
+      CONSTRAINT fk_journal_entries_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )`
+  );
+  await runMigration(`ALTER TABLE journal_entries ADD KEY idx_journal_user_date (user_id, log_date)`, ["ER_DUP_KEYNAME"]);
+  await runMigration(`ALTER TABLE journal_entries ADD KEY idx_journal_user_created_at (user_id, created_at)`, ["ER_DUP_KEYNAME"]);
+  await runMigration(`ALTER TABLE journal_entries DROP INDEX unique_journal_per_day`, ["ER_CANT_DROP_FIELD_OR_KEY"]);
 
   await pool.query(`UPDATE cycles SET user_id=? WHERE user_id IS NULL`, [ownerId]);
   await pool.query(`UPDATE symptoms SET user_id=? WHERE user_id IS NULL`, [ownerId]);
@@ -321,6 +336,10 @@ async function buildHomeAssistantCalendar(userId) {
     `SELECT * FROM moods WHERE user_id=? AND YEAR(log_date)=? AND MONTH(log_date)=? ORDER BY log_date ASC`,
     [userId, year, month]
   );
+  const [journals] = await pool.query(
+    `SELECT * FROM journal_entries WHERE user_id=? AND YEAR(log_date)=? AND MONTH(log_date)=? ORDER BY log_date ASC`,
+    [userId, year, month]
+  );
 
   const predictedStart = await getPrediction(userId);
   const predictedDays = new Set();
@@ -351,6 +370,7 @@ async function buildHomeAssistantCalendar(userId) {
   });
 
   const moodDays = new Set(moods.map((entry) => String(entry.log_date).split("T")[0]));
+  const journalDays = new Set(journals.map((entry) => String(entry.log_date).split("T")[0]));
   const firstDay = new Date(year, monthIndex, 1).getDay();
   const daysInMonth = new Date(year, month, 0).getDate();
   const weeks = [];
@@ -372,6 +392,7 @@ async function buildHomeAssistantCalendar(userId) {
       is_period: periodDays.has(dateStr),
       is_predicted: !periodDays.has(dateStr) && predictedDays.has(dateStr),
       has_mood: moodDays.has(dateStr),
+      has_journal: journalDays.has(dateStr),
       symptom_count: daySymptoms.length,
       symptom_icons: showIcons ? daySymptoms.slice(0, 3).map(symptomEmoji) : [],
       more_symptoms: showIcons && daySymptoms.length > 3 ? "+" : "",
@@ -519,6 +540,7 @@ app.get("/api/admin/export/user-db", requireAuth, requireAdmin, async (req, res)
   const [cycles] = await pool.query(`SELECT * FROM cycles WHERE user_id=? ORDER BY start_date ASC`, [userId]);
   const [symptoms] = await pool.query(`SELECT * FROM symptoms WHERE user_id=? ORDER BY log_date ASC, symptom ASC`, [userId]);
   const [moods] = await pool.query(`SELECT * FROM moods WHERE user_id=? ORDER BY log_date ASC`, [userId]);
+  const [journals] = await pool.query(`SELECT * FROM journal_entries WHERE user_id=? ORDER BY log_date ASC`, [userId]);
   const [settings] = await pool.query(`SELECT * FROM settings WHERE user_id=? ORDER BY setting_key ASC`, [userId]);
 
   const format = String(req.query.format || "json").toLowerCase();
@@ -530,6 +552,7 @@ app.get("/api/admin/export/user-db", requireAuth, requireAdmin, async (req, res)
     chunks.push(serializeRowsAsInsert("cycles", cycles));
     chunks.push(serializeRowsAsInsert("symptoms", symptoms));
     chunks.push(serializeRowsAsInsert("moods", moods));
+    chunks.push(serializeRowsAsInsert("journal_entries", journals));
     chunks.push(serializeRowsAsInsert("settings", settings));
     res.setHeader("Content-Type", "application/sql");
     res.setHeader("Content-Disposition", `attachment; filename=user_${userId}_export.sql`);
@@ -538,7 +561,7 @@ app.get("/api/admin/export/user-db", requireAuth, requireAdmin, async (req, res)
 
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Content-Disposition", `attachment; filename=user_${userId}_export.json`);
-  return res.send(JSON.stringify({ user: userRows[0], cycles, symptoms, moods, settings }, null, 2));
+  return res.send(JSON.stringify({ user: userRows[0], cycles, symptoms, moods, journals, settings }, null, 2));
 });
 
 app.get("/api/admin/export/full-db", requireAuth, requireAdmin, async (req, res, next) => {
@@ -779,6 +802,186 @@ app.delete("/api/moods", requireAuth, async (req, res) => {
   }
 });
 
+app.get("/api/journal", requireAuth, async (req, res) => {
+  const { date, id, month, year } = req.query;
+  let rows;
+
+  if (id) {
+    [rows] = await pool.query(
+      "SELECT * FROM journal_entries WHERE user_id=? AND id=? LIMIT 1",
+      [req.user.id, id]
+    );
+    return res.json(rows[0] || null);
+  }
+
+  if (date) {
+    [rows] = await pool.query(
+      "SELECT * FROM journal_entries WHERE user_id=? AND log_date=? ORDER BY created_at ASC, id ASC",
+      [req.user.id, date]
+    );
+    return res.json(rows);
+  }
+
+  if (month && year) {
+    [rows] = await pool.query(
+      "SELECT * FROM journal_entries WHERE user_id=? AND YEAR(log_date)=? AND MONTH(log_date)=? ORDER BY log_date DESC, created_at DESC, id DESC",
+      [req.user.id, year, month]
+    );
+    return res.json(rows);
+  }
+
+  [rows] = await pool.query(
+    "SELECT * FROM journal_entries WHERE user_id=? ORDER BY log_date DESC, created_at DESC, id DESC LIMIT 250",
+    [req.user.id]
+  );
+  return res.json(rows);
+});
+
+app.post("/api/journal", requireAuth, async (req, res) => {
+  try {
+    const { id, log_date, entry_text } = req.body;
+    const trimmedEntry = String(entry_text || "").trim();
+    if (!log_date) return res.status(400).json({ error: "log_date required" });
+    if (!trimmedEntry) return res.status(400).json({ error: "entry_text required" });
+
+    if (id) {
+      const [result] = await pool.query(
+        `UPDATE journal_entries
+         SET log_date=?, entry_text=?
+         WHERE user_id=? AND id=?`,
+        [log_date, trimmedEntry, req.user.id, id]
+      );
+      if (!result.affectedRows) return res.status(404).json({ error: "journal entry not found" });
+
+      const [rows] = await pool.query(
+        "SELECT * FROM journal_entries WHERE user_id=? AND id=? LIMIT 1",
+        [req.user.id, id]
+      );
+      return res.json({ success: true, entry: rows[0] || null });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO journal_entries (user_id, log_date, entry_text)
+       VALUES (?, ?, ?)`,
+      [req.user.id, log_date, trimmedEntry]
+    );
+
+    const [rows] = await pool.query(
+      "SELECT * FROM journal_entries WHERE user_id=? AND id=? LIMIT 1",
+      [req.user.id, result.insertId]
+    );
+
+    res.json({ success: true, entry: rows[0] || null });
+  } catch (e) {
+    console.error("POST /api/journal error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete("/api/journal", requireAuth, async (req, res) => {
+  try {
+    const { date, id } = req.query;
+    if (!date && !id) return res.status(400).json({ error: "id or date query param required" });
+
+    if (id) {
+      await pool.query("DELETE FROM journal_entries WHERE user_id=? AND id=?", [req.user.id, id]);
+      return res.json({ success: true });
+    }
+
+    await pool.query("DELETE FROM journal_entries WHERE user_id=? AND log_date=?", [req.user.id, date]);
+    res.json({ success: true });
+  } catch (e) {
+    console.error("DELETE /api/journal error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/theme-customization", requireAuth, async (req, res) => {
+  try {
+    const keys = [
+      "theme_wallpaper_library",
+      "theme_wallpapers",
+      "theme_custom_themes",
+      "theme_selected",
+    ];
+
+    const [rows] = await pool.query(
+      `SELECT setting_key, setting_value
+       FROM settings
+       WHERE user_id=? AND setting_key IN (?, ?, ?, ?)`,
+      [req.user.id, ...keys]
+    );
+
+    const byKey = Object.fromEntries(rows.map((row) => [row.setting_key, row.setting_value]));
+
+    const parseSafe = (raw, fallback) => {
+      if (!raw) return fallback;
+      try {
+        const parsed = JSON.parse(raw);
+        return parsed ?? fallback;
+      } catch (_) {
+        return fallback;
+      }
+    };
+
+    res.json({
+      wallpaperLibrary: parseSafe(byKey.theme_wallpaper_library, []),
+      themeWallpapers: parseSafe(byKey.theme_wallpapers, {}),
+      customThemes: parseSafe(byKey.theme_custom_themes, {}),
+      selectedTheme: byKey.theme_selected || "",
+    });
+  } catch (e) {
+    console.error("GET /api/theme-customization error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/theme-customization", requireAuth, async (req, res) => {
+  try {
+    const { wallpaperLibrary, themeWallpapers, customThemes, selectedTheme } = req.body || {};
+
+    const updates = [];
+
+    if (wallpaperLibrary !== undefined) {
+      const safeWallpaperLibrary = Array.isArray(wallpaperLibrary) ? wallpaperLibrary : [];
+      updates.push(["theme_wallpaper_library", JSON.stringify(safeWallpaperLibrary)]);
+    }
+
+    if (themeWallpapers !== undefined) {
+      const safeThemeWallpapers = (themeWallpapers && typeof themeWallpapers === "object" && !Array.isArray(themeWallpapers)) ? themeWallpapers : {};
+      updates.push(["theme_wallpapers", JSON.stringify(safeThemeWallpapers)]);
+    }
+
+    if (customThemes !== undefined) {
+      const safeCustomThemes = (customThemes && typeof customThemes === "object" && !Array.isArray(customThemes)) ? customThemes : {};
+      updates.push(["theme_custom_themes", JSON.stringify(safeCustomThemes)]);
+    }
+
+    if (selectedTheme !== undefined) {
+      updates.push(["theme_selected", String(selectedTheme || "").trim()]);
+    }
+
+    if (!updates.length) return res.json({ success: true });
+
+    const placeholders = updates.map(() => "(?, ?, ?)").join(", ");
+    const params = updates.flatMap(([key, value]) => [req.user.id, key, value]);
+
+    await pool.query(
+      `INSERT INTO settings (user_id, setting_key, setting_value)
+       VALUES ${placeholders}
+       ON DUPLICATE KEY UPDATE
+         setting_value=VALUES(setting_value),
+         updated_at=CURRENT_TIMESTAMP`,
+      params
+    );
+
+    res.json({ success: true });
+  } catch (e) {
+    console.error("POST /api/theme-customization error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Summary for logged-in user (or owner via API key for HA)
 app.get("/api/summary", async (req, res) => {
   let contextUser = null;
@@ -856,8 +1059,12 @@ app.get("/api/calendar", requireAuth, async (req, res) => {
     "SELECT * FROM moods WHERE user_id=? AND YEAR(log_date)=? AND MONTH(log_date)=?",
     [req.user.id, year, month]
   );
+  const [journals] = await pool.query(
+    "SELECT * FROM journal_entries WHERE user_id=? AND YEAR(log_date)=? AND MONTH(log_date)=?",
+    [req.user.id, year, month]
+  );
 
-  res.json({ cycles, symptoms, moods });
+  res.json({ cycles, symptoms, moods, journals });
 });
 
 // Export data for printable/PDF calendar across months
@@ -874,8 +1081,12 @@ app.get("/api/export-data", requireAuth, async (req, res) => {
     "SELECT * FROM moods WHERE user_id=? ORDER BY log_date ASC",
     [req.user.id]
   );
+  const [journals] = await pool.query(
+    "SELECT * FROM journal_entries WHERE user_id=? ORDER BY log_date ASC",
+    [req.user.id]
+  );
 
-  res.json({ cycles, symptoms, moods });
+  res.json({ cycles, symptoms, moods, journals });
 });
 
 // Health check

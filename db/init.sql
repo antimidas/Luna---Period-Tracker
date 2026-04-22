@@ -73,6 +73,19 @@ CREATE TABLE IF NOT EXISTS moods (
     CONSTRAINT fk_moods_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Journal entries: daily diary pages
+CREATE TABLE IF NOT EXISTS journal_entries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    log_date DATE NOT NULL,
+    entry_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_journal_user_date (user_id, log_date),
+    KEY idx_journal_user_created_at (user_id, created_at),
+    CONSTRAINT fk_journal_entries_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Settings table: user preferences & HA config
 CREATE TABLE IF NOT EXISTS settings (
     id INT AUTO_INCREMENT PRIMARY KEY,
