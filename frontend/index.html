@@ -12,1159 +12,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet">
 
-<style>
-
-  /* ── Luna CSS Variables ─────────────────────── */
-  :root {
-    --rose:    #c2647a;
-    --rose-lt: #e8b4bf;
-    --rose-dk: #8b3a50;
-    --blush:   #f5e6e8;
-    --cream:   #fdf8f5;
-    --ink:     #2a1f24;
-    --muted:   #8a7075;
-    --border:  #e5d5d8;
-    --card:    #ffffff;
-    --card-blur: 0px;
-    --bs-card-border-color: var(--border);
-    --bs-card-cap-bg: transparent;
-    --bs-card-cap-color: var(--rose-dk);
-    --bs-card-color: var(--ink);
-    --bs-card-bg: var(--card);
-    --period:  #c2647a;
-    --predicted: #d4a0ab;
-    --symptom: #7a9cbf;
-    --ovulation: #7abf9c;
-    --modal-overlay: rgba(0,0,0,0.45);
-    --modal-bg: #ffffff;
-    --modal-border: var(--rose);
-    --modal-accent: var(--rose);
-    --modal-text: var(--ink);
-    --modal-muted: var(--muted);
-    /* Header */
-    --header-bg: var(--rose-dk);
-    --header-text: #ffffff;
-    --header-border: rgba(255,255,255,0.18);
-    /* Cards / panels */
-    --card-header-bg: transparent;
-    --card-header-text: var(--rose-dk);
-    --card-header-border: var(--border);
-    /* Stat boxes */
-    --stat-bg: rgba(255,255,255,0.42);
-    --stat-border: var(--border);
-    --stat-text: var(--rose-dk);
-    --stat-label: var(--muted);
-    /* Calendar */
-    --cal-bg: var(--card);
-    --cal-day-hover: var(--blush);
-    --cal-day-today-border: var(--rose);
-    --cal-day-other: var(--muted);
-    --cal-header-text: var(--rose-dk);
-    --cal-legend-bg: transparent;
-    --cal-legend-border: var(--border);
-    --cal-legend-text: var(--muted);
-    /* Log Day */
-    --logday-section-label: var(--muted);
-    --logday-toggle-border: var(--border);
-    --logday-toggle-active-bg: var(--rose);
-    --logday-pill-border: var(--border);
-    --logday-pill-active-bg: var(--symptom);
-    /* Buttons */
-    --btn-bg: var(--rose-dk);
-    --btn-text: #ffffff;
-    --btn-border: var(--rose-dk);
-    --btn-hover-bg: var(--rose);
-    --btn-hover-text: #ffffff;
-    --btn-muted-bg: var(--muted);
-    --btn-muted-hover-bg: color-mix(in srgb, var(--muted) 80%, black 20%);
-    --btn-secondary-bg: #f5f0f2;
-    --btn-secondary-text: var(--ink);
-    --btn-secondary-border: var(--border);
-    --btn-secondary-hover-bg: var(--blush);
-    --btn-border-width: 1px;
-    --btn-radius: 10px;
-    --btn-shadow: none;
-    --btn-pad-y: 10px;
-    --btn-pad-x: 12px;
-    /* Inputs */
-    --input-bg: color-mix(in srgb, var(--card) 90%, white 10%);
-    --input-text: var(--ink);
-    --input-border: color-mix(in srgb, var(--ink) 22%, transparent);
-    --input-placeholder: color-mix(in srgb, var(--muted) 85%, white 15%);
-    --input-focus-border: var(--rose);
-    --input-focus-ring: color-mix(in srgb, var(--rose) 25%, transparent);
-    --bg-art: none;
-    --bg-position: center center;
-    --card-art: none;
-    --shadow:  0 2px 20px rgba(194,100,122,0.08);
-    --r: 14px;
-    /* Bootstrap overrides */
-    --bs-primary: var(--rose);
-    --bs-secondary: var(--muted);
-    --bs-success: #7abf9c;
-    --bs-info: #7a9cbf;
-    --bs-warning: #f0c15f;
-    --bs-danger: #cf6f6f;
-    --bs-light: var(--blush);
-    --bs-dark: var(--ink);
-    --bs-body-font-family: 'DM Sans', sans-serif;
-    --bs-body-bg: var(--cream);
-    --bs-body-color: var(--ink);
-    --bs-link-color: var(--rose-dk);
-    --bs-border-color: var(--border);
-    --bs-focus-ring-color: color-mix(in srgb, var(--rose) 25%, transparent);
-    --bs-border-radius: var(--r);
-    --bs-border-radius-sm: 8px;
-    --bs-box-shadow: var(--shadow);
-  }
-
-  /* ── Base ───────────────────────────────────── */
-  *, *::before, *::after { box-sizing: border-box; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background-color: var(--cream);
-    background-image: var(--bg-art);
-    background-position: var(--bg-position);
-    background-attachment: fixed;
-    background-size: cover;
-    color: var(--ink);
-    min-height: 100vh;
-    margin: 0;
-  }
-
-  /* ── Header ─────────────────────────────────── */
-  header {
-    background: var(--header-bg);
-    color: var(--header-text);
-    padding: 11px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
-  }
-  .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-icon { font-size: 21px; }
-  .logo h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.45rem;
-    font-weight: 300;
-    letter-spacing: 1.4px;
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin: 0;
-  }
-  .brand-name { font-size: 1.45rem; line-height: 1; }
-  .username-script {
-    font-family: 'Caveat', cursive;
-    font-size: 1.72rem;
-    font-weight: 600;
-    letter-spacing: 0;
-    opacity: 0.95;
-    line-height: 1;
-  }
-  .logo .logo-subtitle { font-size: 0.62rem; letter-spacing: 2.2px; opacity: 0.7; text-transform: uppercase; display: block; }
-  .header-controls {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
-  }
-  .header-controls-top,
-  .header-controls-bottom {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .header-controls-bottom { justify-content: flex-end; }
-  .layout-tools { display: inline-flex; gap: 8px; }
-
-  /* Header buttons override Bootstrap */
-  .layout-action-btn {
-    background: color-mix(in srgb, var(--btn-bg) 30%, transparent) !important;
-    color: var(--btn-text) !important;
-    border: var(--btn-border-width) solid color-mix(in srgb, var(--btn-border) 55%, white 45%) !important;
-    border-radius: var(--btn-radius) !important;
-    box-shadow: var(--btn-shadow) !important;
-    font-size: 0.72rem;
-    padding: 4px 8px !important;
-  }
-  .layout-action-btn:hover, .layout-action-btn:focus {
-    background: color-mix(in srgb, var(--btn-hover-bg) 40%, transparent) !important;
-    color: var(--btn-hover-text) !important;
-    box-shadow: var(--btn-shadow) !important;
-  }
-  .layout-action-btn.active {
-    background: color-mix(in srgb, var(--btn-hover-bg) 50%, transparent) !important;
-  }
-
-  /* Theme select */
-  .theme-select {
-    background: rgba(255,255,255,0.18);
-    border: 1px solid var(--header-border) !important;
-    color: var(--header-text);
-    font-size: 0.74rem;
-    padding: 4px 8px !important;
-    background-image: none !important;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-  }
-  .theme-select:focus {
-    background: rgba(255,255,255,0.24) !important;
-    border-color: rgba(255,255,255,0.5) !important;
-    box-shadow: none !important;
-    color: var(--header-text) !important;
-  }
-  .theme-select option { color: #1a1a1a; background: white; }
-
-  /* User menu */
-  .user-menu { position: relative; }
-  .user-menu-btn {
-    background: color-mix(in srgb, var(--btn-bg) 30%, transparent) !important;
-    color: var(--btn-text) !important;
-    border: var(--btn-border-width) solid color-mix(in srgb, var(--btn-border) 55%, white 45%) !important;
-    border-radius: var(--btn-radius) !important;
-    box-shadow: var(--btn-shadow) !important;
-    font-size: 0.74rem;
-    padding: 4px 8px !important;
-  }
-  .user-menu-btn:hover, .user-menu-btn:focus {
-    background: color-mix(in srgb, var(--btn-hover-bg) 40%, transparent) !important;
-    color: var(--btn-hover-text) !important;
-    box-shadow: var(--btn-shadow) !important;
-  }
-  .user-menu-panel {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    min-width: 170px;
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.15);
-    overflow: hidden;
-    z-index: 250;
-  }
-  .user-menu-panel button {
-    width: 100%;
-    text-align: left;
-    border: none;
-    background: white;
-    padding: 10px 14px;
-    cursor: pointer;
-    color: var(--ink);
-    font-size: 0.84rem;
-    display: block;
-    transition: background 0.12s;
-  }
-  .user-menu-panel button:hover { background: var(--blush); }
-  .header-status { text-align: right; font-size: 0.72rem; opacity: 0.9; line-height: 1.25; }
-
-  /* ── Layout Editor Modal ───────────────────── */
-  .layout-modal-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: var(--modal-overlay);
-    z-index: 9000;
-    align-items: flex-start;
-    justify-content: center;
-    padding-top: 80px;
-  }
-  .layout-modal-backdrop.visible { display: flex; }
-  .layout-modal {
-    background: var(--modal-bg);
-    border: 2px solid var(--modal-border);
-    border-radius: 18px;
-    padding: 28px 32px 24px;
-    max-width: 420px;
-    width: 90%;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.28);
-    text-align: center;
-    animation: modalPop 0.2s ease;
-  }
-  @keyframes modalPop {
-    from { transform: scale(0.88); opacity: 0; }
-    to   { transform: scale(1);    opacity: 1; }
-  }
-  .layout-modal h2 { margin: 0 0 10px; font-size: 1.2rem; color: var(--modal-accent); }
-  .layout-modal .lm-badge {
-    display: inline-block;
-    background: var(--modal-accent);
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.82rem;
-    letter-spacing: 0.08em;
-    border-radius: 20px;
-    padding: 3px 12px;
-    margin-bottom: 14px;
-  }
-  .layout-modal p { margin: 0 0 8px; color: var(--modal-muted); font-size: 0.92rem; line-height: 1.5; }
-  .layout-modal ul { text-align: left; margin: 10px 0 18px 18px; padding: 0; color: var(--modal-muted); font-size: 0.88rem; line-height: 1.7; }
-  .layout-modal .lm-close {
-    background: var(--modal-accent);
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    padding: 8px 28px;
-    font-size: 0.95rem;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .layout-modal .lm-close:hover { opacity: 0.85; }
-
-  .wallpaper-modal {
-    max-width: 760px;
-    width: min(92vw, 760px);
-    text-align: left;
-    padding: 20px;
-  }
-  .wallpaper-modal h2 { margin-bottom: 6px; }
-  .wallpaper-add-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-    margin: 10px 0;
-  }
-  .layout-modal .form-control,
-  .layout-modal .form-select {
-    border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent) !important;
-    color: var(--ink) !important;
-    background-color: color-mix(in srgb, var(--modal-bg) 85%, var(--ink) 15%) !important;
-  }
-  .wallpaper-selection {
-    font-size: 0.82rem;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-  .wallpaper-grid-wrap { margin-bottom: 12px; }
-  .wallpaper-grid-wrap h3 {
-    font-size: 0.9rem;
-    margin: 0 0 8px;
-    color: var(--modal-accent);
-  }
-  .wallpaper-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 8px;
-    max-height: 220px;
-    overflow-y: auto;
-    padding: 2px;
-  }
-  .wallpaper-thumb {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
-    cursor: pointer;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    transition: transform 0.12s ease, border-color 0.12s ease;
-  }
-  .wallpaper-thumb:hover { transform: translateY(-1px); }
-  .wallpaper-thumb.selected {
-    border-color: var(--rose);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--rose) 35%, transparent);
-  }
-  .wallpaper-preview {
-    height: 78px;
-    background-size: cover;
-    background-position: center;
-    background-color: #f4f4f4;
-  }
-  .wallpaper-meta {
-    padding: 6px;
-    font-size: 0.72rem;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .wallpaper-tags {
-    display: block;
-    margin-top: 4px;
-    color: var(--modal-accent);
-    font-size: 0.67rem;
-  }
-  .studio-icon-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-
-  .theme-studio-page {
-    position: fixed;
-    inset: 0;
-    z-index: 9200;
-    overflow: auto;
-    background: linear-gradient(145deg, rgba(19, 26, 42, 0.94), rgba(43, 30, 57, 0.92));
-    color: #fff;
-    padding: 20px;
-  }
-  .theme-studio-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .theme-studio-topbar h2 { margin: 0; font-family: 'Cormorant Garamond', serif; }
-  .theme-studio-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-  .studio-card {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.24);
-    border-radius: 12px;
-    padding: 14px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
-  .studio-card h3 {
-    margin: 0 0 10px;
-    font-size: 1rem;
-    color: #fff;
-  }
-  .studio-label {
-    color: rgba(255,255,255,0.9);
-    font-size: 0.78rem;
-    font-weight: 600;
-  }
-  .studio-opacity-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 8px;
-  }
-  .studio-opacity-row input[type="range"] {
-    width: 100%;
-    accent-color: #e879a8;
-    height: 6px;
-    cursor: pointer;
-  }
-  #themeColorOpacityValue {
-    font-size: 0.76rem;
-    color: rgba(255,255,255,0.9);
-    min-width: 42px;
-    text-align: right;
-  }
-  /* Make opacity row label more prominent */
-  .studio-opacity-label-wrap {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2px;
-  }
-  #themeGradientControls {
-    border-top: 1px solid rgba(255,255,255,0.15);
-    padding-top: 10px;
-    margin-top: 4px;
-  }
-  /* Gradient color rows with opacity each */
-  .studio-grad-stop {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 8px;
-  }
-  .studio-grad-stop input[type="color"] {
-    width: 36px;
-    height: 36px;
-    padding: 2px;
-    border-radius: 6px;
-  }
-  .studio-grad-stop input[type="range"] {
-    accent-color: #e879a8;
-    cursor: pointer;
-  }
-  .studio-grad-stop-label {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.7);
-    min-width: 28px;
-    text-align: right;
-  }
-  .studio-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-  }
-  .studio-preview { margin-top: 12px; }
-  .studio-preview-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 8px;
-    flex-wrap: wrap;
-  }
-  .studio-preview-head h3 {
-    margin: 0;
-  }
-  .studio-swatches {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  .studio-swatch-section {
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 10px;
-    background: rgba(0,0,0,0.18);
-    padding: 8px;
-  }
-  .studio-swatch-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    border: none;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    text-align: left;
-  }
-  .studio-swatch-section-title {
-    font-size: 0.74rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.72);
-    margin-bottom: 0;
-    padding-left: 2px;
-  }
-  .studio-swatch-section-caret {
-    color: rgba(255,255,255,0.75);
-    font-size: 0.8rem;
-    line-height: 1;
-    transition: transform 0.12s ease;
-  }
-  .studio-swatch-section-caret.collapsed {
-    transform: rotate(-90deg);
-  }
-  .studio-swatch-grid-wrap {
-    margin-top: 7px;
-  }
-  .studio-swatch-grid-wrap.collapsed {
-    display: none;
-  }
-  .studio-swatch-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 8px;
-  }
-  .studio-swatch {
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 8px;
-    overflow: hidden;
-    background: none;
-    cursor: pointer;
-    transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
-    text-align: left;
-    width: 100%;
-    padding: 0;
-  }
-  .studio-swatch:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-    border-color: rgba(255,255,255,0.55);
-  }
-  .studio-swatch.studio-swatch-active {
-    border-color: #e879a8 !important;
-    box-shadow: 0 0 0 2px rgba(232,121,168,0.5) !important;
-  }
-  .studio-swatch-color { height: 42px; }
-  .studio-swatch-label {
-    padding: 5px 6px 2px;
-    font-size: 0.72rem;
-    background: rgba(0,0,0,0.2);
-    color: #fff;
-  }
-  .studio-swatch-value {
-    padding: 0 6px 5px;
-    font-size: 0.62rem;
-    font-family: monospace;
-    color: rgba(255,255,255,0.55);
-    background: rgba(0,0,0,0.2);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .studio-value-helper {
-    font-size: 0.74rem;
-    color: rgba(255,255,255,0.72);
-    line-height: 1.45;
-  }
-  .studio-bootstrap-preview {
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 12px;
-    background: rgba(0,0,0,0.15);
-    padding: 12px;
-    margin-bottom: 2px;
-  }
-  .studio-bootstrap-preview-note {
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.68);
-    margin-bottom: 10px;
-  }
-  .studio-bootstrap-preview-shell {
-    border-radius: var(--bs-border-radius);
-    background: var(--bs-body-bg);
-    color: var(--bs-body-color);
-    box-shadow: var(--bs-box-shadow);
-    border: 1px solid var(--bs-border-color);
-    padding: 14px;
-  }
-  .studio-bootstrap-preview-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-    gap: 12px;
-  }
-  .studio-bs-preview-card {
-    border-radius: var(--bs-border-radius);
-    border: 1px solid var(--bs-card-border-color);
-    background: var(--bs-card-bg);
-    color: var(--bs-card-color);
-    overflow: hidden;
-    box-shadow: var(--bs-box-shadow);
-  }
-  .studio-bs-preview-card-header {
-    background: var(--bs-card-cap-bg);
-    color: var(--bs-card-cap-color);
-    border-bottom: 1px solid var(--bs-card-border-color);
-    padding: 10px 12px;
-    font-weight: 600;
-  }
-  .studio-bs-preview-card-body {
-    padding: 12px;
-    color: var(--bs-card-color);
-    display: grid;
-    gap: 10px;
-  }
-  .studio-bs-preview-card-body p {
-    margin: 0;
-    font-size: 0.84rem;
-    line-height: 1.45;
-  }
-  .studio-bs-preview-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .studio-bs-preview-btn {
-    border: 1px solid transparent;
-    border-radius: var(--bs-border-radius-sm);
-    padding: 7px 11px;
-    font-size: 0.78rem;
-    line-height: 1.2;
-    box-shadow: var(--bs-box-shadow);
-  }
-  .studio-bs-preview-btn-primary {
-    background: var(--bs-primary);
-    color: #fff;
-    border-color: color-mix(in srgb, var(--bs-primary) 72%, black 28%);
-  }
-  .studio-bs-preview-btn-secondary {
-    background: var(--bs-secondary);
-    color: var(--bs-dark);
-    border-color: color-mix(in srgb, var(--bs-secondary) 72%, black 28%);
-  }
-  .studio-bs-preview-link {
-    color: var(--bs-link-color);
-    font-size: 0.8rem;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    width: fit-content;
-  }
-  .studio-bs-preview-metrics {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    align-content: start;
-  }
-  .studio-bs-preview-metric {
-    border: 1px solid color-mix(in srgb, var(--bs-border-color) 80%, transparent);
-    border-radius: var(--bs-border-radius-sm);
-    background: color-mix(in srgb, var(--bs-body-bg) 82%, white 18%);
-    padding: 10px;
-    min-height: 106px;
-    display: grid;
-    gap: 8px;
-    align-content: start;
-  }
-  .studio-bs-preview-metric-title {
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--bs-body-color) 72%, transparent);
-  }
-  .studio-bs-preview-metric-value {
-    font-size: 0.68rem;
-    font-family: monospace;
-    color: color-mix(in srgb, var(--bs-body-color) 82%, transparent);
-    word-break: break-word;
-  }
-  .studio-bs-radius-chip,
-  .studio-bs-shadow-chip,
-  .studio-bs-focus-chip {
-    width: 100%;
-    height: 44px;
-    border: 1px solid var(--bs-border-color);
-    background: color-mix(in srgb, var(--bs-card-bg) 85%, white 15%);
-  }
-  .studio-bs-radius-chip { border-radius: var(--bs-border-radius); }
-  .studio-bs-radius-chip-sm { border-radius: var(--bs-border-radius-sm); }
-  .studio-bs-shadow-chip { border-radius: var(--bs-border-radius-sm); box-shadow: var(--bs-box-shadow); }
-  .studio-bs-focus-chip {
-    border-radius: var(--bs-border-radius-sm);
-    box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
-  }
-  .studio-bs-palette {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
-  }
-  .studio-bs-palette-chip {
-    height: 28px;
-    border-radius: var(--bs-border-radius-sm);
-    border: 1px solid color-mix(in srgb, var(--bs-body-color) 12%, transparent);
-  }
-  @media (max-width: 780px) {
-    .studio-bootstrap-preview-grid { grid-template-columns: 1fr; }
-    .studio-bs-preview-metrics { grid-template-columns: 1fr 1fr; }
-  }
-
-  @media (max-width: 780px) {
-    .theme-studio-grid { grid-template-columns: 1fr; }
-    .wallpaper-add-row { grid-template-columns: 1fr; }
-  }
-
-  /* ── Container ──────────────────────────────── */
-  .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
-
-  /* ── Cards ──────────────────────────────────── */
-  .card {
-    background: var(--bs-card-bg, var(--card));
-    background-image: var(--card-art);
-    backdrop-filter: blur(var(--card-blur));
-    -webkit-backdrop-filter: blur(var(--card-blur));
-    position: relative;
-    border-radius: var(--r);
-    border: 1px solid var(--bs-card-border-color, var(--border));
-    color: var(--bs-card-color, var(--ink));
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-  .movable { will-change: transform; transition: transform 0.12s ease; }
-  .resizable { min-width: 360px; min-height: 300px; }
-
-  .resize-handle {
-    position: absolute;
-    right: 8px; bottom: 8px;
-    width: 18px; height: 18px;
-    border-radius: 4px;
-    border: 1px solid var(--rose-lt);
-    background: color-mix(in srgb, var(--blush) 75%, white 25%);
-    color: var(--rose-dk);
-    display: none;
-    align-items: center; justify-content: center;
-    font-size: 0.72rem;
-    line-height: 1;
-    user-select: none;
-    cursor: nwse-resize;
-    z-index: 9;
-  }
-  .resize-handle[data-resize-always="true"] { display: inline-flex; touch-action: none; }
-  .layout-edit .resizable .resize-handle { display: inline-flex; touch-action: none; }
-  .card.collapsed .resize-handle { display: none !important; }
-
-  .layout-edit .movable {
-    cursor: grab;
-    touch-action: none;
-    outline: 1px dashed rgba(0,0,0,0.25);
-    outline-offset: 2px;
-    transition: none;
-  }
-  .layout-edit .movable.dragging { cursor: grabbing; z-index: 60; }
-
-  .card-header {
-    padding: 18px 22px 14px;
-    background: var(--bs-card-cap-bg, var(--card-header-bg));
-    border-bottom: 1px solid var(--card-header-border);
-    color: var(--bs-card-cap-color, var(--card-header-text));
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-right: 54px;
-  }
-  .card .card-header { cursor: grab; }
-  .card.dragging .card-header { cursor: grabbing; }
-
-  .collapse-btn {
-    position: absolute;
-    top: 10px; right: 10px;
-    z-index: 8;
-    border: 1px solid var(--border);
-    background: color-mix(in srgb, var(--blush) 85%, white 15%);
-    color: var(--rose);
-    border-radius: 8px;
-    width: 28px; height: 28px;
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    font-weight: 700;
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--rose) 28%, transparent);
-    display: flex; align-items: center; justify-content: center;
-    padding: 0;
-  }
-  .collapse-btn:hover { background: color-mix(in srgb, var(--blush) 72%, white 28%); color: var(--rose-dk); }
-
-  .card.collapsed .card-body { display: none; }
-  .card.collapsed { height: auto !important; min-height: 0; overflow: hidden; }
-  .card[data-move-id="calendar-card"].collapsed { width: min(340px, 100%) !important; min-width: 0; }
-
-  .logday-header-tools { display: inline-flex; align-items: center; gap: 8px; margin-right: 34px; }
-  .cal-nav { margin-right: 34px; }
-  .card[data-move-id="calendar-card"].collapsed .cal-nav button:not(.collapse-btn),
-  .card[data-move-id="calendar-card"].collapsed .cal-nav span { display: none; }
-  .card[data-move-id="calendar-card"].collapsed .cal-nav { margin-right: 0; }
-
-  .card-header h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.25rem;
-    font-weight: 400;
-    letter-spacing: 0.5px;
-    color: var(--bs-card-cap-color, var(--card-header-text));
-    margin: 0;
-  }
-  .header-title { display: inline-flex; align-items: center; gap: 8px; }
-  .tiny-flower {
-    display: inline-flex;
-    align-items: center; justify-content: center;
-    width: 20px; height: 20px;
-    border-radius: 999px;
-    font-size: 0.75rem; line-height: 1;
-    color: var(--rose-dk);
-    background: var(--blush);
-    border: 1px solid var(--rose-lt);
-    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-    transform: rotate(-8deg);
-  }
-  .card-body {
-    padding: 20px 22px;
-    color: var(--bs-card-color, var(--ink));
-  }
-
-  /* Floating panels */
-  .card[data-move-id="overview-card"],
-  .card[data-move-id="logday-card"] { position: fixed; z-index: 100; width: 340px; top: 76px; right: 20px; }
-  .card[data-move-id="logday-card"] { top: 310px; }
-
-  .card[data-move-id="calendar-card"] {
-    --calendar-scale: 1;
-    display: flex; flex-direction: column;
-    position: relative; z-index: 1;
-    background: var(--cal-bg) !important;
-  }
-  .card[data-move-id="calendar-card"] .card-body { display: flex; flex: 1; flex-direction: column; min-height: 0; }
-  .card[data-move-id="calendar-card"].collapsed .card-body { display: none; }
-  .card[data-move-id="calendar-card"] .card-header {
-    padding: 12px 16px 10px;
-    padding-right: 48px;
-  }
-  .card[data-move-id="calendar-card"] .card-header h2 {
-    font-size: 1.12rem;
-    color: var(--cal-header-text);
-  }
-  .card[data-move-id="calendar-card"] .tiny-flower {
-    width: 18px;
-    height: 18px;
-    font-size: 0.68rem;
-  }
-  .card[data-move-id="calendar-card"] .collapse-btn {
-    top: 7px;
-    right: 8px;
-  }
-
-  /* ── Calendar ───────────────────────────────── */
-  .cal-nav { display: flex; align-items: center; gap: 10px; }
-  .cal-nav button {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    width: 30px; height: 30px;
-    cursor: pointer;
-    font-size: 0.92rem;
-    color: var(--rose-dk);
-    transition: all 0.15s;
-    display: flex; align-items: center; justify-content: center;
-    padding: 0;
-  }
-  .cal-nav button:hover { background: var(--blush); }
-  .cal-nav span {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.08rem;
-    font-weight: 400;
-    letter-spacing: 0.6px;
-    min-width: 130px;
-    line-height: 1.1;
-    text-align: center;
-  }
-
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: auto repeat(var(--calendar-week-rows, 5), minmax(0, 1fr));
-    gap: calc(4px * var(--calendar-scale));
-    margin-top: 16px;
-    flex: 1; min-height: 0;
-  }
-  .cal-day-name {
-    text-align: center;
-    font-size: calc(0.72rem * var(--calendar-scale));
-    font-weight: 500;
-    letter-spacing: calc(1px * var(--calendar-scale));
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: calc(6px * var(--calendar-scale)) 0;
-  }
-  .cal-day {
-    border-radius: 10px;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: all 0.15s;
-    position: relative;
-    font-size: calc(0.88rem * var(--calendar-scale));
-    border: 1.5px solid transparent;
-    gap: calc(2px * var(--calendar-scale));
-    min-height: 0;
-    padding: calc(4px * var(--calendar-scale));
-  }
-  .cal-day:hover { background: var(--cal-day-hover); border-color: var(--rose-lt); }
-  .cal-day.today { border-color: var(--cal-day-today-border); font-weight: 500; }
-  .cal-day.other-month { color: var(--cal-day-other); opacity: 0.4; }
-  .cal-day.period { background: var(--period); color: white; }
-  .cal-day.period:hover { background: var(--rose-dk); }
-  .cal-day.predicted { background: var(--blush); border-color: var(--predicted); }
-  .cal-day.ovulation { background: #e8f5ee; border-color: var(--ovulation); }
-  .cal-day.selected { border-color: var(--rose) !important; box-shadow: 0 0 0 2px var(--rose-lt); }
-
-  .day-dots { display: flex; gap: calc(2px * var(--calendar-scale)); flex-wrap: wrap; justify-content: center; max-width: calc(28px * var(--calendar-scale)); }
-  .day-emojis { display: flex; gap: calc(1px * var(--calendar-scale)); justify-content: center; line-height: 1; font-size: calc(0.72rem * var(--calendar-scale)); max-width: calc(34px * var(--calendar-scale)); white-space: nowrap; }
-  .dot { width: calc(5px * var(--calendar-scale)); height: calc(5px * var(--calendar-scale)); border-radius: 50%; background: var(--symptom); }
-  .dot.mood { background: #f0b429; }
-
-  /* ── Legend ─────────────────────────────────── */
-  .legend {
-    display: flex; flex-wrap: wrap;
-    gap: calc(12px * var(--calendar-scale));
-    margin-top: 16px; padding-top: 14px;
-    background: var(--cal-legend-bg);
-    border-top: 1px solid var(--cal-legend-border);
-    font-size: calc(0.78rem * var(--calendar-scale));
-    color: var(--cal-legend-text);
-  }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
-
-  /* ── Embed Views ─────────────────────────────── */
-  .sidebar { display: flex; flex-direction: column; gap: 18px; }
-  body.embed-view { min-height: auto; background-attachment: scroll; }
-  body.embed-view header, body.embed-view .layout-modal-backdrop { display: none !important; }
-  body.embed-view .toast { bottom: 12px; right: 12px; left: 12px; text-align: center; }
-  body.embed-view .container { max-width: none; display: block; padding: 0; }
-  body.embed-view .card { display: none; margin: 0; border-radius: 0; min-height: 100vh; }
-  body.embed-view .card-header { border-radius: 0; }
-  body.embed-view .card-body { padding: 18px; }
-  body.embed-view .resize-handle, body.embed-view .collapse-btn { display: none !important; }
-  body.embed-calendar [data-move-id="calendar-card"],
-  body.embed-overview [data-move-id="overview-card"],
-  body.embed-logday [data-move-id="logday-card"] { display: block; }
-  body.embed-calendar .sidebar, body.embed-overview .container > div:first-child,
-  body.embed-logday .container > div:first-child { display: none; }
-  body.embed-overview .sidebar, body.embed-logday .sidebar { display: block; }
-  body.embed-calendar .container > div:first-child { display: block; }
-
-  /* ── Stats ──────────────────────────────────── */
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .stat-box { background: var(--stat-bg); border: 1px solid var(--stat-border); border-radius: 10px; padding: 14px; text-align: center; }
-  .stat-val {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.8rem; font-weight: 300;
-    color: var(--stat-text); line-height: 1;
-  }
-  .stat-label { font-size: 0.72rem; color: var(--stat-label); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-
-  /* ── Day Logger ─────────────────────────────── */
-  .selected-date-label {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.1rem; color: var(--rose-dk); font-style: italic;
-  }
-  .section-label {
-    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px;
-    color: var(--logday-section-label); font-weight: 500; margin-bottom: 8px; margin-top: 14px;
-  }
-  .period-toggle {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px; border-radius: 10px;
-    border: 1.5px solid var(--logday-toggle-border);
-    cursor: pointer; transition: all 0.15s;
-    font-size: 0.88rem; background: white; color: var(--ink);
-  }
-  .period-toggle:hover { border-color: var(--rose); }
-  .period-toggle.active { background: var(--logday-toggle-active-bg); color: white; border-color: var(--logday-toggle-active-bg); }
-
-  /* Flow buttons — Bootstrap btn base + Luna overrides */
-  .flow-btns { display: flex; gap: 6px; }
-  .flow-btns .btn {
-    flex: 1; padding: calc(var(--btn-pad-y) * 0.7) calc(var(--btn-pad-x) * 0.35);
-    border: var(--btn-border-width) solid color-mix(in srgb, var(--btn-border) 35%, var(--border) 65%) !important;
-    border-radius: var(--btn-radius) !important;
-    background: var(--btn-secondary-bg) !important;
-    font-size: 0.78rem;
-    color: var(--btn-secondary-text) !important;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-    box-shadow: var(--btn-shadow);
-  }
-  .flow-btns .btn:hover { border-color: var(--btn-border) !important; color: var(--btn-bg) !important; background: var(--btn-secondary-hover-bg) !important; }
-  .flow-btns .btn.active { background: var(--btn-bg) !important; color: var(--btn-text) !important; border-color: var(--btn-border) !important; }
-  .flow-btns .btn:focus { box-shadow: none !important; }
-
-  /* Symptom pills */
-  .symptom-pills { display: flex; flex-wrap: wrap; gap: 6px; }
-  .pill {
-    padding: 5px 12px; border-radius: 20px;
-    border: 1.5px solid var(--logday-pill-border);
-    font-size: 0.78rem; cursor: pointer;
-    transition: all 0.15s; background: white; color: var(--ink);
-  }
-  .pill:hover { border-color: var(--symptom); }
-  .pill.active { background: var(--logday-pill-active-bg); color: white; border-color: var(--logday-pill-active-bg); }
-
-  /* Mood buttons */
-  .mood-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-  .mood-btn {
-    padding: calc(var(--btn-pad-y) * 0.6) calc(var(--btn-pad-x) * 0.85); border-radius: var(--btn-radius);
-    border: var(--btn-border-width) solid color-mix(in srgb, var(--btn-border) 35%, var(--border) 65%) !important;
-    background: var(--btn-secondary-bg) !important;
-    cursor: pointer; font-size: 1.2rem;
-    transition: all 0.15s; line-height: 1;
-    display: flex; align-items: center; gap: 4px;
-    color: var(--btn-secondary-text) !important;
-    box-shadow: var(--btn-shadow);
-  }
-  .mood-btn span { font-size: 0.72rem; color: var(--muted); }
-  .mood-btn:hover { border-color: var(--btn-border) !important; background: var(--btn-secondary-hover-bg) !important; }
-  .mood-btn.active { border-color: var(--btn-border) !important; background: color-mix(in srgb, var(--btn-bg) 18%, white 82%) !important; }
-  .mood-btn:focus { box-shadow: none !important; }
-
-  /* Bootstrap form control accent */
-  .form-select {
-    background-image: none !important;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    padding-right: 0.75rem !important;
-  }
-  .form-control,
-  .form-select {
-    background-color: var(--input-bg) !important;
-    color: var(--input-text) !important;
-    border: 1px solid var(--input-border) !important;
-  }
-  .form-control::placeholder {
-    color: var(--input-placeholder);
-    opacity: 1;
-  }
-  .form-control:focus, .form-select:focus {
-    border-color: var(--input-focus-border) !important;
-    box-shadow: 0 0 0 0.2rem var(--input-focus-ring) !important;
-  }
-  .form-range { accent-color: var(--rose); }
-  .form-range:focus { box-shadow: none; }
-  .form-range:focus::-webkit-slider-thumb { box-shadow: 0 0 0 1px #fff, 0 0 0 0.2rem color-mix(in srgb, var(--rose) 25%, transparent); }
-
-  /* Luna primary button */
-  .btn-luna {
-    padding: var(--btn-pad-y) var(--btn-pad-x); background: var(--btn-bg); color: var(--btn-text);
-    border: var(--btn-border-width) solid var(--btn-border); border-radius: var(--btn-radius);
-    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
-    cursor: pointer; letter-spacing: 0.5px; transition: all 0.15s; box-shadow: var(--btn-shadow);
-  }
-  .btn-luna:hover, .btn-luna:focus { background: var(--btn-hover-bg); color: var(--btn-hover-text); box-shadow: var(--btn-shadow); }
-  .btn-luna-muted { background: var(--btn-muted-bg); border-color: var(--btn-muted-bg); }
-  .btn-luna-muted:hover, .btn-luna-muted:focus { background: var(--btn-muted-hover-bg); border-color: var(--btn-muted-hover-bg); color: var(--btn-hover-text); }
-
-  /* Auth buttons */
-  .btn-auth-primary {
-    flex: 1; border: var(--btn-border-width) solid var(--btn-border); border-radius: var(--btn-radius); padding: var(--btn-pad-y) var(--btn-pad-x);
-    cursor: pointer; font-weight: 600;
-    background: var(--btn-bg); color: var(--btn-text);
-    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; transition: background 0.15s; box-shadow: var(--btn-shadow);
-  }
-  .btn-auth-primary:hover { background: var(--btn-hover-bg); color: var(--btn-hover-text); }
-  .btn-auth-secondary {
-    flex: 1; border: var(--btn-border-width) solid var(--btn-secondary-border); border-radius: var(--btn-radius); padding: var(--btn-pad-y) var(--btn-pad-x);
-    cursor: pointer; font-weight: 600;
-    background: var(--btn-secondary-bg); color: var(--btn-secondary-text);
-    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; transition: background 0.15s; box-shadow: var(--btn-shadow);
-  }
-  .btn-auth-secondary:hover { background: var(--btn-secondary-hover-bg); }
-
-  /* ── Toast ──────────────────────────────────── */
-  .toast {
-    position: fixed;
-    bottom: 24px; right: 24px;
-    background: var(--rose-dk);
-    color: white; padding: 12px 20px;
-    border-radius: 10px; font-size: 0.88rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    transform: translateY(80px); opacity: 0;
-    transition: all 0.3s ease; z-index: 9999;
-  }
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.error { background: #b94a4a; }
-
-  /* HA badge */
-  .ha-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 0.7rem; padding: 3px 8px; border-radius: 6px;
-    background: #e8f0fe; color: #1a73e8; font-weight: 500; letter-spacing: 0.5px;
-  }
-
-  /* ── Auth Overlay ────────────────────────────── */
-  .auth-overlay {
-    position: fixed; inset: 0;
-    background: color-mix(in srgb, var(--modal-overlay) 85%, black 15%);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 300; padding: 16px;
-  }
-  .auth-card, .password-modal-card {
-    width: min(420px, 100%);
-    background: var(--modal-bg); border-radius: 16px;
-    border: 1px solid color-mix(in srgb, var(--modal-border) 60%, transparent);
-    box-shadow: 0 14px 44px rgba(0,0,0,0.2);
-    padding: 28px;
-    color: var(--modal-text);
-  }
-  .auth-title {
-    font-family: 'Cormorant Garamond', serif;
-    color: var(--modal-accent); font-size: 1.8rem; margin-bottom: 6px;
-  }
-  .auth-subtitle { color: var(--modal-muted); font-size: 0.9rem; margin-bottom: 16px; }
-  .auth-actions { display: flex; gap: 10px; margin-top: 16px; }
-  .auth-error { min-height: 18px; margin-top: 10px; color: #b94a4a; font-size: 0.82rem; }
-
-  /* Utilities */
-  .hidden { display: none !important; }
-  body.locked { overflow: hidden; }
-
-</style>
+<link rel="stylesheet" href="css/theme-vars.css">
+<link rel="stylesheet" href="css/app.css">
 
 </head>
 
@@ -1194,6 +43,10 @@
 
       <button class="btn-auth-secondary" id="authSwitchBtn" onclick="toggleAuthMode()">Create account</button>
 
+    </div>
+
+    <div style="margin-top:8px;text-align:center;">
+      <button class="btn-auth-secondary" style="width:100%;" onclick="openAdminLoginModal()">Admin login</button>
     </div>
 
     <div class="auth-error" id="authError"></div>
@@ -1229,6 +82,70 @@
     </div>
 
     <div class="auth-error" id="passwordError"></div>
+
+  </div>
+
+</div>
+
+<div class="auth-overlay hidden" id="adminLoginOverlay">
+
+  <div class="password-modal-card">
+
+    <div class="auth-title">Admin Login</div>
+
+    <div class="auth-subtitle">Login with an administrator account.</div>
+
+    <div class="d-grid gap-2">
+
+      <input id="adminLoginUsername" class="form-control" placeholder="Admin username" autocomplete="username">
+
+      <input id="adminLoginPassword" type="password" class="form-control" placeholder="Password" autocomplete="current-password">
+
+    </div>
+
+    <div class="auth-actions">
+
+      <button class="btn-auth-primary" onclick="submitAdminLogin()">Login as Admin</button>
+
+      <button class="btn-auth-secondary" onclick="closeAdminLoginModal()">Cancel</button>
+
+    </div>
+
+    <div class="auth-error" id="adminLoginError"></div>
+
+  </div>
+
+</div>
+
+<div class="auth-overlay hidden" id="adminPanelOverlay">
+
+  <div class="layout-modal wallpaper-modal" style="max-width:860px;">
+
+    <h2>Admin Panel</h2>
+
+    <p>Database tools and user export actions.</p>
+
+    <div class="d-grid gap-2" style="margin-top:10px;">
+
+      <label class="studio-label" for="adminUserSelect" style="color:var(--modal-muted)">User For Export</label>
+      <select id="adminUserSelect" class="form-select"></select>
+
+      <div class="studio-actions" style="margin-top:6px;">
+        <button class="btn btn-luna" onclick="openPhpMyAdmin()">Open phpMyAdmin</button>
+        <button class="btn btn-luna" onclick="exportUsersInfo()">Export Users Info</button>
+        <button class="btn btn-luna" onclick="exportSelectedUserDb('json')">Export User DB (JSON)</button>
+        <button class="btn btn-luna" onclick="exportSelectedUserDb('sql')">Export User DB (SQL)</button>
+        <button class="btn btn-luna" onclick="backupDatabaseNow()">Backup Database</button>
+        <button class="btn btn-luna" onclick="exportEntireDatabase()">Export Entire Database</button>
+      </div>
+
+      <div id="adminPanelStatus" class="studio-value-helper" style="color:var(--modal-muted)">Ready.</div>
+
+      <div class="studio-actions" style="justify-content:flex-end;">
+        <button class="btn btn-luna btn-luna-muted" onclick="closeAdminPanel()">Close</button>
+      </div>
+
+    </div>
 
   </div>
 
@@ -1287,9 +204,6 @@
     <div class="header-controls-bottom">
 
     <div class="layout-tools">
-
-      <button class="btn btn-sm layout-action-btn" onclick="resetLayout()">Reset Layout</button>
-
       <button class="btn btn-sm layout-action-btn" onclick="exportCalendarPdf()">Print Calendar</button>
 
       <button class="btn btn-sm layout-action-btn" onclick="openWallpaperModal()">Wallpapers</button>
@@ -1307,6 +221,8 @@
       </button>
 
       <div class="user-menu-panel hidden" id="userMenuPanel">
+
+        <button id="openAdminPanelBtn" class="hidden" onclick="openAdminPanel()">Admin panel</button>
 
         <button onclick="openPasswordModal()">Change password</button>
 
@@ -1505,7 +421,7 @@
 
         <div class="section-label" style="margin-top:12px;">Energy level: <span id="energyLabel">3</span>/5</div>
 
-        <input type="range" min="1" max="5" value="3" class="form-range energy-slider" id="energySlider"
+        <input type="range" min="1" max="5" value="3" class="form-range energy-slider range pink" id="energySlider"
 
                oninput="document.getElementById('energyLabel').textContent=this.value">
 
@@ -1536,7 +452,7 @@
       <li>🖱️ <strong>Drag</strong> any card header to move it</li>
       <li>↔️ <strong>Resize</strong> the calendar from its bottom-right corner</li>
       <li>🔼 <strong>Collapse</strong> cards using the arrow in their top-right</li>
-      <li>🔄 <strong>Reset Layout</strong> puts everything back to default</li>
+      <li>🧲 <strong>Snap to Grid</strong> keeps cards aligned while moving</li>
     </ul>
     <p style="color:var(--muted);font-size:0.82rem;">Your layout is saved automatically in your browser.</p>
     <button class="lm-close" onclick="closeLayoutModal()">Got it, let me edit!</button>
@@ -1574,13 +490,83 @@
 <div class="theme-studio-page hidden" id="themeStudioPage">
   <div class="theme-studio-topbar">
     <h2>Theme Studio</h2>
-    <button class="btn btn-luna btn-luna-muted" type="button" onclick="closeThemeStudio()">Back</button>
+    <div class="studio-actions studio-topbar-actions" style="margin-top:0;">
+      <div class="studio-mode-toggle" role="group" aria-label="Theme studio mode">
+        <button class="studio-mode-btn is-active" type="button" data-studio-mode="simple" onclick="setThemeStudioMode('simple')">Simple</button>
+        <button class="studio-mode-btn" type="button" data-studio-mode="advanced" onclick="setThemeStudioMode('advanced')">Advanced</button>
+      </div>
+      <button class="btn btn-luna btn-luna-muted" type="button" onclick="closeThemeStudio()">Back</button>
+    </div>
   </div>
 
-  <div class="theme-studio-grid">
-    <section class="studio-card">
+  <div class="theme-studio-layout">
+  <div class="theme-studio-grid" id="themeStudioEditorsWrap">
+    <section class="studio-card" id="themeStudioSimplePanel">
+      <h3>Quick Theme Flow</h3>
+      <div class="studio-simple-step">
+        <div class="studio-step-label">Step 1: Pick a mood</div>
+        <div class="studio-actions" style="margin-top:6px;">
+          <button class="btn btn-luna" type="button" onclick="applyThemeStudioQuickPreset('soft')">Soft</button>
+          <button class="btn btn-luna" type="button" onclick="applyThemeStudioQuickPreset('quartz')">Quartz Glass</button>
+          <button class="btn btn-luna" type="button" onclick="applyThemeStudioQuickPreset('blackglass')">Black Glass</button>
+          <button class="btn btn-luna" type="button" onclick="applyThemeStudioQuickPreset('contrast')">High Contrast</button>
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="generateThemeStudioVariant()">Generate Variant</button>
+        </div>
+      </div>
+
+      <div class="studio-simple-step">
+        <div class="studio-step-label">Step 2: Tune core colors</div>
+        <div class="studio-simple-grid">
+          <label class="studio-simple-color">
+            <span>Background</span>
+            <input id="simpleColorBg" type="color" oninput="applySimpleThemeColor('bg', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Text</span>
+            <input id="simpleColorText" type="color" oninput="applySimpleThemeColor('text', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Primary</span>
+            <input id="simpleColorPrimary" type="color" oninput="applySimpleThemeColor('primary', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Secondary</span>
+            <input id="simpleColorSecondary" type="color" oninput="applySimpleThemeColor('secondary', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Accent</span>
+            <input id="simpleColorAccent" type="color" oninput="applySimpleThemeColor('accent', this.value)">
+          </label>
+        </div>
+      </div>
+
+      <div class="studio-simple-step">
+        <div class="studio-step-label">Step 3: Typography + save</div>
+        <div class="studio-icon-row">
+          <div>
+            <label class="studio-label" for="simpleFontBody">Body Font</label>
+            <select id="simpleFontBody" class="form-select" onchange="applyFontToDraft('--app-font', this.value)"></select>
+          </div>
+          <div>
+            <label class="studio-label" for="simpleFontHeading">Heading Font</label>
+            <select id="simpleFontHeading" class="form-select" onchange="applyFontToDraft('--heading-font', this.value)"></select>
+          </div>
+        </div>
+        <div class="d-grid gap-2" style="margin-top:8px;">
+          <label class="studio-label" for="simpleThemeName">Theme Name</label>
+          <input id="simpleThemeName" class="form-control" type="text" placeholder="My Theme" oninput="syncSimpleThemeName(this.value)">
+        </div>
+        <div class="studio-actions" style="margin-top:8px;">
+          <button class="btn btn-luna" type="button" onclick="saveCustomThemeFromStudio()">Save Theme</button>
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="previewThemeStudioDraft()">Preview Draft</button>
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="setThemeStudioMode('advanced')">Open Advanced</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="studio-card" id="themeStudioSetupPanel">
       <h3>Create / Save Theme</h3>
-      <div class="d-grid gap-2">
+      <div class="d-grid gap-2 studio-setup-grid">
         <label class="studio-label" for="themeStudioBaseSelect">Base Theme</label>
         <select id="themeStudioBaseSelect" class="form-select" onchange="onThemeStudioBaseChange()"></select>
 
@@ -1604,6 +590,63 @@
           <button class="btn btn-luna btn-luna-muted" type="button" onclick="previewThemeStudioDraft()">Preview Draft</button>
         </div>
 
+        <label class="studio-label" style="margin-top:8px;">Font</label>
+        <div class="d-grid gap-2" style="border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:10px;background:rgba(255,255,255,0.06);">
+          <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;">
+            <div>
+              <label class="studio-label" for="studioFontBody" style="font-size:0.72rem;margin:0 0 4px;">Body Font</label>
+              <select id="studioFontBody" class="form-select form-select-sm" onchange="applyFontToDraft('--app-font', this.value)"></select>
+            </div>
+            <div>
+              <label class="studio-label" for="studioFontHeading" style="font-size:0.72rem;margin:0 0 4px;">Heading Font</label>
+              <select id="studioFontHeading" class="form-select form-select-sm" onchange="applyFontToDraft('--heading-font', this.value)"></select>
+            </div>
+          </div>
+          <div style="font-size:0.7rem;opacity:0.6;margin-top:2px;">Fonts load from Google Fonts on demand.</div>
+        </div>
+
+        <label class="studio-label" style="margin-top:8px;">Button Colors</label>
+        <div class="d-grid gap-2" style="border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:10px;background:rgba(255,255,255,0.06);">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            <div>
+              <label class="studio-label" style="font-size:0.7rem;display:block;margin-bottom:3px;">Primary BG</label>
+              <input id="btnColorPrimaryBg" type="color" class="form-control form-control-color" style="width:100%;height:30px;padding:2px;border-radius:6px;" oninput="applyBtnColorDraft('--btn-bg',this.value)">
+            </div>
+            <div>
+              <label class="studio-label" style="font-size:0.7rem;display:block;margin-bottom:3px;">Primary Text</label>
+              <input id="btnColorPrimaryText" type="color" class="form-control form-control-color" style="width:100%;height:30px;padding:2px;border-radius:6px;" oninput="applyBtnColorDraft('--btn-text',this.value)">
+            </div>
+            <div>
+              <label class="studio-label" style="font-size:0.7rem;display:block;margin-bottom:3px;">Primary Border</label>
+              <input id="btnColorPrimaryBorder" type="color" class="form-control form-control-color" style="width:100%;height:30px;padding:2px;border-radius:6px;" oninput="applyBtnColorDraft('--btn-border',this.value)">
+            </div>
+            <div>
+              <label class="studio-label" style="font-size:0.7rem;display:block;margin-bottom:3px;">Hover BG</label>
+              <input id="btnColorHoverBg" type="color" class="form-control form-control-color" style="width:100%;height:30px;padding:2px;border-radius:6px;" oninput="applyBtnColorDraft('--btn-hover-bg',this.value)">
+            </div>
+            <div>
+              <label class="studio-label" style="font-size:0.7rem;display:block;margin-bottom:3px;">Hover Text</label>
+              <input id="btnColorHoverText" type="color" class="form-control form-control-color" style="width:100%;height:30px;padding:2px;border-radius:6px;" oninput="applyBtnColorDraft('--btn-hover-text',this.value)">
+            </div>
+            <div>
+              <label class="studio-label" style="font-size:0.7rem;display:block;margin-bottom:3px;">Muted BG</label>
+              <input id="btnColorMutedBg" type="color" class="form-control form-control-color" style="width:100%;height:30px;padding:2px;border-radius:6px;" oninput="applyBtnColorDraft('--btn-muted-bg',this.value)">
+            </div>
+            <div>
+              <label class="studio-label" style="font-size:0.7rem;display:block;margin-bottom:3px;">Secondary BG</label>
+              <input id="btnColorSecondaryBg" type="color" class="form-control form-control-color" style="width:100%;height:30px;padding:2px;border-radius:6px;" oninput="applyBtnColorDraft('--btn-secondary-bg',this.value)">
+            </div>
+            <div>
+              <label class="studio-label" style="font-size:0.7rem;display:block;margin-bottom:3px;">Secondary Text</label>
+              <input id="btnColorSecondaryText" type="color" class="form-control form-control-color" style="width:100%;height:30px;padding:2px;border-radius:6px;" oninput="applyBtnColorDraft('--btn-secondary-text',this.value)">
+            </div>
+            <div>
+              <label class="studio-label" style="font-size:0.7rem;display:block;margin-bottom:3px;">Secondary Border</label>
+              <input id="btnColorSecondaryBorder" type="color" class="form-control form-control-color" style="width:100%;height:30px;padding:2px;border-radius:6px;" oninput="applyBtnColorDraft('--btn-secondary-border',this.value)">
+            </div>
+          </div>
+        </div>
+
         <label class="studio-label" style="margin-top:6px;">Button Style Presets</label>
         <div class="studio-actions">
           <button class="btn btn-luna" type="button" onclick="applyButtonStylePreset('soft')">Soft</button>
@@ -1611,45 +654,132 @@
           <button class="btn btn-luna" type="button" onclick="applyButtonStylePreset('pill')">Pill</button>
           <button class="btn btn-luna" type="button" onclick="applyButtonStylePreset('sharp')">Sharp</button>
           <button class="btn btn-luna" type="button" onclick="applyButtonStylePreset('glass')">Glass</button>
+          <button class="btn btn-luna" type="button" onclick="applyButtonStylePreset('blackglass')">Black Glass</button>
         </div>
 
         <label class="studio-label" style="margin-top:8px;">Glass Background (Quartz Style)</label>
         <div class="d-grid gap-2" style="border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:10px;background:rgba(255,255,255,0.06);">
-          <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;">
+          <div class="studio-label" style="font-size:0.72rem;opacity:0.9;">Shared Card Tint</div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
             <input id="glassCardTintColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="glassCardTintOpacity" style="font-size:0.72rem;margin:0;">Shared Tint Opacity</label>
             <div class="studio-opacity-row">
               <input id="glassCardTintOpacity" type="range" min="0" max="100" value="55" oninput="onGlassCardOpacityInput(this.value);applyGlassBackgroundToDraft(true)">
               <span id="glassCardTintOpacityValue">55%</span>
             </div>
           </div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="glassCardBorderColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="glassCardBorderOpacity" style="font-size:0.72rem;margin:0;">Shared Border Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="glassCardBorderOpacity" type="range" min="0" max="100" value="65" oninput="onGlassValueLabelInput('glassCardBorderOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="glassCardBorderOpacityValue">65%</span>
+            </div>
+          </div>
 
+          <label class="studio-label" for="glassCardBlur" style="font-size:0.72rem;margin:0;">Shared Glass Blur</label>
           <div class="studio-opacity-row">
             <input id="glassCardBlur" type="range" min="0" max="20" step="1" value="5" oninput="onGlassCardBlurInput(this.value);applyGlassBackgroundToDraft(true)">
             <span id="glassCardBlurValue">5px</span>
           </div>
 
-          <label style="display:flex;align-items:center;gap:8px;font-size:0.76rem;color:rgba(255,255,255,0.9);">
-            <input id="glassApplyToCalendar" type="checkbox" checked onchange="applyGlassBackgroundToDraft(true)">
-            Apply same clear background to calendar card
-          </label>
+          <div class="studio-label" style="font-size:0.72rem;opacity:0.9;margin-top:4px;">Overview Card Tint</div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="overviewGlassTintColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="overviewGlassTintOpacity" style="font-size:0.72rem;margin:0;">Overview Tint Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="overviewGlassTintOpacity" type="range" min="0" max="100" value="55" oninput="onGlassValueLabelInput('overviewGlassTintOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="overviewGlassTintOpacityValue">55%</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="overviewGlassBorderColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="overviewGlassBorderOpacity" style="font-size:0.72rem;margin:0;">Overview Border Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="overviewGlassBorderOpacity" type="range" min="0" max="100" value="65" oninput="onGlassValueLabelInput('overviewGlassBorderOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="overviewGlassBorderOpacityValue">65%</span>
+            </div>
+          </div>
+          <label class="studio-label" for="overviewGlassBlur" style="font-size:0.72rem;margin:0;">Overview Glass Blur</label>
+          <div class="studio-opacity-row">
+            <input id="overviewGlassBlur" type="range" min="0" max="20" step="1" value="5" oninput="onGlassValueLabelInput('overviewGlassBlurValue', this.value, 'px');applyGlassBackgroundToDraft(true)">
+            <span id="overviewGlassBlurValue">5px</span>
+          </div>
+
+          <div class="studio-label" style="font-size:0.72rem;opacity:0.9;margin-top:4px;">Log Day Card Tint</div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="logdayGlassTintColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="logdayGlassTintOpacity" style="font-size:0.72rem;margin:0;">Log Day Tint Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="logdayGlassTintOpacity" type="range" min="0" max="100" value="55" oninput="onGlassValueLabelInput('logdayGlassTintOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="logdayGlassTintOpacityValue">55%</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="logdayGlassBorderColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="logdayGlassBorderOpacity" style="font-size:0.72rem;margin:0;">Log Day Border Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="logdayGlassBorderOpacity" type="range" min="0" max="100" value="65" oninput="onGlassValueLabelInput('logdayGlassBorderOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="logdayGlassBorderOpacityValue">65%</span>
+            </div>
+          </div>
+          <label class="studio-label" for="logdayGlassBlur" style="font-size:0.72rem;margin:0;">Log Day Glass Blur</label>
+          <div class="studio-opacity-row">
+            <input id="logdayGlassBlur" type="range" min="0" max="20" step="1" value="5" oninput="onGlassValueLabelInput('logdayGlassBlurValue', this.value, 'px');applyGlassBackgroundToDraft(true)">
+            <span id="logdayGlassBlurValue">5px</span>
+          </div>
+
+          <div class="studio-label" style="font-size:0.72rem;opacity:0.9;margin-top:4px;">Calendar Card Tint</div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="calendarGlassTintColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="calendarGlassTintOpacity" style="font-size:0.72rem;margin:0;">Calendar Tint Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="calendarGlassTintOpacity" type="range" min="0" max="100" value="55" oninput="onGlassValueLabelInput('calendarGlassTintOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="calendarGlassTintOpacityValue">55%</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="calendarGlassBorderColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="calendarGlassBorderOpacity" style="font-size:0.72rem;margin:0;">Calendar Border Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="calendarGlassBorderOpacity" type="range" min="0" max="100" value="65" oninput="onGlassValueLabelInput('calendarGlassBorderOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="calendarGlassBorderOpacityValue">65%</span>
+            </div>
+          </div>
+          <label class="studio-label" for="calendarGlassBlur" style="font-size:0.72rem;margin:0;">Calendar Glass Blur</label>
+          <div class="studio-opacity-row">
+            <input id="calendarGlassBlur" type="range" min="0" max="20" step="1" value="5" oninput="onGlassValueLabelInput('calendarGlassBlurValue', this.value, 'px');applyGlassBackgroundToDraft(true)">
+            <span id="calendarGlassBlurValue">5px</span>
+          </div>
 
           <div class="studio-actions" style="margin-top:0;">
             <button class="btn btn-luna" type="button" onclick="applyQuartzGlassPreset()">Apply Quartz Glass</button>
+            <button class="btn btn-luna" type="button" onclick="applyBlackGlassPreset()">Apply Black Glass</button>
             <button class="btn btn-luna btn-luna-muted" type="button" onclick="resetCardBackgroundToSolid()">Reset Solid</button>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="studio-card">
+    <section class="studio-card" id="themeStudioColorsPanel">
       <h3>Element Colors</h3>
-      <div class="d-grid gap-2">
+      <div class="d-grid gap-2 studio-colors-grid">
         <div id="themeEditorActiveLabel" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:8px;padding:8px 12px;">
           <span style="color:rgba(255,255,255,0.45);font-size:0.72rem;display:block;margin-bottom:2px;">Editing</span>
-          <span id="themeEditorActiveName" style="color:#fff;font-weight:600;font-size:0.85rem;">— click a swatch below to edit —</span>
+          <span id="themeEditorActiveName" style="color:#fff;font-weight:600;font-size:0.85rem;">Choose a category and property, or click the preview canvas</span>
         </div>
         <!-- hidden select kept for JS compatibility -->
         <select id="themeElementSelect" class="hidden" onchange="onThemeEditorElementChange()"></select>
+
+        <label class="studio-label" for="themeCategorySelect">Category</label>
+        <select id="themeCategorySelect" class="form-select" onchange="onThemeEditorCategoryChange()"></select>
+
+        <label class="studio-label" for="themeElementSelectDisplay">Property</label>
+        <select id="themeElementSelectDisplay" class="form-select" onchange="onThemeEditorFieldSelectChange()"></select>
+
+        <div class="studio-current-swatch" id="themeEditorCurrentSwatch" title="Current selected token preview">
+          <span class="studio-current-swatch-label" id="themeEditorCurrentSwatchLabel">Current Value</span>
+        </div>
 
         <div id="themeColorEditorPanel" class="d-grid gap-2">
           <label class="studio-label" for="themeFillType">Fill Type</label>
@@ -1669,7 +799,7 @@
             <label class="studio-label" for="themeColorOpacity" style="margin:0">Opacity</label>
             <span id="themeColorOpacityValue" style="font-size:0.76rem;color:rgba(255,255,255,0.9);">100%</span>
           </div>
-          <input id="themeColorOpacity" type="range" min="0" max="100" value="100" style="width:100%;accent-color:#e879a8;height:6px;cursor:pointer;" oninput="onThemeEditorOpacityInput(this.value)">
+          <input id="themeColorOpacity" class="range purple" type="range" min="0" max="100" value="100" style="width:100%;height:6px;cursor:pointer;" oninput="onThemeEditorOpacityInput(this.value)">
 
           <div id="themeGradientControls" class="hidden d-grid gap-2">
             <label class="studio-label" for="themeGradientAngle">Angle (linear only)</label>
@@ -1678,14 +808,16 @@
             <label class="studio-label">Color Stop 1</label>
             <div class="studio-grad-stop">
               <input id="themeGradientColor1" type="color" class="form-control form-control-color" value="#c2647a">
-              <input id="themeGradientOpacity1" type="range" min="0" max="100" value="100" oninput="document.getElementById('themeGradientOpacity1Label').textContent=this.value+'%'">
+              <label class="studio-label" for="themeGradientOpacity1" style="font-size:0.7rem;margin:0;">Stop 1 Opacity</label>
+              <input id="themeGradientOpacity1" class="range blue" type="range" min="0" max="100" value="100" oninput="document.getElementById('themeGradientOpacity1Label').textContent=this.value+'%'">
               <span id="themeGradientOpacity1Label" class="studio-grad-stop-label">100%</span>
             </div>
 
             <label class="studio-label">Color Stop 2</label>
             <div class="studio-grad-stop">
               <input id="themeGradientColor2" type="color" class="form-control form-control-color" value="#ffffff">
-              <input id="themeGradientOpacity2" type="range" min="0" max="100" value="100" oninput="document.getElementById('themeGradientOpacity2Label').textContent=this.value+'%'">
+              <label class="studio-label" for="themeGradientOpacity2" style="font-size:0.7rem;margin:0;">Stop 2 Opacity</label>
+              <input id="themeGradientOpacity2" class="range ltpurple" type="range" min="0" max="100" value="100" oninput="document.getElementById('themeGradientOpacity2Label').textContent=this.value+'%'">
               <span id="themeGradientOpacity2Label" class="studio-grad-stop-label">100%</span>
             </div>
           </div>
@@ -1702,71 +834,112 @@
     </section>
   </div>
 
-  <section class="studio-card studio-preview">
+  <section class="studio-card studio-preview" id="themeStudioPreviewPanel">
     <div class="studio-preview-head">
-      <h3>Draft Preview</h3>
-      <div class="studio-actions" style="margin-top:0;">
-        <button class="btn btn-luna btn-sm" type="button" onclick="expandAllStudioSections()">Expand All</button>
-        <button class="btn btn-luna btn-luna-muted btn-sm" type="button" onclick="collapseAllStudioSections()">Collapse All</button>
+      <h3>Interactive Preview</h3>
+      <div class="studio-actions studio-preview-controls" style="margin-top:0;">
+        <div class="studio-scene-tabs" role="tablist" aria-label="Preview focus">
+          <button class="studio-scene-tab is-active" type="button" data-scene="all" onclick="setThemeStudioPreviewScene('all')">All</button>
+          <button class="studio-scene-tab" type="button" data-scene="calendar" onclick="setThemeStudioPreviewScene('calendar')">Calendar</button>
+          <button class="studio-scene-tab" type="button" data-scene="logday" onclick="setThemeStudioPreviewScene('logday')">Log Day</button>
+          <button class="studio-scene-tab" type="button" data-scene="buttons" onclick="setThemeStudioPreviewScene('buttons')">Buttons</button>
+          <button class="studio-scene-tab" type="button" data-scene="modals" onclick="setThemeStudioPreviewScene('modals')">Modals</button>
+        </div>
+        <label class="studio-label" for="themeStudioPreviewFilter" style="margin:0;align-self:center;">Category</label>
+        <select id="themeStudioPreviewFilter" class="form-select form-select-sm" style="min-width:170px;" onchange="onThemeStudioPreviewFilterChange()">
+          <option value="all">All Categories</option>
+          <option value="core">Core</option>
+          <option value="header">Header</option>
+          <option value="cards">Cards</option>
+          <option value="overview">Cycle Overview</option>
+          <option value="buttons">Buttons</option>
+          <option value="inputs">Inputs</option>
+          <option value="modals">Modals</option>
+          <option value="calendar">Calendar</option>
+          <option value="logday">Log Day</option>
+          <option value="bootstrap">Bootstrap</option>
+        </select>
       </div>
     </div>
-    <div class="studio-bootstrap-preview" id="themeStudioBootstrapPreview">
-      <div class="studio-bootstrap-preview-note">Bootstrap Layer Preview</div>
-      <div class="studio-bootstrap-preview-shell">
-        <div class="studio-bootstrap-preview-grid">
-          <div class="studio-bs-preview-card">
-            <div class="studio-bs-preview-card-header">Bootstrap Card Header</div>
-            <div class="studio-bs-preview-card-body">
-              <p>Use this area to preview Bootstrap card colors, border radius, and shadow tokens against body and link colors.</p>
-              <div class="studio-bs-preview-actions">
-                <button type="button" class="studio-bs-preview-btn studio-bs-preview-btn-primary">Primary</button>
-                <button type="button" class="studio-bs-preview-btn studio-bs-preview-btn-secondary">Secondary</button>
-              </div>
-              <a href="#" class="studio-bs-preview-link" onclick="return false;">Link preview</a>
-            </div>
-          </div>
+    <div class="studio-canvas" id="themeStudioBootstrapPreview">
+      <div class="studio-preview-group" data-group="core">
+        <div class="studio-canvas-row">
+          <button class="studio-node studio-node-swatch" data-key="--rose" style="background:var(--rose);color:#fff;" onclick="selectStudioElement('--rose')">Primary</button>
+          <button class="studio-node studio-node-swatch" data-key="--rose-dk" style="background:var(--rose-dk);color:#fff;" onclick="selectStudioElement('--rose-dk')">Primary Dark</button>
+          <button class="studio-node studio-node-swatch" data-key="--blush" style="background:var(--blush);color:var(--ink);" onclick="selectStudioElement('--blush')">Blush</button>
+          <button class="studio-node studio-node-swatch" data-key="--cream" style="background:var(--cream);color:var(--ink);" onclick="selectStudioElement('--cream')">Page BG</button>
+          <button class="studio-node studio-node-swatch" data-key="--ink" style="background:var(--ink);color:#fff;" onclick="selectStudioElement('--ink')">Text</button>
+        </div>
+      </div>
 
-          <div class="studio-bs-preview-metrics">
-            <div class="studio-bs-preview-metric">
-              <div class="studio-bs-preview-metric-title">Radius</div>
-              <div class="studio-bs-radius-chip"></div>
-              <div id="studioBsRadiusValue" class="studio-bs-preview-metric-value">—</div>
-            </div>
-            <div class="studio-bs-preview-metric">
-              <div class="studio-bs-preview-metric-title">Small Radius</div>
-              <div class="studio-bs-radius-chip studio-bs-radius-chip-sm"></div>
-              <div id="studioBsRadiusSmValue" class="studio-bs-preview-metric-value">—</div>
-            </div>
-            <div class="studio-bs-preview-metric">
-              <div class="studio-bs-preview-metric-title">Shadow</div>
-              <div class="studio-bs-shadow-chip"></div>
-              <div id="studioBsShadowValue" class="studio-bs-preview-metric-value">—</div>
-            </div>
-            <div class="studio-bs-preview-metric">
-              <div class="studio-bs-preview-metric-title">Focus Ring</div>
-              <div class="studio-bs-focus-chip"></div>
-              <div id="studioBsFocusValue" class="studio-bs-preview-metric-value">—</div>
-            </div>
-            <div class="studio-bs-preview-metric" style="grid-column:1 / -1;">
-              <div class="studio-bs-preview-metric-title">Palette</div>
-              <div class="studio-bs-palette">
-                <div class="studio-bs-palette-chip" style="background:var(--bs-primary);"></div>
-                <div class="studio-bs-palette-chip" style="background:var(--bs-secondary);"></div>
-                <div class="studio-bs-palette-chip" style="background:var(--bs-success);"></div>
-                <div class="studio-bs-palette-chip" style="background:var(--bs-info);"></div>
-                <div class="studio-bs-palette-chip" style="background:var(--bs-warning);"></div>
-                <div class="studio-bs-palette-chip" style="background:var(--bs-danger);"></div>
-                <div class="studio-bs-palette-chip" style="background:var(--bs-light);"></div>
-                <div class="studio-bs-palette-chip" style="background:var(--bs-dark);"></div>
-              </div>
-              <div class="studio-bs-preview-metric-value">Primary, secondary, status, and neutral Bootstrap tokens.</div>
-            </div>
+      <div class="studio-preview-group" data-group="header">
+        <div class="studio-node studio-header-node" data-key="--header-bg" onclick="selectStudioElement('--header-bg')">
+          <span class="studio-node-title" data-key="--header-text" onclick="selectStudioElement('--header-text')">Luna Header</span>
+          <span class="studio-node-pill" data-key="--header-border" onclick="selectStudioElement('--header-border')">Border</span>
+        </div>
+      </div>
+
+      <div class="studio-preview-group" data-group="cards">
+        <div class="studio-node studio-card-node" data-key="--bs-card-bg" onclick="selectStudioElement('--bs-card-bg')">
+          <div class="studio-card-node-head" data-key="--card-header-bg" onclick="selectStudioElement('--card-header-bg')">
+            <span data-key="--card-header-text" onclick="selectStudioElement('--card-header-text')">Card Header</span>
           </div>
+          <div class="studio-card-node-body" data-key="--bs-card-color" onclick="selectStudioElement('--bs-card-color')">Card body sample</div>
+        </div>
+      </div>
+
+      <div class="studio-preview-group" data-group="overview">
+        <div class="studio-node studio-overview-node" data-key="--overview-card-bg" onclick="selectStudioElement('--overview-card-bg')">
+          <strong data-key="--overview-title-color" onclick="selectStudioElement('--overview-title-color')">Cycle Overview</strong>
+          <div class="studio-overview-stat" data-key="--stat-bg" onclick="selectStudioElement('--stat-bg')">Stat</div>
+        </div>
+      </div>
+
+      <div class="studio-preview-group" data-group="buttons">
+        <div class="studio-canvas-row">
+          <button class="studio-node studio-btn-node" data-key="--btn-bg" onclick="selectStudioElement('--btn-bg')">Primary</button>
+          <button class="studio-node studio-btn-node studio-btn-muted" data-key="--btn-muted-bg" onclick="selectStudioElement('--btn-muted-bg')">Muted</button>
+          <button class="studio-node studio-btn-node studio-btn-secondary" data-key="--btn-secondary-bg" onclick="selectStudioElement('--btn-secondary-bg')">Secondary</button>
+        </div>
+      </div>
+
+      <div class="studio-preview-group" data-group="inputs">
+        <div class="studio-node studio-input-node" data-key="--input-bg" onclick="selectStudioElement('--input-bg')">Input preview text</div>
+      </div>
+
+      <div class="studio-preview-group" data-group="calendar">
+        <div class="studio-node studio-calendar-node" data-key="--calendar-card-bg" onclick="selectStudioElement('--calendar-card-bg')">
+          <span class="studio-cal-day" data-key="--cal-day-color" onclick="selectStudioElement('--cal-day-color')">12</span>
+          <span class="studio-cal-dot" data-key="--period" onclick="selectStudioElement('--period')"></span>
+          <span class="studio-node-pill" data-key="--cal-nav-btn-color" onclick="selectStudioElement('--cal-nav-btn-color')">Nav Button</span>
+          <span class="studio-node-pill" data-key="--legend-color" onclick="selectStudioElement('--legend-color')">Legend</span>
+        </div>
+      </div>
+
+      <div class="studio-preview-group" data-group="logday">
+        <div class="studio-node studio-logday-node" data-key="--logday-card-bg" onclick="selectStudioElement('--logday-card-bg')">
+          <span data-key="--logday-title-color" onclick="selectStudioElement('--logday-title-color')">Log Day</span>
+          <span class="studio-node-pill" data-key="--section-label-color" onclick="selectStudioElement('--section-label-color')">Section Label</span>
+          <span class="studio-node-pill" data-key="--selected-date-label-color" onclick="selectStudioElement('--selected-date-label-color')">Date Label</span>
+        </div>
+      </div>
+
+      <div class="studio-preview-group" data-group="modals">
+        <div class="studio-node studio-modal-node" data-key="--modal-bg" onclick="selectStudioElement('--modal-bg')">
+          <span data-key="--modal-accent" onclick="selectStudioElement('--modal-accent')">Modal Accent</span>
+        </div>
+      </div>
+
+      <div class="studio-preview-group" data-group="bootstrap">
+        <div class="studio-canvas-row">
+          <button class="studio-node studio-node-swatch" data-key="--bs-primary" style="background:var(--bs-primary);color:#fff;" onclick="selectStudioElement('--bs-primary')">BS Primary</button>
+          <button class="studio-node studio-node-swatch" data-key="--bs-border-radius" onclick="selectStudioElement('--bs-border-radius')">Radius</button>
+          <button class="studio-node studio-node-swatch" data-key="--bs-box-shadow" onclick="selectStudioElement('--bs-box-shadow')">Shadow</button>
         </div>
       </div>
     </div>
-    <div class="studio-swatches" id="themeStudioSwatches"></div>
   </section>
+  </div>
 </div>
 
 
@@ -1791,9 +964,19 @@ const CUSTOM_THEMES_KEY = "luna_custom_themes";
 
 const STUDIO_SECTION_STATE_KEY = "luna_theme_studio_sections";
 
+const STUDIO_VIEW_KEY = "luna_theme_studio_view";
+
+const STUDIO_MODE_KEY = "luna_theme_studio_mode";
+
 const STUDIO_VALUE_FIELD_META = {
   "--card-blur": { placeholder: "5px", helper: "Use a CSS length like 0px, 5px, or 0.5rem." },
   "--shadow": { placeholder: "0 2px 20px rgba(0,0,0,0.15)", helper: "Use any valid box-shadow string." },
+  "--calendar-card-blur": { placeholder: "5px", helper: "Use a CSS length like 0px, 5px, or 0.5rem." },
+  "--calendar-card-shadow": { placeholder: "0 2px 20px rgba(0,0,0,0.15)", helper: "Use any valid box-shadow string." },
+  "--overview-card-blur": { placeholder: "5px", helper: "Use a CSS length like 0px, 5px, or 0.5rem." },
+  "--overview-card-shadow": { placeholder: "0 2px 20px rgba(0,0,0,0.15)", helper: "Use any valid box-shadow string." },
+  "--logday-card-blur": { placeholder: "5px", helper: "Use a CSS length like 0px, 5px, or 0.5rem." },
+  "--logday-card-shadow": { placeholder: "0 2px 20px rgba(0,0,0,0.15)", helper: "Use any valid box-shadow string." },
   "--btn-border-width": { placeholder: "1px", helper: "Examples: 1px or 2px." },
   "--btn-radius": { placeholder: "10px", helper: "Examples: 10px, 0.75rem, or 999px." },
   "--btn-shadow": { placeholder: "none", helper: "Use any valid box-shadow string, or none." },
@@ -2069,6 +1252,18 @@ const ELEMENT_DEFAULTS = {
   "--card-header-bg": "transparent",
   "--card-header-text": "var(--rose-dk)",
   "--card-header-border": "var(--border)",
+  "--overview-card-bg": "var(--bs-card-bg)",
+  "--overview-card-border": "var(--bs-card-border-color)",
+  "--overview-card-blur": "var(--card-blur)",
+  "--overview-card-shadow": "var(--shadow)",
+  "--logday-card-bg": "var(--bs-card-bg)",
+  "--logday-card-border": "var(--bs-card-border-color)",
+  "--logday-card-blur": "var(--card-blur)",
+  "--logday-card-shadow": "var(--shadow)",
+  "--calendar-card-bg": "var(--cal-bg)",
+  "--calendar-card-border": "var(--bs-card-border-color)",
+  "--calendar-card-blur": "var(--card-blur)",
+  "--calendar-card-shadow": "var(--shadow)",
   // Stat boxes
   "--stat-bg": "rgba(255,255,255,0.42)",
   "--stat-border": "var(--border)",
@@ -2076,19 +1271,57 @@ const ELEMENT_DEFAULTS = {
   "--stat-label": "var(--muted)",
   // Calendar
   "--cal-bg": "var(--card)",
+  "--cal-day-color": "var(--text)",
+  "--cal-day-name-color": "var(--muted)",
+  "--cal-day-border-color": "transparent",
+  "--cal-day-border-width": "1.5px",
   "--cal-day-hover": "var(--blush)",
   "--cal-day-today-border": "var(--rose)",
   "--cal-day-other": "var(--muted)",
   "--cal-header-text": "var(--rose-dk)",
+  "--cal-month-year-color": "var(--cal-header-text)",
+  "--cal-nav-btn-color": "var(--cal-header-text)",
+  "--cal-nav-btn-bg": "transparent",
+  "--cal-nav-btn-border": "var(--border)",
+  "--cal-nav-btn-radius": "8px",
+  "--cal-nav-btn-hover-bg": "var(--blush)",
   "--cal-legend-bg": "transparent",
   "--cal-legend-border": "var(--border)",
   "--cal-legend-text": "var(--muted)",
+  "--legend-color": "var(--cal-legend-text)",
   // Log Day
+  "--logday-title-color": "var(--bs-card-cap-color)",
+  "--logday-flower-color": "var(--rose-dk)",
+  "--logday-flower-bg": "var(--blush)",
+  "--logday-flower-border": "var(--rose-lt)",
   "--logday-section-label": "var(--muted)",
+  "--section-label-color": "var(--logday-section-label)",
+  "--logday-date-label-color": "var(--rose-dk)",
+  "--selected-date-label-color": "var(--logday-date-label-color)",
+  "--logday-toggle-bg": "#ffffff",
+  "--logday-toggle-text": "var(--ink)",
   "--logday-toggle-border": "var(--border)",
+  "--logday-toggle-hover-border": "var(--rose)",
   "--logday-toggle-active-bg": "var(--rose)",
+  "--logday-toggle-active-text": "#ffffff",
+  "--logday-pill-bg": "#ffffff",
+  "--logday-pill-text": "var(--ink)",
   "--logday-pill-border": "var(--border)",
+  "--logday-pill-hover-border": "var(--symptom)",
   "--logday-pill-active-bg": "var(--symptom)",
+  "--logday-pill-active-text": "#ffffff",
+  "--logday-mood-btn-bg": "var(--btn-secondary-bg)",
+  "--logday-mood-btn-text": "var(--btn-secondary-text)",
+  "--logday-mood-btn-border": "color-mix(in srgb, var(--btn-border) 35%, var(--border) 65%)",
+  "--logday-mood-btn-hover-bg": "var(--btn-secondary-hover-bg)",
+  "--logday-mood-btn-active-bg": "color-mix(in srgb, var(--btn-bg) 18%, white 82%)",
+  "--logday-mood-btn-label-color": "var(--muted)",
+  "--logday-icon-color": "var(--btn-secondary-text)",
+  "--logday-slider-accent": "var(--rose)",
+  "--overview-title-color": "var(--bs-card-cap-color)",
+  "--overview-flower-color": "var(--rose-dk)",
+  "--overview-flower-bg": "var(--blush)",
+  "--overview-flower-border": "var(--rose-lt)",
   // Buttons
   "--btn-bg": "var(--rose-dk)",
   "--btn-text": "#ffffff",
@@ -2113,6 +1346,10 @@ const ELEMENT_DEFAULTS = {
   "--input-placeholder": "color-mix(in srgb, var(--muted) 85%, white 15%)",
   "--input-focus-border": "var(--rose)",
   "--input-focus-ring": "color-mix(in srgb, var(--rose) 25%, transparent)",
+  // Fonts
+  "--app-font": "'DM Sans', sans-serif",
+  "--heading-font": "var(--app-font)",
+  "--bs-body-font-family": "var(--app-font)",
 };
 // Backward compat alias
 const MODAL_THEME_DEFAULTS = ELEMENT_DEFAULTS;
@@ -2159,6 +1396,18 @@ const EDITABLE_THEME_FIELDS = [
   { key: "--card-header-bg", label: "Card Header Background" },
   { key: "--card-header-text", label: "Card Header Text" },
   { key: "--card-header-border", label: "Card Header Border" },
+  { key: "--overview-card-bg", label: "Overview Card Background" },
+  { key: "--overview-card-border", label: "Overview Card Border" },
+  { key: "--overview-card-blur", label: "Overview Card Blur" },
+  { key: "--overview-card-shadow", label: "Overview Card Shadow" },
+  { key: "--logday-card-bg", label: "Log Day Card Background" },
+  { key: "--logday-card-border", label: "Log Day Card Border" },
+  { key: "--logday-card-blur", label: "Log Day Card Blur" },
+  { key: "--logday-card-shadow", label: "Log Day Card Shadow" },
+  { key: "--calendar-card-bg", label: "Calendar Card Background" },
+  { key: "--calendar-card-border", label: "Calendar Card Border" },
+  { key: "--calendar-card-blur", label: "Calendar Card Blur" },
+  { key: "--calendar-card-shadow", label: "Calendar Card Shadow" },
   { key: "--card", label: "Card Body Background" },
   { key: "--card-blur", label: "Card Backdrop Blur" },
   { key: "--shadow", label: "Card Shadow" },
@@ -2168,19 +1417,56 @@ const EDITABLE_THEME_FIELDS = [
   { key: "--stat-text", label: "Stat Value Text" },
   { key: "--stat-label", label: "Stat Label Text" },
   // Calendar
+  { key: "--cal-day-color", label: "Calendar Day Text" },
+  { key: "--cal-day-name-color", label: "Calendar Day Name Text" },
+  { key: "--cal-day-border-color", label: "Calendar Day Border Color" },
+  { key: "--cal-day-border-width", label: "Calendar Day Border Width" },
   { key: "--cal-day-hover", label: "Calendar Day Hover" },
   { key: "--cal-day-today-border", label: "Calendar Today Border" },
   { key: "--cal-day-other", label: "Calendar Other Month" },
   { key: "--cal-header-text", label: "Calendar Header Text" },
+  { key: "--cal-month-year-color", label: "Calendar Month/Year Text" },
+  { key: "--cal-nav-btn-color", label: "Calendar Nav Button - Text Color" },
+  { key: "--cal-nav-btn-bg", label: "Calendar Nav Button - Background" },
+  { key: "--cal-nav-btn-border", label: "Calendar Nav Button - Border Color" },
+  { key: "--cal-nav-btn-radius", label: "Calendar Nav Button - Border Radius" },
+  { key: "--cal-nav-btn-hover-bg", label: "Calendar Nav Button - Hover Background" },
   { key: "--cal-legend-bg", label: "Calendar Legend Background" },
   { key: "--cal-legend-border", label: "Calendar Legend Border" },
   { key: "--cal-legend-text", label: "Calendar Legend Text" },
+  { key: "--legend-color", label: "Legend (.legend)" },
   // Log Day
+  { key: "--logday-title-color", label: "Log Day Title" },
+  { key: "--logday-flower-color", label: "Log Day Flower Icon" },
+  { key: "--logday-flower-bg", label: "Log Day Flower Background" },
+  { key: "--logday-flower-border", label: "Log Day Flower Border" },
   { key: "--logday-section-label", label: "Log Day Section Label" },
+  { key: "--section-label-color", label: "Section Label (.section-label)" },
+  { key: "--selected-date-label-color", label: "Selected Date Label (.selected-date-label)" },
+  { key: "--logday-toggle-bg", label: "Log Day Toggle Background" },
+  { key: "--logday-toggle-text", label: "Log Day Toggle Text" },
   { key: "--logday-toggle-border", label: "Period Toggle Border" },
+  { key: "--logday-toggle-hover-border", label: "Period Toggle Hover Border" },
   { key: "--logday-toggle-active-bg", label: "Period Toggle Active" },
+  { key: "--logday-toggle-active-text", label: "Period Toggle Active Text" },
+  { key: "--logday-pill-bg", label: "Symptom Pill Background" },
+  { key: "--logday-pill-text", label: "Symptom Pill Text" },
   { key: "--logday-pill-border", label: "Symptom Pill Border" },
+  { key: "--logday-pill-hover-border", label: "Symptom Pill Hover Border" },
   { key: "--logday-pill-active-bg", label: "Symptom Pill Active" },
+  { key: "--logday-pill-active-text", label: "Symptom Pill Active Text" },
+  { key: "--logday-mood-btn-bg", label: "Mood Button Background" },
+  { key: "--logday-mood-btn-text", label: "Mood Button Text/Icon" },
+  { key: "--logday-mood-btn-border", label: "Mood Button Border" },
+  { key: "--logday-mood-btn-hover-bg", label: "Mood Button Hover Background" },
+  { key: "--logday-mood-btn-active-bg", label: "Mood Button Active Background" },
+  { key: "--logday-mood-btn-label-color", label: "Mood Button Label Text" },
+  { key: "--logday-icon-color", label: "Log Day Icon Color" },
+  { key: "--logday-slider-accent", label: "Log Day Slider Accent" },
+  { key: "--overview-title-color", label: "Overview Title" },
+  { key: "--overview-flower-color", label: "Overview Flower Icon" },
+  { key: "--overview-flower-bg", label: "Overview Flower Background" },
+  { key: "--overview-flower-border", label: "Overview Flower Border" },
   // Buttons
   { key: "--btn-bg", label: "Button Primary Background" },
   { key: "--btn-text", label: "Button Primary Text" },
@@ -2229,6 +1515,9 @@ const EDITABLE_THEME_FIELDS = [
   { key: "--bs-border-radius", label: "Bootstrap Radius" },
   { key: "--bs-border-radius-sm", label: "Bootstrap Small Radius" },
   { key: "--bs-box-shadow", label: "Bootstrap Shadow" },
+  // Fonts
+  { key: "--app-font", label: "Body Font Family" },
+  { key: "--heading-font", label: "Heading Font Family" },
 ];
 
 
@@ -2281,6 +1570,7 @@ let selectedSymptoms = new Set();
 let authToken = localStorage.getItem(TOKEN_KEY) || "";
 
 let currentUser = null;
+let adminUsers = [];
 
 let authMode = "login";
 
@@ -2309,6 +1599,10 @@ let themeStudioDraftFlower = "🌸";
 let themeStudioDraftLogo = "🌙";
 
 let studioSectionCollapsed = {};
+
+let themeStudioMode = localStorage.getItem(STUDIO_MODE_KEY) || "simple";
+
+let themeStudioVariantIndex = 0;
 
 const STUDIO_SWATCH_GROUP_ORDER = ["Core", "Header", "Cards", "Stats", "Calendar", "Log Day", "Buttons", "Modals", "Bootstrap", "Other"];
 
@@ -2389,6 +1683,53 @@ async function api(method, path, body) {
 
 }
 
+async function downloadWithAuth(path, fallbackName) {
+  const headers = {};
+  if (authToken) headers.Authorization = `Bearer ${authToken}`;
+  const res = await fetch(API_BASE + path, { method: "GET", headers });
+  if (!res.ok) {
+    const text = await res.text();
+    if (res.status === 401) {
+      signOut();
+      throw new Error("Session expired. Please login again.");
+    }
+    throw new Error(text);
+  }
+
+  const blob = await res.blob();
+  const cd = res.headers.get("content-disposition") || "";
+  const match = cd.match(/filename="?([^";]+)"?/i);
+  const fileName = (match && match[1]) || fallbackName || "download.bin";
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function normalizeWallpaperUrl(url) {
+  try {
+    return new URL(String(url || "").trim()).href;
+  } catch (_) {
+    return "";
+  }
+}
+
+function extractUrlsFromBgArt(bgArt) {
+  if (!bgArt) return [];
+  const urls = [];
+  const regex = /url\((['"]?)(.*?)\1\)/g;
+  let match;
+  while ((match = regex.exec(String(bgArt))) !== null) {
+    const normalized = normalizeWallpaperUrl(match[2]);
+    if (normalized) urls.push(normalized);
+  }
+  return urls;
+}
+
 function applyTheme(themeName) {
 
   const chosen = THEMES[themeName] ? themeName : "rose";
@@ -2402,6 +1743,13 @@ function applyTheme(themeName) {
   Object.entries(ELEMENT_DEFAULTS).forEach(([k, v]) => {
     // Only set default if the theme itself didn't explicitly override it
     if (!THEMES[chosen][k]) root.style.setProperty(k, v);
+  });
+
+  // Load Google Fonts referenced by the theme
+  ["--app-font", "--heading-font"].forEach(key => {
+    const val = THEMES[chosen][key] || ELEMENT_DEFAULTS[key] || "";
+    const entry = GOOGLE_FONTS.find(f => f.value === val);
+    if (entry && entry.google) loadGoogleFont(entry.google);
   });
 
   if (themeWallpapers[chosen]) {
@@ -2455,26 +1803,6 @@ function sanitizeThemeId(name) {
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "") || "theme"}`;
-}
-
-function normalizeWallpaperUrl(url) {
-  try {
-    return new URL(String(url || "").trim()).href;
-  } catch (_) {
-    return "";
-  }
-}
-
-function extractUrlsFromBgArt(bgArt) {
-  if (!bgArt) return [];
-  const urls = [];
-  const regex = /url\((['"]?)(.*?)\1\)/g;
-  let match;
-  while ((match = regex.exec(String(bgArt))) !== null) {
-    const normalized = normalizeWallpaperUrl(match[2]);
-    if (normalized) urls.push(normalized);
-  }
-  return urls;
 }
 
 function loadThemeCustomizationData() {
@@ -2736,6 +2064,119 @@ function renderThemeEditorElements() {
     option.textContent = field.label;
     select.appendChild(option);
   });
+
+  renderThemeEditorCategoryOptions();
+}
+
+function getThemeFieldCategory(field) {
+  const key = String(field?.key || "");
+  if (key.startsWith("--header-")) return "header";
+  if (key.startsWith("--card-") || key.startsWith("--shadow") || key.startsWith("--bs-card-")) return "cards";
+  if (key.startsWith("--overview-") || key.startsWith("--stat-")) return "overview";
+  if (key.startsWith("--btn-")) return "buttons";
+  if (key.startsWith("--input-")) return "inputs";
+  if (key.startsWith("--modal-")) return "modals";
+  if (key.startsWith("--calendar-") || key.startsWith("--cal-") || ["--period", "--predicted", "--symptom", "--ovulation", "--legend-color"].includes(key)) return "calendar";
+  if (key.startsWith("--logday-") || ["--section-label-color", "--selected-date-label-color"].includes(key)) return "logday";
+  if (key.startsWith("--bs-")) return "bootstrap";
+  if (key.includes("font")) return "typography";
+  return "core";
+}
+
+function renderThemeEditorCategoryOptions() {
+  const categorySelect = document.getElementById("themeCategorySelect");
+  if (!categorySelect) return;
+
+  const categoryLabels = {
+    core: "Core",
+    header: "Header",
+    cards: "Cards",
+    overview: "Cycle Overview",
+    buttons: "Buttons",
+    inputs: "Inputs",
+    modals: "Modals",
+    calendar: "Calendar",
+    logday: "Log Day",
+    bootstrap: "Bootstrap",
+    typography: "Typography",
+  };
+
+  categorySelect.innerHTML = "";
+  Object.entries(categoryLabels).forEach(([value, label]) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    categorySelect.appendChild(option);
+  });
+
+  const activeKey = (document.getElementById("themeElementSelect") || {}).value || EDITABLE_THEME_FIELDS[0]?.key;
+  const activeField = EDITABLE_THEME_FIELDS.find((f) => f.key === activeKey) || EDITABLE_THEME_FIELDS[0];
+  categorySelect.value = getThemeFieldCategory(activeField);
+  populateThemeEditorFieldOptions(categorySelect.value, activeKey);
+}
+
+function populateThemeEditorFieldOptions(category, selectedKey) {
+  const displaySelect = document.getElementById("themeElementSelectDisplay");
+  if (!displaySelect) return;
+  displaySelect.innerHTML = "";
+
+  const fields = EDITABLE_THEME_FIELDS.filter((f) => getThemeFieldCategory(f) === category);
+  fields.forEach((field) => {
+    const option = document.createElement("option");
+    option.value = field.key;
+    option.textContent = field.label;
+    displaySelect.appendChild(option);
+  });
+
+  const fallback = fields[0]?.key || EDITABLE_THEME_FIELDS[0]?.key || "";
+  const nextKey = fields.some((f) => f.key === selectedKey) ? selectedKey : fallback;
+  displaySelect.value = nextKey;
+  const hidden = document.getElementById("themeElementSelect");
+  if (hidden) hidden.value = nextKey;
+}
+
+function onThemeEditorCategoryChange() {
+  const categorySelect = document.getElementById("themeCategorySelect");
+  const category = categorySelect ? categorySelect.value : "core";
+  populateThemeEditorFieldOptions(category);
+  const filterSelect = document.getElementById("themeStudioPreviewFilter");
+  if (filterSelect) {
+    const allowed = ["all", "core", "header", "cards", "overview", "buttons", "inputs", "modals", "calendar", "logday", "bootstrap"];
+    filterSelect.value = allowed.includes(category) ? category : "all";
+    onThemeStudioPreviewFilterChange();
+  }
+  onThemeEditorElementChange();
+}
+
+function onThemeEditorFieldSelectChange() {
+  const displaySelect = document.getElementById("themeElementSelectDisplay");
+  const hidden = document.getElementById("themeElementSelect");
+  if (displaySelect && hidden) hidden.value = displaySelect.value;
+  onThemeEditorElementChange();
+}
+
+function updateThemeEditorCurrentSwatch(key, rawValue) {
+  const swatch = document.getElementById("themeEditorCurrentSwatch");
+  const swatchLabel = document.getElementById("themeEditorCurrentSwatchLabel");
+  if (!swatch || !swatchLabel) return;
+
+  const value = String(rawValue || "");
+  swatch.style.removeProperty("background");
+  swatch.style.removeProperty("border-radius");
+  swatch.style.removeProperty("box-shadow");
+  swatch.style.background = "rgba(255,255,255,0.08)";
+  swatch.style.borderRadius = "10px";
+  swatch.style.boxShadow = "none";
+
+  if (isStudioValueField(key)) {
+    if (key.includes("radius")) swatch.style.borderRadius = value || "10px";
+    if (key.includes("shadow")) swatch.style.boxShadow = value || "none";
+    swatchLabel.textContent = value || "(empty)";
+    return;
+  }
+
+  swatch.style.background = value || "transparent";
+  swatchLabel.textContent = value || "transparent";
 }
 
 function loadThemeStudioDraft(themeName) {
@@ -2755,8 +2196,216 @@ function loadThemeStudioDraft(themeName) {
   if (logoSelect) logoSelect.value = themeStudioDraftLogo;
 
   loadGlassBackgroundControls();
+  loadFontSelectors();
+  loadBtnColorControls();
+  syncSimplePanelFromDraft();
+  renderThemeEditorCategoryOptions();
   onThemeEditorElementChange();
   renderThemeStudioSwatches();
+}
+
+function setThemeStudioMode(mode) {
+  themeStudioMode = mode === "advanced" ? "advanced" : "simple";
+  const simplePanel = document.getElementById("themeStudioSimplePanel");
+  const setupPanel = document.getElementById("themeStudioSetupPanel");
+  const colorsPanel = document.getElementById("themeStudioColorsPanel");
+  if (simplePanel) simplePanel.classList.toggle("hidden", themeStudioMode !== "simple");
+  if (setupPanel) setupPanel.classList.toggle("hidden", themeStudioMode !== "advanced");
+  if (colorsPanel) colorsPanel.classList.toggle("hidden", themeStudioMode !== "advanced");
+
+  document.querySelectorAll(".studio-mode-btn[data-studio-mode]").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.studioMode === themeStudioMode);
+  });
+
+  localStorage.setItem(STUDIO_MODE_KEY, themeStudioMode);
+}
+
+function setThemeStudioPreviewScene(scene) {
+  const next = String(scene || "all");
+  const map = {
+    all: "all",
+    calendar: "calendar",
+    logday: "logday",
+    buttons: "buttons",
+    modals: "modals",
+  };
+  const filterSelect = document.getElementById("themeStudioPreviewFilter");
+  if (filterSelect) {
+    filterSelect.value = map[next] || "all";
+    onThemeStudioPreviewFilterChange();
+  }
+  document.querySelectorAll(".studio-scene-tab[data-scene]").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.scene === (map[next] ? next : "all"));
+  });
+}
+
+function syncSimpleThemeName(value) {
+  const target = document.getElementById("themeStudioName");
+  if (target) target.value = String(value || "");
+}
+
+function syncSimplePanelFromDraft() {
+  const bg = document.getElementById("simpleColorBg");
+  const text = document.getElementById("simpleColorText");
+  const primary = document.getElementById("simpleColorPrimary");
+  const secondary = document.getElementById("simpleColorSecondary");
+  const accent = document.getElementById("simpleColorAccent");
+
+  if (bg) bg.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--cream"] || "#fdf8f5")).hex;
+  if (text) text.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--ink"] || "#2a1f24")).hex;
+  if (primary) primary.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--rose"] || "#c2647a")).hex;
+  if (secondary) secondary.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--muted"] || "#8a7075")).hex;
+  if (accent) accent.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--symptom"] || "#7a9cbf")).hex;
+
+  const simpleName = document.getElementById("simpleThemeName");
+  const fullName = document.getElementById("themeStudioName");
+  if (simpleName && fullName) simpleName.value = fullName.value;
+}
+
+function tintHex(hex, amount) {
+  const parsed = parseColorToken(hex).hex;
+  const r = parseInt(parsed.slice(1, 3), 16);
+  const g = parseInt(parsed.slice(3, 5), 16);
+  const b = parseInt(parsed.slice(5, 7), 16);
+  const mix = (v) => Math.max(0, Math.min(255, Math.round(v + (amount >= 0 ? (255 - v) * amount : v * amount))));
+  return `#${[mix(r), mix(g), mix(b)].map((n) => n.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function applySimpleThemeColor(slot, value) {
+  const color = parseColorToken(value).hex;
+  if (slot === "bg") {
+    themeStudioDraft["--cream"] = color;
+    themeStudioDraft["--bs-body-bg"] = color;
+  }
+  if (slot === "text") {
+    themeStudioDraft["--ink"] = color;
+    themeStudioDraft["--bs-body-color"] = color;
+    themeStudioDraft["--input-text"] = color;
+  }
+  if (slot === "primary") {
+    themeStudioDraft["--rose"] = color;
+    themeStudioDraft["--rose-dk"] = tintHex(color, -0.35);
+    themeStudioDraft["--rose-lt"] = tintHex(color, 0.45);
+    themeStudioDraft["--btn-bg"] = themeStudioDraft["--rose-dk"];
+    themeStudioDraft["--btn-border"] = themeStudioDraft["--rose-dk"];
+    themeStudioDraft["--btn-hover-bg"] = themeStudioDraft["--rose"];
+    themeStudioDraft["--cal-day-today-border"] = themeStudioDraft["--rose"];
+    themeStudioDraft["--logday-slider-accent"] = themeStudioDraft["--rose"];
+  }
+  if (slot === "secondary") {
+    themeStudioDraft["--muted"] = color;
+    themeStudioDraft["--stat-label"] = color;
+    themeStudioDraft["--cal-day-name-color"] = color;
+  }
+  if (slot === "accent") {
+    themeStudioDraft["--symptom"] = color;
+    themeStudioDraft["--ovulation"] = tintHex(color, -0.2);
+    themeStudioDraft["--predicted"] = tintHex(color, 0.35);
+    themeStudioDraft["--logday-pill-active-bg"] = color;
+  }
+  renderThemeStudioSwatches();
+  syncSimplePanelFromDraft();
+}
+
+function applyThemeStudioQuickPreset(kind) {
+  const preset = String(kind || "soft");
+  if (preset === "quartz") applyQuartzGlassPreset();
+  if (preset === "blackglass") applyBlackGlassPreset();
+  if (preset === "contrast") {
+    themeStudioDraft["--cream"] = "#f7f7fb";
+    themeStudioDraft["--ink"] = "#111216";
+    themeStudioDraft["--rose"] = "#0057ff";
+    themeStudioDraft["--rose-dk"] = "#0037a6";
+    themeStudioDraft["--rose-lt"] = "#8cb3ff";
+    themeStudioDraft["--muted"] = "#50566b";
+    themeStudioDraft["--symptom"] = "#009688";
+    themeStudioDraft["--btn-bg"] = "#0037a6";
+    themeStudioDraft["--btn-border"] = "#0037a6";
+    themeStudioDraft["--btn-hover-bg"] = "#0057ff";
+    renderThemeStudioSwatches();
+  }
+  if (preset === "soft") {
+    themeStudioDraft["--card-art"] = "linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.92))";
+    themeStudioDraft["--shadow"] = "0 2px 20px rgba(194,100,122,0.08)";
+    applyButtonStylePreset("soft");
+  }
+  syncSimplePanelFromDraft();
+}
+
+function generateThemeStudioVariant() {
+  const seeds = ["#ff5b8a", "#4e7cff", "#22a699", "#c86bff", "#ff8a3d", "#4e9f3d"];
+  const primary = seeds[themeStudioVariantIndex % seeds.length];
+  const secondary = seeds[(themeStudioVariantIndex + 2) % seeds.length];
+  const accent = seeds[(themeStudioVariantIndex + 4) % seeds.length];
+  themeStudioVariantIndex += 1;
+  applySimpleThemeColor("primary", primary);
+  applySimpleThemeColor("secondary", tintHex(secondary, -0.15));
+  applySimpleThemeColor("accent", accent);
+  syncSimplePanelFromDraft();
+  toast("Generated a fresh variant");
+}
+
+function switchThemeStudioView(view) {
+  const normalized = ["setup", "colors", "preview"].includes(view) ? view : "setup";
+  const editorsWrap = document.getElementById("themeStudioEditorsWrap");
+  const setupPanel = document.getElementById("themeStudioSetupPanel");
+  const colorsPanel = document.getElementById("themeStudioColorsPanel");
+  const previewPanel = document.getElementById("themeStudioPreviewPanel");
+  if (!editorsWrap || !setupPanel || !colorsPanel || !previewPanel) return;
+
+  editorsWrap.classList.toggle("hidden", normalized === "preview");
+  setupPanel.classList.toggle("hidden", normalized !== "setup");
+  colorsPanel.classList.toggle("hidden", normalized === "setup");
+  previewPanel.classList.toggle("hidden", normalized === "setup");
+
+  document.querySelectorAll(".studio-tab-btn[data-studio-view]").forEach((btn) => {
+    if (btn.dataset.studioView === normalized) {
+      btn.classList.add("is-active");
+    } else {
+      btn.classList.remove("is-active");
+    }
+  });
+
+  localStorage.setItem(STUDIO_VIEW_KEY, normalized);
+}
+
+function getStudioSectionGroup(labelText) {
+  const label = String(labelText || "").trim().toLowerCase();
+  if (!label) return "misc";
+  if (label.includes("core palette") || label.includes("calendar dots") || label === "header") return "core";
+  if (label.includes("cards & surfaces")) return "cards";
+  if (label.includes("cycle overview")) return "overview";
+  if (label === "buttons") return "buttons";
+  if (label === "inputs") return "inputs";
+  if (label === "modals") return "modals";
+  if (label === "calendar") return "calendar";
+  if (label === "log day") return "logday";
+  if (label.includes("bootstrap")) return "bootstrap";
+  return "misc";
+}
+
+function onThemeStudioPreviewFilterChange() {
+  const root = document.getElementById("themeStudioBootstrapPreview");
+  const filterSelect = document.getElementById("themeStudioPreviewFilter");
+  if (!root || !filterSelect) return;
+  const filter = filterSelect.value || "all";
+
+  root.querySelectorAll(".studio-preview-group").forEach((section) => {
+    const sectionGroup = section.dataset.group || "all";
+    section.classList.toggle("hidden", filter !== "all" && filter !== sectionGroup);
+  });
+
+  const reverseMap = {
+    all: "all",
+    calendar: "calendar",
+    logday: "logday",
+    buttons: "buttons",
+    modals: "modals",
+  };
+  const activeScene = reverseMap[filter] || "all";
+  document.querySelectorAll(".studio-scene-tab[data-scene]").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.scene === activeScene);
+  });
 }
 
 function onThemeStudioIconChange() {
@@ -2789,6 +2438,16 @@ function onThemeEditorElementChange() {
   const key = elementSelect.value;
   const value = String(themeStudioDraft[key] || "#c2647a").trim();
 
+  const categorySelect = document.getElementById("themeCategorySelect");
+  const displaySelect = document.getElementById("themeElementSelectDisplay");
+  const field = EDITABLE_THEME_FIELDS.find((f) => f.key === key);
+  if (categorySelect && field) categorySelect.value = getThemeFieldCategory(field);
+  if (displaySelect) {
+    const hasOption = Array.from(displaySelect.options || []).some((opt) => opt.value === key);
+    if (!hasOption) populateThemeEditorFieldOptions(categorySelect ? categorySelect.value : getThemeFieldCategory(field), key);
+    displaySelect.value = key;
+  }
+
   if (isStudioValueField(key)) {
     const meta = getStudioValueFieldMeta(key);
     colorEditorPanel.classList.add("hidden");
@@ -2796,6 +2455,7 @@ function onThemeEditorElementChange() {
     valueInput.value = value;
     valueInput.placeholder = meta.placeholder || "";
     valueHelper.textContent = meta.helper || "Use any valid CSS token for this field.";
+    updateThemeEditorCurrentSwatch(key, value);
     return;
   }
 
@@ -2845,6 +2505,8 @@ function onThemeEditorElementChange() {
 
   onThemeEditorOpacityInput(opacityInput.value);
   onThemeEditorFillTypeChange();
+
+  updateThemeEditorCurrentSwatch(key, value);
 }
 
 function onThemeEditorColorInput(value) {
@@ -2953,9 +2615,28 @@ function composeColorValue(hex, opacityPercent) {
   return `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(2)})`;
 }
 
+function resolveDraftCssValue(rawValue, depth = 0) {
+  const value = String(rawValue || "").trim();
+  if (!value || depth > 10) return value;
+  const varMatch = value.match(/^var\(\s*(--[a-z0-9-_]+)\s*(?:,\s*(.+))?\)$/i);
+  if (!varMatch) return value;
+
+  const token = varMatch[1];
+  const fallback = (varMatch[2] || "").trim();
+  const next = String(themeStudioDraft[token] || ELEMENT_DEFAULTS[token] || fallback || "").trim();
+  if (!next || next === value) return fallback || value;
+  return resolveDraftCssValue(next, depth + 1);
+}
+
+function onGlassValueLabelInput(outputId, value, suffix) {
+  const out = document.getElementById(outputId);
+  if (!out) return;
+  const numberValue = Math.max(0, Math.min(100, Number(value) || 0));
+  out.textContent = `${numberValue}${suffix}`;
+}
+
 function onGlassCardOpacityInput(value) {
-  const out = document.getElementById("glassCardTintOpacityValue");
-  if (out) out.textContent = `${Math.max(0, Math.min(100, Number(value) || 0))}%`;
+  onGlassValueLabelInput("glassCardTintOpacityValue", value, "%");
 }
 
 function onGlassCardBlurInput(value) {
@@ -2963,77 +2644,312 @@ function onGlassCardBlurInput(value) {
   if (out) out.textContent = `${Math.max(0, Math.min(20, Number(value) || 0))}px`;
 }
 
+function syncGlassControlRow(keyPrefix, bgVar, blurVar, fallbackBgVar = "--card", fallbackBlurVar = "--card-blur", opacityMax = 100, blurMax = 20) {
+  const colorEl = document.getElementById(`${keyPrefix}TintColor`);
+  const opacityEl = document.getElementById(`${keyPrefix}TintOpacity`);
+  const opacityOut = document.getElementById(`${keyPrefix}TintOpacityValue`);
+  const blurEl = document.getElementById(`${keyPrefix}Blur`);
+  const blurOut = document.getElementById(`${keyPrefix}BlurValue`);
+  if (!colorEl || !opacityEl || !opacityOut || !blurEl || !blurOut) return;
+
+  const bgRaw = resolveDraftCssValue(themeStudioDraft[bgVar]);
+  const fallbackBg = resolveDraftCssValue(themeStudioDraft[fallbackBgVar] || "rgba(255,255,255,0.55)");
+  const parsed = parseColorToken(bgRaw || fallbackBg || "rgba(255,255,255,0.55)");
+  colorEl.value = parsed.hex;
+  opacityEl.value = String(Math.max(0, Math.min(opacityMax, parsed.opacity)));
+  opacityOut.textContent = `${opacityEl.value}%`;
+
+  const blurRaw = resolveDraftCssValue(themeStudioDraft[blurVar]);
+  const fallbackBlur = resolveDraftCssValue(themeStudioDraft[fallbackBlurVar] || "0px");
+  const sourceBlur = blurRaw || fallbackBlur || "0px";
+  const blurValue = Math.max(0, Math.min(blurMax, Number.parseFloat(sourceBlur) || 0));
+  blurEl.value = String(blurValue);
+  blurOut.textContent = `${blurValue}px`;
+}
+
+function syncGlassBorderRow(keyPrefix, borderVar, fallbackBorderVar = "--bs-card-border-color", opacityMax = 100) {
+  const colorEl = document.getElementById(`${keyPrefix}BorderColor`);
+  const opacityEl = document.getElementById(`${keyPrefix}BorderOpacity`);
+  const opacityOut = document.getElementById(`${keyPrefix}BorderOpacityValue`);
+  if (!colorEl || !opacityEl || !opacityOut) return;
+
+  const borderRaw = resolveDraftCssValue(themeStudioDraft[borderVar]);
+  const fallbackBorder = resolveDraftCssValue(themeStudioDraft[fallbackBorderVar] || "rgba(255,255,255,0.65)");
+  const parsed = parseColorToken(borderRaw || fallbackBorder || "rgba(255,255,255,0.65)");
+  colorEl.value = parsed.hex;
+  opacityEl.value = String(Math.max(0, Math.min(opacityMax, parsed.opacity)));
+  opacityOut.textContent = `${opacityEl.value}%`;
+}
+
 function loadGlassBackgroundControls() {
-  const tintColor = document.getElementById("glassCardTintColor");
-  const tintOpacity = document.getElementById("glassCardTintOpacity");
-  const blurInput = document.getElementById("glassCardBlur");
-  const applyCal = document.getElementById("glassApplyToCalendar");
-  if (!tintColor || !tintOpacity || !blurInput || !applyCal) return;
-
-  const parsedCard = parseColorToken(themeStudioDraft["--card"] || "rgba(255,255,255,0.55)");
-  tintColor.value = parsedCard.hex;
-  tintOpacity.value = String(parsedCard.opacity);
-  onGlassCardOpacityInput(parsedCard.opacity);
-
-  const blurRaw = String(themeStudioDraft["--card-blur"] || "0px").trim();
-  const blurValue = Math.max(0, Math.min(20, Number.parseFloat(blurRaw) || 0));
-  blurInput.value = String(blurValue);
-  onGlassCardBlurInput(blurValue);
-
-  const calValue = String(themeStudioDraft["--cal-bg"] || "").trim();
-  const cardValue = String(themeStudioDraft["--card"] || "").trim();
-  applyCal.checked = !calValue || calValue === cardValue || calValue === "var(--card)";
+  syncGlassControlRow("glassCard", "--card", "--card-blur", "--card", "--card-blur");
+  syncGlassBorderRow("glassCard", "--bs-card-border-color", "--bs-card-border-color");
+  syncGlassControlRow("overviewGlass", "--overview-card-bg", "--overview-card-blur", "--card", "--card-blur");
+  syncGlassBorderRow("overviewGlass", "--overview-card-border", "--bs-card-border-color");
+  syncGlassControlRow("logdayGlass", "--logday-card-bg", "--logday-card-blur", "--card", "--card-blur");
+  syncGlassBorderRow("logdayGlass", "--logday-card-border", "--bs-card-border-color");
+  syncGlassControlRow("calendarGlass", "--calendar-card-bg", "--calendar-card-blur", "--cal-bg", "--card-blur");
+  syncGlassBorderRow("calendarGlass", "--calendar-card-border", "--bs-card-border-color");
 }
 
 function applyGlassBackgroundToDraft(silent = false) {
   const tintColor = document.getElementById("glassCardTintColor");
   const tintOpacity = document.getElementById("glassCardTintOpacity");
   const blurInput = document.getElementById("glassCardBlur");
-  const applyCal = document.getElementById("glassApplyToCalendar");
-  if (!tintColor || !tintOpacity || !blurInput || !applyCal) return;
+  const overviewColor = document.getElementById("overviewGlassTintColor");
+  const overviewOpacity = document.getElementById("overviewGlassTintOpacity");
+  const overviewBlur = document.getElementById("overviewGlassBlur");
+  const logdayColor = document.getElementById("logdayGlassTintColor");
+  const logdayOpacity = document.getElementById("logdayGlassTintOpacity");
+  const logdayBlur = document.getElementById("logdayGlassBlur");
+  const calendarColor = document.getElementById("calendarGlassTintColor");
+  const calendarOpacity = document.getElementById("calendarGlassTintOpacity");
+  const calendarBlur = document.getElementById("calendarGlassBlur");
+  const sharedBorderColor = document.getElementById("glassCardBorderColor");
+  const sharedBorderOpacity = document.getElementById("glassCardBorderOpacity");
+  const overviewBorderColor = document.getElementById("overviewGlassBorderColor");
+  const overviewBorderOpacity = document.getElementById("overviewGlassBorderOpacity");
+  const logdayBorderColor = document.getElementById("logdayGlassBorderColor");
+  const logdayBorderOpacity = document.getElementById("logdayGlassBorderOpacity");
+  const calendarBorderColor = document.getElementById("calendarGlassBorderColor");
+  const calendarBorderOpacity = document.getElementById("calendarGlassBorderOpacity");
+  if (!tintColor || !tintOpacity || !blurInput || !overviewColor || !overviewOpacity || !overviewBlur || !logdayColor || !logdayOpacity || !logdayBlur || !calendarColor || !calendarOpacity || !calendarBlur || !sharedBorderColor || !sharedBorderOpacity || !overviewBorderColor || !overviewBorderOpacity || !logdayBorderColor || !logdayBorderOpacity || !calendarBorderColor || !calendarBorderOpacity) return;
 
   const color = String(tintColor.value || "#ffffff").trim();
   const opacity = Math.max(0, Math.min(100, Number(tintOpacity.value || 55)));
   const blur = Math.max(0, Math.min(20, Number(blurInput.value || 5)));
   const glassColor = composeColorValue(color, opacity);
 
+  const overviewGlassColor = composeColorValue(String(overviewColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(overviewOpacity.value || 55))));
+  const logdayGlassColor = composeColorValue(String(logdayColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(logdayOpacity.value || 55))));
+  const calendarGlassColor = composeColorValue(String(calendarColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(calendarOpacity.value || 55))));
+  const sharedBorderGlass = composeColorValue(String(sharedBorderColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(sharedBorderOpacity.value || 65))));
+  const overviewBorderGlass = composeColorValue(String(overviewBorderColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(overviewBorderOpacity.value || 65))));
+  const logdayBorderGlass = composeColorValue(String(logdayBorderColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(logdayBorderOpacity.value || 65))));
+  const calendarBorderGlass = composeColorValue(String(calendarBorderColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(calendarBorderOpacity.value || 65))));
+  const overviewBlurValue = Math.max(0, Math.min(20, Number(overviewBlur.value || 5)));
+  const logdayBlurValue = Math.max(0, Math.min(20, Number(logdayBlur.value || 5)));
+  const calendarBlurValue = Math.max(0, Math.min(20, Number(calendarBlur.value || 5)));
+
   themeStudioDraft["--card"] = glassColor;
   themeStudioDraft["--card-blur"] = `${Math.round(blur)}px`;
-  if (applyCal.checked) themeStudioDraft["--cal-bg"] = glassColor;
+  themeStudioDraft["--bs-card-border-color"] = sharedBorderGlass;
+  themeStudioDraft["--overview-card-bg"] = overviewGlassColor;
+  themeStudioDraft["--overview-card-border"] = overviewBorderGlass;
+  themeStudioDraft["--overview-card-blur"] = `${Math.round(overviewBlurValue)}px`;
+  themeStudioDraft["--logday-card-bg"] = logdayGlassColor;
+  themeStudioDraft["--logday-card-border"] = logdayBorderGlass;
+  themeStudioDraft["--logday-card-blur"] = `${Math.round(logdayBlurValue)}px`;
+  themeStudioDraft["--calendar-card-bg"] = calendarGlassColor;
+  themeStudioDraft["--calendar-card-border"] = calendarBorderGlass;
+  themeStudioDraft["--calendar-card-blur"] = `${Math.round(calendarBlurValue)}px`;
+  themeStudioDraft["--cal-bg"] = calendarGlassColor;
 
   renderThemeStudioSwatches();
   if (!silent) toast("Applied glass background");
 }
 
-function applyQuartzGlassPreset() {
-  const tintColor = document.getElementById("glassCardTintColor");
-  const tintOpacity = document.getElementById("glassCardTintOpacity");
-  const blurInput = document.getElementById("glassCardBlur");
-  const applyCal = document.getElementById("glassApplyToCalendar");
-  if (tintColor) tintColor.value = "#ffffff";
-  if (tintOpacity) {
-    tintOpacity.value = "38";
-    onGlassCardOpacityInput(38);
-  }
-  if (blurInput) {
-    blurInput.value = "5";
-    onGlassCardBlurInput(5);
-  }
-  if (applyCal) applyCal.checked = true;
+// ── Google Fonts ─────────────────────────────────────────────────
+const GOOGLE_FONTS = [
+  // Sans-serif
+  { label: "DM Sans (Default)", value: "'DM Sans', sans-serif", google: "DM+Sans:wght@300;400;500;600" },
+  { label: "Inter", value: "'Inter', sans-serif", google: "Inter:wght@300;400;500;600" },
+  { label: "Outfit", value: "'Outfit', sans-serif", google: "Outfit:wght@300;400;500;600" },
+  { label: "Nunito", value: "'Nunito', sans-serif", google: "Nunito:wght@300;400;500;600" },
+  { label: "Poppins", value: "'Poppins', sans-serif", google: "Poppins:wght@300;400;500;600" },
+  { label: "Quicksand", value: "'Quicksand', sans-serif", google: "Quicksand:wght@400;500;600" },
+  { label: "Raleway", value: "'Raleway', sans-serif", google: "Raleway:wght@300;400;500;600" },
+  { label: "Montserrat", value: "'Montserrat', sans-serif", google: "Montserrat:wght@300;400;500;600" },
+  { label: "Lato", value: "'Lato', sans-serif", google: "Lato:wght@300;400;700" },
+  { label: "Open Sans", value: "'Open Sans', sans-serif", google: "Open+Sans:wght@300;400;500;600" },
+  { label: "Roboto", value: "'Roboto', sans-serif", google: "Roboto:wght@300;400;500;700" },
+  { label: "Work Sans", value: "'Work Sans', sans-serif", google: "Work+Sans:wght@300;400;500;600" },
+  { label: "Plus Jakarta Sans", value: "'Plus Jakarta Sans', sans-serif", google: "Plus+Jakarta+Sans:wght@300;400;500;600" },
+  { label: "Figtree", value: "'Figtree', sans-serif", google: "Figtree:wght@300;400;500;600" },
+  { label: "Space Grotesk", value: "'Space Grotesk', sans-serif", google: "Space+Grotesk:wght@300;400;500;600" },
+  { label: "Jost", value: "'Jost', sans-serif", google: "Jost:wght@300;400;500;600" },
+  { label: "Manrope", value: "'Manrope', sans-serif", google: "Manrope:wght@300;400;500;600" },
+  { label: "Urbanist", value: "'Urbanist', sans-serif", google: "Urbanist:wght@300;400;500;600" },
+  { label: "Lexend", value: "'Lexend', sans-serif", google: "Lexend:wght@300;400;500;600" },
+  { label: "Mulish", value: "'Mulish', sans-serif", google: "Mulish:wght@300;400;500;600" },
+  { label: "Karla", value: "'Karla', sans-serif", google: "Karla:wght@300;400;500;600" },
+  { label: "Bricolage Grotesque", value: "'Bricolage Grotesque', sans-serif", google: "Bricolage+Grotesque:wght@300;400;500;600" },
+  { label: "Albert Sans", value: "'Albert Sans', sans-serif", google: "Albert+Sans:wght@300;400;500;600" },
+  // Serifs / display
+  { label: "Cormorant Garamond (Heading)", value: "'Cormorant Garamond', serif", google: null }, // pre-loaded
+  { label: "Playfair Display", value: "'Playfair Display', serif", google: "Playfair+Display:wght@400;500;600" },
+  { label: "Lora", value: "'Lora', serif", google: "Lora:wght@400;500;600" },
+  { label: "Merriweather", value: "'Merriweather', serif", google: "Merriweather:wght@300;400;700" },
+  { label: "EB Garamond", value: "'EB Garamond', serif", google: "EB+Garamond:wght@400;500;600" },
+  { label: "Libre Baskerville", value: "'Libre Baskerville', serif", google: "Libre+Baskerville:wght@400;700" },
+  { label: "Crimson Text", value: "'Crimson Text', serif", google: "Crimson+Text:wght@400;600" },
+  // Handwriting
+  { label: "Caveat (Handwritten)", value: "'Caveat', cursive", google: null }, // pre-loaded
+  { label: "Dancing Script", value: "'Dancing Script', cursive", google: "Dancing+Script:wght@400;500;600" },
+  { label: "Pacifico", value: "'Pacifico', cursive", google: "Pacifico" },
+  { label: "Satisfy", value: "'Satisfy', cursive", google: "Satisfy" },
+  // Monospace
+  { label: "JetBrains Mono", value: "'JetBrains Mono', monospace", google: "JetBrains+Mono:wght@300;400;500" },
+  { label: "Fira Code", value: "'Fira Code', monospace", google: "Fira+Code:wght@300;400;500" },
+];
 
+const _loadedGoogleFonts = new Set();
+
+function loadGoogleFont(googleParam) {
+  if (!googleParam || _loadedGoogleFonts.has(googleParam)) return;
+  _loadedGoogleFonts.add(googleParam);
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = `https://fonts.googleapis.com/css2?family=${googleParam}&display=swap`;
+  document.head.appendChild(link);
+}
+
+function populateFontSelect(selectEl, currentValue) {
+  if (!selectEl) return;
+  selectEl.innerHTML = "";
+  GOOGLE_FONTS.forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f.value;
+    opt.textContent = f.label;
+    if (currentValue && currentValue.includes(f.value.split(",")[0].replace(/'/g, "").trim())) {
+      opt.selected = true;
+    }
+    selectEl.appendChild(opt);
+  });
+  // Custom option
+  const customOpt = document.createElement("option");
+  customOpt.value = "__custom__";
+  customOpt.textContent = "Custom…";
+  selectEl.appendChild(customOpt);
+}
+
+function loadFontSelectors() {
+  const bodyFont = String(themeStudioDraft["--app-font"] || "'DM Sans', sans-serif");
+  const headingFont = String(themeStudioDraft["--heading-font"] || bodyFont);
+  populateFontSelect(document.getElementById("studioFontBody"), bodyFont);
+  populateFontSelect(document.getElementById("studioFontHeading"), headingFont);
+  populateFontSelect(document.getElementById("simpleFontBody"), bodyFont);
+  populateFontSelect(document.getElementById("simpleFontHeading"), headingFont);
+}
+
+function applyFontToDraft(key, value) {
+  if (value === "__custom__") {
+    const custom = prompt("Enter a font-family CSS value (e.g. 'Roboto', sans-serif):");
+    if (!custom) return;
+    value = custom.trim();
+  }
+  // Load font from Google if needed
+  const entry = GOOGLE_FONTS.find(f => f.value === value);
+  if (entry && entry.google) loadGoogleFont(entry.google);
+  themeStudioDraft[key] = value;
+  // Keep --bs-body-font-family in sync with --app-font
+  if (key === "--app-font") themeStudioDraft["--bs-body-font-family"] = `var(--app-font)`;
+  syncSimplePanelFromDraft();
+  previewThemeStudioDraft();
+}
+
+// ── Button Color Quick Controls ────────────────────────────────────
+const BTN_COLOR_CONTROLS = [
+  { id: "btnColorPrimaryBg",       key: "--btn-bg" },
+  { id: "btnColorPrimaryText",     key: "--btn-text" },
+  { id: "btnColorPrimaryBorder",   key: "--btn-border" },
+  { id: "btnColorHoverBg",         key: "--btn-hover-bg" },
+  { id: "btnColorHoverText",       key: "--btn-hover-text" },
+  { id: "btnColorMutedBg",         key: "--btn-muted-bg" },
+  { id: "btnColorSecondaryBg",     key: "--btn-secondary-bg" },
+  { id: "btnColorSecondaryText",   key: "--btn-secondary-text" },
+  { id: "btnColorSecondaryBorder", key: "--btn-secondary-border" },
+];
+
+function applyBtnColorDraft(key, value) {
+  themeStudioDraft[key] = value;
+  previewThemeStudioDraft();
+}
+
+function loadBtnColorControls() {
+  BTN_COLOR_CONTROLS.forEach(({ id, key }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let raw = String(themeStudioDraft[key] || ELEMENT_DEFAULTS[key] || "#ffffff").trim();
+    // Resolve var() chain to a usable hex/rgb
+    raw = resolveDraftCssValue(raw);
+    // Convert to hex if possible for the color input
+    if (/^#[0-9a-f]{3,8}$/i.test(raw)) {
+      el.value = raw.length === 4 ? "#" + raw[1]+raw[1]+raw[2]+raw[2]+raw[3]+raw[3] : raw.substring(0, 7);
+    } else if (/^rgb/i.test(raw)) {
+      const m = raw.match(/rgb[a]?\((\d+)[,\s]+(\d+)[,\s]+(\d+)/i);
+      if (m) el.value = "#" + [m[1],m[2],m[3]].map(n => parseInt(n).toString(16).padStart(2,"0")).join("");
+    }
+    // else leave at default; color inputs require a valid hex
+  });
+}
+
+function applyQuartzGlassPreset() {
+  // Keep user-selected slider and color values; this button now applies current settings.
   themeStudioDraft["--card-art"] = "linear-gradient(125deg, rgba(255,255,255,0.3), rgba(255,255,255,0.2) 70%)";
   themeStudioDraft["--shadow"] = "1px 3px 24px -1px rgba(0, 0, 0, 0.15)";
+  themeStudioDraft["--overview-card-shadow"] = themeStudioDraft["--shadow"];
+  themeStudioDraft["--logday-card-shadow"] = themeStudioDraft["--shadow"];
+  themeStudioDraft["--calendar-card-shadow"] = themeStudioDraft["--shadow"];
   applyGlassBackgroundToDraft(true);
+  loadGlassBackgroundControls();
   toast("Quartz-style glass applied");
+}
+
+function applyBlackGlassPreset() {
+  const tintTargets = ["glassCardTintColor", "overviewGlassTintColor", "logdayGlassTintColor", "calendarGlassTintColor"];
+  const tintOpacityTargets = ["glassCardTintOpacity", "overviewGlassTintOpacity", "logdayGlassTintOpacity", "calendarGlassTintOpacity"];
+  const borderTargets = ["glassCardBorderColor", "overviewGlassBorderColor", "logdayGlassBorderColor", "calendarGlassBorderColor"];
+  const borderOpacityTargets = ["glassCardBorderOpacity", "overviewGlassBorderOpacity", "logdayGlassBorderOpacity", "calendarGlassBorderOpacity"];
+
+  tintTargets.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = "#0f1117";
+  });
+  tintOpacityTargets.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = "72";
+  });
+  borderTargets.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = "#6f7ea8";
+  });
+  borderOpacityTargets.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = "42";
+  });
+
+  const blurTargets = ["glassCardBlur", "overviewGlassBlur", "logdayGlassBlur", "calendarGlassBlur"];
+  blurTargets.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = "12";
+  });
+
+  themeStudioDraft["--card-art"] = "linear-gradient(130deg, rgba(111,126,168,0.26), rgba(15,17,23,0.45) 70%)";
+  themeStudioDraft["--shadow"] = "0 16px 40px rgba(0, 0, 0, 0.42)";
+  themeStudioDraft["--overview-card-shadow"] = themeStudioDraft["--shadow"];
+  themeStudioDraft["--logday-card-shadow"] = themeStudioDraft["--shadow"];
+  themeStudioDraft["--calendar-card-shadow"] = themeStudioDraft["--shadow"];
+
+  applyGlassBackgroundToDraft(true);
+  loadGlassBackgroundControls();
+  toast("Black glass style applied");
 }
 
 function resetCardBackgroundToSolid() {
   themeStudioDraft["--card"] = "#ffffff";
   themeStudioDraft["--card-blur"] = "0px";
   themeStudioDraft["--card-art"] = "none";
-  if (String(themeStudioDraft["--cal-bg"] || "") !== "var(--card)") {
-    themeStudioDraft["--cal-bg"] = "var(--card)";
-  }
+  themeStudioDraft["--overview-card-bg"] = "#ffffff";
+  themeStudioDraft["--overview-card-blur"] = "0px";
+  themeStudioDraft["--overview-card-shadow"] = themeStudioDraft["--shadow"] || "none";
+  themeStudioDraft["--logday-card-bg"] = "#ffffff";
+  themeStudioDraft["--logday-card-blur"] = "0px";
+  themeStudioDraft["--logday-card-shadow"] = themeStudioDraft["--shadow"] || "none";
+  themeStudioDraft["--calendar-card-bg"] = "#ffffff";
+  themeStudioDraft["--calendar-card-blur"] = "0px";
+  themeStudioDraft["--calendar-card-shadow"] = themeStudioDraft["--shadow"] || "none";
+  themeStudioDraft["--cal-bg"] = "#ffffff";
   loadGlassBackgroundControls();
   renderThemeStudioSwatches();
   toast("Card background reset to solid");
@@ -3073,6 +2989,22 @@ function applyButtonStylePreset(preset) {
       "--btn-radius": "12px",
       "--btn-border-width": "1px",
       "--btn-shadow": "0 6px 18px color-mix(in srgb, var(--btn-bg) 28%, transparent)",
+      "--btn-pad-y": "10px",
+      "--btn-pad-x": "14px",
+    },
+    blackglass: {
+      "--btn-radius": "12px",
+      "--btn-border-width": "1px",
+      "--btn-bg": "rgba(17, 20, 31, 0.84)",
+      "--btn-text": "#eff4ff",
+      "--btn-border": "rgba(111,126,168,0.72)",
+      "--btn-hover-bg": "rgba(38, 44, 68, 0.9)",
+      "--btn-hover-text": "#ffffff",
+      "--btn-secondary-bg": "rgba(17, 20, 31, 0.58)",
+      "--btn-secondary-text": "#d8e1ff",
+      "--btn-secondary-border": "rgba(111,126,168,0.45)",
+      "--btn-secondary-hover-bg": "rgba(43, 51, 82, 0.75)",
+      "--btn-shadow": "0 8px 22px rgba(0, 0, 0, 0.35)",
       "--btn-pad-y": "10px",
       "--btn-pad-x": "14px",
     },
@@ -3148,109 +3080,6 @@ function applyThemeEditorValue() {
 }
 
 function renderThemeStudioSwatches() {
-  const holder = document.getElementById("themeStudioSwatches");
-  if (!holder) return;
-  holder.innerHTML = "";
-  const activeKey = (document.getElementById("themeElementSelect") || {}).value || "";
-
-  const coreKeys = new Set([
-    "--rose", "--rose-dk", "--rose-lt", "--blush", "--cream", "--ink", "--muted", "--border",
-    "--period", "--predicted", "--symptom", "--ovulation", "--bg-art"
-  ]);
-
-  const groups = Object.fromEntries(STUDIO_SWATCH_GROUP_ORDER.map((name) => [name, []]));
-
-  const resolveGroup = (key) => {
-    if (coreKeys.has(key)) return "Core";
-    if (key.startsWith("--header-")) return "Header";
-    if (key.startsWith("--card-") || key.startsWith("--bs-card-") || key === "--card" || key === "--shadow") return "Cards";
-    if (key.startsWith("--stat-")) return "Stats";
-    if (key.startsWith("--cal-")) return "Calendar";
-    if (key.startsWith("--logday-")) return "Log Day";
-    if (key.startsWith("--btn-")) return "Buttons";
-    if (key.startsWith("--modal-")) return "Modals";
-    if (key.startsWith("--bs-")) return "Bootstrap";
-    return "Other";
-  };
-
-  EDITABLE_THEME_FIELDS.forEach((field) => {
-    groups[resolveGroup(field.key)].push(field);
-  });
-
-  STUDIO_SWATCH_GROUP_ORDER.forEach((groupName) => {
-    const fields = groups[groupName];
-    if (!fields || !fields.length) return;
-
-    const section = document.createElement("div");
-    section.className = "studio-swatch-section";
-
-    const header = document.createElement("button");
-    header.type = "button";
-    header.className = "studio-swatch-section-header";
-    header.onclick = () => toggleStudioSection(groupName);
-
-    const title = document.createElement("div");
-    title.className = "studio-swatch-section-title";
-    title.textContent = groupName;
-
-    const caret = document.createElement("span");
-    caret.className = "studio-swatch-section-caret" + (studioSectionCollapsed[groupName] ? " collapsed" : "");
-    caret.textContent = "▾";
-
-    header.appendChild(title);
-    header.appendChild(caret);
-
-    const gridWrap = document.createElement("div");
-    gridWrap.className = "studio-swatch-grid-wrap" + (studioSectionCollapsed[groupName] ? " collapsed" : "");
-    const grid = document.createElement("div");
-    grid.className = "studio-swatch-grid";
-
-    fields.forEach((field) => {
-      const swatch = document.createElement("button");
-      swatch.type = "button";
-      swatch.className = "studio-swatch" + (field.key === activeKey ? " studio-swatch-active" : "");
-      swatch.title = `Edit: ${field.label}`;
-      swatch.onclick = () => selectStudioElement(field.key);
-
-      const color = document.createElement("div");
-      color.className = "studio-swatch-color";
-      const draftValue = themeStudioDraft[field.key] || "#999";
-      if (isStudioValueField(field.key)) {
-        color.style.background = "linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.08))";
-        color.style.borderRadius = field.key.includes("radius") ? draftValue : "0";
-        if (field.key.includes("shadow")) {
-          color.style.background = "rgba(255,255,255,0.92)";
-          color.style.boxShadow = draftValue;
-        } else if (field.key.includes("blur")) {
-          color.style.backdropFilter = `blur(${draftValue})`;
-          color.style.webkitBackdropFilter = `blur(${draftValue})`;
-        } else if (field.key.includes("border-width")) {
-          color.style.boxShadow = `inset 0 0 0 ${draftValue} rgba(255,255,255,0.85)`;
-        }
-      } else {
-        color.style.background = draftValue;
-      }
-
-      const label = document.createElement("div");
-      label.className = "studio-swatch-label";
-      label.textContent = field.label;
-
-      const val = document.createElement("div");
-      val.className = "studio-swatch-value";
-      val.textContent = themeStudioDraft[field.key] || "-";
-
-      swatch.appendChild(color);
-      swatch.appendChild(label);
-      swatch.appendChild(val);
-      grid.appendChild(swatch);
-    });
-
-    gridWrap.appendChild(grid);
-    section.appendChild(header);
-    section.appendChild(gridWrap);
-    holder.appendChild(section);
-  });
-
   renderThemeStudioBootstrapPreview();
 }
 
@@ -3262,14 +3091,14 @@ function renderThemeStudioBootstrapPreview() {
     root.style.setProperty(key, String(value));
   });
 
-  const radiusValue = document.getElementById("studioBsRadiusValue");
-  const radiusSmValue = document.getElementById("studioBsRadiusSmValue");
-  const shadowValue = document.getElementById("studioBsShadowValue");
-  const focusValue = document.getElementById("studioBsFocusValue");
-  if (radiusValue) radiusValue.textContent = String(themeStudioDraft["--bs-border-radius"] || "var(--r)");
-  if (radiusSmValue) radiusSmValue.textContent = String(themeStudioDraft["--bs-border-radius-sm"] || "8px");
-  if (shadowValue) shadowValue.textContent = String(themeStudioDraft["--bs-box-shadow"] || "var(--shadow)");
-  if (focusValue) focusValue.textContent = String(themeStudioDraft["--bs-focus-ring-color"] || "rgba(0,0,0,0.15)");
+  const activeKey = (document.getElementById("themeElementSelect") || {}).value || "";
+  root.querySelectorAll("[data-key]").forEach((node) => {
+    if (node.dataset && node.dataset.key === activeKey) {
+      node.classList.add("sip-active");
+    } else {
+      node.classList.remove("sip-active");
+    }
+  });
 }
 
 function toggleStudioSection(groupName) {
@@ -3337,6 +3166,19 @@ function previewThemeStudioDraft() {
 }
 
 function saveCustomThemeFromStudio() {
+  // Capture the latest quartz and font control values before persisting the draft.
+  applyGlassBackgroundToDraft(true);
+  // Capture current font selector values
+  const fontBodyEl = document.getElementById("studioFontBody");
+  const fontHeadingEl = document.getElementById("studioFontHeading");
+  if (fontBodyEl && fontBodyEl.value && fontBodyEl.value !== "__custom__") {
+    themeStudioDraft["--app-font"] = fontBodyEl.value;
+    themeStudioDraft["--bs-body-font-family"] = fontBodyEl.value;
+  }
+  if (fontHeadingEl && fontHeadingEl.value && fontHeadingEl.value !== "__custom__") {
+    themeStudioDraft["--heading-font"] = fontHeadingEl.value;
+  }
+
   const nameInput = document.getElementById("themeStudioName");
   const requestedName = String(nameInput?.value || "").trim();
   if (!requestedName) {
@@ -3460,7 +3302,20 @@ function openThemeStudio() {
   renderThemeStudioBaseSelect();
   const current = (document.getElementById("themeSelect") || {}).value || "rose";
   loadThemeStudioDraft(current);
-  document.getElementById("themeStudioPage").classList.remove("hidden");
+  const page = document.getElementById("themeStudioPage");
+  const setupPanel = document.getElementById("themeStudioSetupPanel");
+  const colorsPanel = document.getElementById("themeStudioColorsPanel");
+  const previewPanel = document.getElementById("themeStudioPreviewPanel");
+  const editorsWrap = document.getElementById("themeStudioEditorsWrap");
+  if (page) page.classList.remove("hidden");
+  if (editorsWrap) editorsWrap.classList.remove("hidden");
+  if (setupPanel) setupPanel.classList.remove("hidden");
+  if (colorsPanel) colorsPanel.classList.remove("hidden");
+  if (previewPanel) previewPanel.classList.remove("hidden");
+  setThemeStudioMode(themeStudioMode);
+  setThemeStudioPreviewScene("all");
+  syncSimplePanelFromDraft();
+  onThemeStudioPreviewFilterChange();
 }
 
 function closeThemeStudio() {
@@ -3789,24 +3644,6 @@ function handleLayoutModalBackdropClick(e) {
   if (e.target === document.getElementById("layoutModalBackdrop")) closeLayoutModal();
 }
 
-function resetLayout() {
-
-  layoutPositions = {};
-
-  resizedCards = {};
-
-  collapsedCards = {};
-
-  applyLayoutPositions();
-
-  applyCardSizes();
-
-  applyCollapsedState();
-
-  saveLayoutState();
-
-}
-
 function initLayoutSystem() {
 
   loadLayoutState();
@@ -3845,6 +3682,9 @@ function setUserLabel() {
 
   if (userMenu) userMenu.classList.toggle("hidden", !currentUser);
 
+  const adminBtn = document.getElementById("openAdminPanelBtn");
+  if (adminBtn) adminBtn.classList.toggle("hidden", !(currentUser && currentUser.is_admin));
+
 }
 
 function updateBodyLock() {
@@ -3853,7 +3693,11 @@ function updateBodyLock() {
 
   const passwordVisible = !document.getElementById("passwordOverlay").classList.contains("hidden");
 
-  document.body.classList.toggle("locked", authVisible || passwordVisible);
+  const adminLoginVisible = !document.getElementById("adminLoginOverlay").classList.contains("hidden");
+
+  const adminPanelVisible = !document.getElementById("adminPanelOverlay").classList.contains("hidden");
+
+  document.body.classList.toggle("locked", authVisible || passwordVisible || adminLoginVisible || adminPanelVisible);
 
 }
 
@@ -3911,6 +3755,145 @@ function closePasswordModal() {
 
   updateBodyLock();
 
+}
+
+function openAdminLoginModal() {
+  document.getElementById("adminLoginError").textContent = "";
+  document.getElementById("adminLoginUsername").value = "";
+  document.getElementById("adminLoginPassword").value = "";
+  document.getElementById("adminLoginOverlay").classList.remove("hidden");
+  updateBodyLock();
+}
+
+function closeAdminLoginModal() {
+  document.getElementById("adminLoginOverlay").classList.add("hidden");
+  updateBodyLock();
+}
+
+function closeAdminPanel() {
+  document.getElementById("adminPanelOverlay").classList.add("hidden");
+  updateBodyLock();
+}
+
+async function submitAdminLogin() {
+  const username = document.getElementById("adminLoginUsername").value.trim().toLowerCase();
+  const password = document.getElementById("adminLoginPassword").value;
+  const errEl = document.getElementById("adminLoginError");
+  errEl.textContent = "";
+  if (!username || !password) {
+    errEl.textContent = "Username and password are required.";
+    return;
+  }
+
+  try {
+    const res = await fetch(API_BASE + "/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(text);
+    const data = JSON.parse(text);
+    if (!data.user || !data.user.is_admin) throw new Error('{"error":"This account is not an admin."}');
+
+    authToken = data.token;
+    currentUser = data.user;
+    localStorage.setItem(TOKEN_KEY, authToken);
+    setUserLabel();
+    setAuthOverlay(false);
+    closeAdminLoginModal();
+    await bootstrapData();
+    await openAdminPanel();
+  } catch (err) {
+    errEl.textContent = normalizeError(err.message || "Admin login failed");
+  }
+}
+
+function setAdminPanelStatus(message, isError = false) {
+  const el = document.getElementById("adminPanelStatus");
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = isError ? "#cf6f6f" : "var(--modal-muted)";
+}
+
+async function openAdminPanel() {
+  if (!currentUser || !currentUser.is_admin) {
+    toast("Admin access required", true);
+    return;
+  }
+  closeUserMenu();
+  document.getElementById("adminPanelOverlay").classList.remove("hidden");
+  updateBodyLock();
+  setAdminPanelStatus("Loading users...");
+  try {
+    adminUsers = await api("GET", "/admin/users");
+    const sel = document.getElementById("adminUserSelect");
+    if (sel) {
+      sel.innerHTML = "";
+      adminUsers.forEach((u) => {
+        const opt = document.createElement("option");
+        opt.value = String(u.id);
+        opt.textContent = `${u.username} (${u.display_name})`;
+        sel.appendChild(opt);
+      });
+    }
+    setAdminPanelStatus(`Loaded ${adminUsers.length} users.`);
+  } catch (err) {
+    setAdminPanelStatus(normalizeError(err.message || "Failed to load users"), true);
+  }
+}
+
+async function openPhpMyAdmin() {
+  try {
+    const data = await api("GET", "/admin/phpmyadmin");
+    window.open(data.url || "/phpmyadmin", "_blank", "noopener");
+    setAdminPanelStatus("Opened phpMyAdmin in new tab.");
+  } catch (err) {
+    setAdminPanelStatus(normalizeError(err.message || "Failed to open phpMyAdmin"), true);
+  }
+}
+
+async function exportUsersInfo() {
+  try {
+    await downloadWithAuth("/admin/export/users", `users_export_${new Date().toISOString().slice(0, 10)}.json`);
+    setAdminPanelStatus("Users info exported.");
+  } catch (err) {
+    setAdminPanelStatus(normalizeError(err.message || "Failed to export users info"), true);
+  }
+}
+
+async function exportSelectedUserDb(format) {
+  const sel = document.getElementById("adminUserSelect");
+  const userId = sel ? sel.value : "";
+  if (!userId) {
+    setAdminPanelStatus("Select a user first.", true);
+    return;
+  }
+  try {
+    const fmt = format === "sql" ? "sql" : "json";
+    await downloadWithAuth(`/admin/export/user-db?user_id=${encodeURIComponent(userId)}&format=${fmt}`, `user_${userId}_export.${fmt}`);
+    setAdminPanelStatus(`User ${userId} ${fmt.toUpperCase()} export complete.`);
+  } catch (err) {
+    setAdminPanelStatus(normalizeError(err.message || "Failed to export user DB"), true);
+  }
+}
+
+async function exportEntireDatabase() {
+  try {
+    await downloadWithAuth("/admin/export/full-db", `period_tracker_full_${new Date().toISOString().slice(0, 10)}.sql`);
+    setAdminPanelStatus("Entire database exported.");
+  } catch (err) {
+    setAdminPanelStatus(normalizeError(err.message || "Failed to export entire DB"), true);
+  }
+}
+
+async function backupDatabaseNow() {
+  try {
+    const result = await api("POST", "/admin/backup", {});
+    setAdminPanelStatus(`Backup created: ${result.file}`);
+  } catch (err) {
+    setAdminPanelStatus(normalizeError(err.message || "Failed to create backup"), true);
+  }
 }
 
 async function submitPasswordChange() {
@@ -4080,6 +4063,10 @@ function signOut() {
   closeUserMenu();
 
   closePasswordModal();
+
+  closeAdminLoginModal();
+
+  closeAdminPanel();
 
   authMode = "login";
 
@@ -5094,79 +5081,7 @@ async function exportCalendarPdf() {
       <head>
         <meta charset="utf-8" />
         <title>Luna Calendar Export</title>
-        <style>
-          @page { size: A4 portrait; margin: 12mm; }
-          * { box-sizing: border-box; }
-          body { margin: 0; font-family: "Trebuchet MS", "Segoe UI", sans-serif; color: #2f3a3f; background: #f7f4f8; }
-          .pdf-page {
-            width: 100%;
-            min-height: 270mm;
-            background: #fff;
-            border: 1px solid #ecdfe8;
-            border-radius: 14px;
-            padding: 14px;
-            margin-bottom: 10mm;
-            page-break-after: always;
-            box-shadow: 0 4px 18px rgba(0,0,0,0.06);
-          }
-          .pdf-page:last-child { page-break-after: auto; }
-          .p-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-          .p-head h2 { margin: 0; color: #b43d74; font-size: 24px; }
-          .p-sub { font-size: 12px; color: #7d6c79; }
-          .p-cal-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-            border-radius: 10px;
-            background: #fff;
-            margin-bottom: 10px;
-          }
-          .p-day-name {
-            text-align: center;
-            font-weight: 700;
-            color: #b43d74;
-            padding: 4px;
-            border-bottom: 1px solid #eadce7;
-          }
-          .p-cal-day {
-            min-height: 82px;
-            border: 1px solid #eadce7;
-            border-radius: 10px;
-            padding: 6px;
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-          }
-          .p-cal-day.period { background: #ffe6ef; border-color: #f4b5cb; }
-          .p-cal-day.predicted { background: #fff2f8; border-color: #f2b8d1; }
-          .p-cal-day.other-month { opacity: 0.4; background: #faf8fb; }
-          .p-day-emojis { display: flex; gap: 3px; margin-top: 6px; font-size: 13px; }
-          .p-day-dots { display: flex; gap: 4px; margin-top: 6px; }
-          .p-dot { width: 7px; height: 7px; border-radius: 999px; display: inline-block; }
-          .p-dot.symptom { background: #7a9cbf; }
-          .p-dot.mood { background: #f0b429; }
-          .p-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #6f6470; margin: 6px 0 12px; }
-          .p-legend span { display: inline-flex; align-items: center; gap: 6px; }
-          .lg { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
-          .lg.period { background: #f27aa4; }
-          .lg.predicted { background: #f4c2d8; border: 1px solid #f2b8d1; }
-          .lg.symptom { background: #7a9cbf; }
-          .lg.mood { background: #f0b429; }
-          .p-symptoms {
-            border-top: 1px solid #eadce7;
-            padding-top: 10px;
-            margin-top: 4px;
-          }
-          .p-symptoms h3 { margin: 0 0 6px; color: #b43d74; font-size: 15px; }
-          .p-symptoms ul { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.55; }
-          .empty { font-size: 12px; color: #847984; }
-          @media print {
-            body { background: #fff; }
-            .pdf-page { box-shadow: none; margin: 0 0 8mm; }
-          }
-        </style>
+        <link rel="stylesheet" href="/css/print-export.css" />
       </head>
       <body>
         ${pages}

@@ -14,12 +14,23 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     display_name VARCHAR(100) NOT NULL,
+    is_admin TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Default local account (password: changeme123)
-INSERT IGNORE INTO users (username, password_hash, display_name) VALUES
-    ('owner', '$2a$10$Q32qU2fd6T9EMVOU95dzWunH6NjUPyaoT1LPiWka2weG8NBHWPFRG', 'Owner');
+INSERT IGNORE INTO users (username, password_hash, display_name, is_admin) VALUES
+    ('owner', '$2a$10$Q32qU2fd6T9EMVOU95dzWunH6NjUPyaoT1LPiWka2weG8NBHWPFRG', 'Owner', 1);
+
+-- Admin membership table (authoritative admin source)
+CREATE TABLE IF NOT EXISTS user_admins (
+    user_id INT PRIMARY KEY,
+    granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_admins_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+INSERT IGNORE INTO user_admins (user_id)
+SELECT id FROM users WHERE is_admin = 1;
 
 -- Cycles table: tracks period start/end dates
 CREATE TABLE IF NOT EXISTS cycles (

@@ -17,6 +17,24 @@ All services run directly on your Linux host.
 
 ## Quick Start
 
+### One-command installer (recommended)
+
+Run the guided setup script from the project root:
+
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+The installer prompts for:
+
+- Database credentials and app settings
+- Admin display name, admin username, and admin password
+
+During setup, it creates/updates the admin user in `users` with `is_admin = 1` and also inserts admin membership in `user_admins`.
+
+Use the manual steps below if you prefer fully manual provisioning.
+
 ### 1. Install dependencies
 
 ```bash

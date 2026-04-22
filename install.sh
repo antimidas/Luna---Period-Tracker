@@ -51,6 +51,12 @@ prompt_password() {
   printf -v "$var" '%s' "$val"
 }
 
+validate_admin_username() {
+  local uname="$1"
+  [[ "$uname" =~ ^[a-zA-Z0-9_]{3,50}$ ]] || return 1
+  return 0
+}
+
 prompt_yn() {
   local var="$1" msg="$2" default="${3:-y}"
   local val
@@ -110,7 +116,14 @@ gather_config() {
   echo ""
   echo -e "${CYAN}── Admin account ─────────────────────────────${NC}"
   prompt       OWNER_DISPLAY "Admin display name"  "Owner"
-  prompt       OWNER_USER    "Admin username"       "owner"
+  while true; do
+    prompt OWNER_USER "Admin username" "owner"
+    OWNER_USER="${OWNER_USER,,}"
+    if validate_admin_username "$OWNER_USER"; then
+      break
+    fi
+    echo -e "${RED}  Username must be 3-50 chars: letters, numbers, underscore only.${NC}"
+  done
   prompt_password OWNER_PASS "Admin password"
 
   echo ""
@@ -217,17 +230,26 @@ install_npm() {
 set_owner_account() {
   info "Hashing admin password…"
   local hash
-  hash=$(node -e "
+  hash=$(OWNER_PASS="$OWNER_PASS" node -e "
     const b = require('bcryptjs');
-    b.hash('${OWNER_PASS}', 10, (err,h) => { process.stdout.write(h); });
+    process.stdout.write(b.hashSync(process.env.OWNER_PASS, 10));
   ")
 
+  local owner_user_sql owner_display_sql hash_sql
+  owner_user_sql=$(printf "%s" "$OWNER_USER" | sed "s/'/''/g")
+  owner_display_sql=$(printf "%s" "$OWNER_DISPLAY" | sed "s/'/''/g")
+  hash_sql=$(printf "%s" "$hash" | sed "s/'/''/g")
+
   mysql -u root "${DB_NAME}" <<SQL
-INSERT INTO users (username, password_hash, display_name)
-  VALUES ('${OWNER_USER}', '${hash}', '${OWNER_DISPLAY}')
+INSERT INTO users (username, password_hash, display_name, is_admin)
+  VALUES ('${owner_user_sql}', '${hash_sql}', '${owner_display_sql}', 1)
   ON DUPLICATE KEY UPDATE
-    password_hash = '${hash}',
-    display_name  = '${OWNER_DISPLAY}';
+    password_hash = '${hash_sql}',
+    display_name  = '${owner_display_sql}',
+    is_admin      = 1;
+
+INSERT IGNORE INTO user_admins (user_id)
+SELECT id FROM users WHERE username='${owner_user_sql}' LIMIT 1;
 SQL
 
   success "Admin account '${OWNER_USER}' ready."

