@@ -1,5 +1,5 @@
-# 🌙 Luna - Personal Journal, Tracker and Planner for young ladies.
-### Self-hosted personal journal, tracker, and planner with Home Assistant integration
+# 🌙 Luna
+### A personal Journal, Tracker and Planner for young ladies.
 
 ---
 
