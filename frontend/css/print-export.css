@@ -65,6 +65,31 @@ body { margin: 0; font-family: "Trebuchet MS", "Segoe UI", sans-serif; color: #2
 .p-symptoms h3 { margin: 0 0 6px; color: #b43d74; font-size: 15px; }
 .p-symptoms ul { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.55; }
 .empty { font-size: 12px; color: #847984; }
+
+.journal-print-page {
+  border: 1px solid #eddfe7;
+}
+.journal-print-head h2 {
+  color: #9f3f65;
+}
+.journal-print-paper {
+  margin-top: 10px;
+  border: 1px solid #eadce7;
+  border-radius: 12px;
+  padding: 16px 16px 8px;
+  background:
+    linear-gradient(to right, transparent 56px, #f3c8d7 56px, #f3c8d7 58px, transparent 58px),
+    repeating-linear-gradient(to bottom, #fff 0 29px, #f2e9ef 29px 30px);
+  min-height: 220mm;
+}
+.j-line {
+  margin: 0 0 14px;
+  color: #3f3340;
+  font-family: "Caveat", "Segoe Script", cursive;
+  font-size: 24px;
+  line-height: 1.45;
+  white-space: normal;
+}
 @media print {
   body { background: #fff; }
   .pdf-page { box-shadow: none; margin: 0 0 8mm; }

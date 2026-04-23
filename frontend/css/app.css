@@ -303,6 +303,74 @@
     gap: 8px;
   }
 
+  .journal-print-modal {
+    max-width: 760px;
+    width: min(92vw, 760px);
+    text-align: left;
+    padding: 20px;
+  }
+  .journal-print-modal h2 { margin-bottom: 6px; }
+  .journal-print-options {
+    display: grid;
+    gap: 8px;
+    margin: 10px 0;
+  }
+  .journal-print-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+  .journal-print-range {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 6px 0 10px;
+  }
+  .journal-print-range label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    display: grid;
+    gap: 4px;
+  }
+  .journal-print-specific {
+    margin-top: 8px;
+  }
+  .journal-print-specific-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .journal-print-specific-list {
+    max-height: 280px;
+    overflow: auto;
+    border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--card) 90%, white 10%);
+    padding: 8px;
+  }
+  .journal-print-entry-option {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: start;
+    padding: 8px;
+    border-radius: 8px;
+  }
+  .journal-print-entry-option:hover {
+    background: color-mix(in srgb, var(--primary-soft) 26%, transparent);
+  }
+  .journal-print-entry-option span {
+    display: grid;
+    gap: 2px;
+  }
+  .journal-print-entry-option small {
+    color: var(--muted);
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
+
 
   .theme-studio-page {
     position: fixed;
@@ -1037,20 +1105,23 @@
     position: absolute;
     top: 10px; right: 10px;
     z-index: 8;
-    border: 1px solid var(--border);
-    background: color-mix(in srgb, var(--blush) 85%, white 15%);
-    color: var(--rose);
-    border-radius: 8px;
+    border: 1px solid var(--collapse-btn-border, var(--border));
+    background: var(--collapse-btn-bg, color-mix(in srgb, var(--blush) 85%, white 15%));
+    color: var(--collapse-btn-text, var(--rose));
+    border-radius: var(--collapse-btn-radius, 8px);
     width: 28px; height: 28px;
     cursor: pointer;
     font-size: 1rem;
     line-height: 1;
     font-weight: 700;
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--rose) 28%, transparent);
+    box-shadow: var(--collapse-btn-shadow, 0 2px 8px color-mix(in srgb, var(--rose) 28%, transparent));
     display: flex; align-items: center; justify-content: center;
     padding: 0;
   }
-  .collapse-btn:hover { background: color-mix(in srgb, var(--blush) 72%, white 28%); color: var(--rose-dk); }
+  .collapse-btn:hover {
+    background: var(--collapse-btn-hover-bg, color-mix(in srgb, var(--blush) 72%, white 28%));
+    color: var(--collapse-btn-hover-text, var(--rose-dk));
+  }
 
   .card.collapsed .card-body { display: none; }
   .card.collapsed { height: auto !important; min-height: 0; overflow: hidden; }

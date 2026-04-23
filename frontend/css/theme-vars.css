@@ -70,6 +70,13 @@
     --cal-nav-btn-border: var(--border);
     --cal-nav-btn-radius: 8px;
     --cal-nav-btn-hover-bg: var(--blush);
+    --collapse-btn-bg: color-mix(in srgb, var(--blush) 85%, white 15%);
+    --collapse-btn-border: var(--border);
+    --collapse-btn-text: var(--rose);
+    --collapse-btn-hover-bg: color-mix(in srgb, var(--blush) 72%, white 28%);
+    --collapse-btn-hover-text: var(--rose-dk);
+    --collapse-btn-radius: 8px;
+    --collapse-btn-shadow: 0 2px 8px color-mix(in srgb, var(--rose) 28%, transparent);
     --cal-legend-bg: transparent;
     --cal-legend-border: var(--border);
     --cal-legend-text: var(--muted);

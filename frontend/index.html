@@ -7,7 +7,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Luna — Period Tracker</title>
+<title>Luna - Personal Journal, Tracker and Planner for young ladies.</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet">
@@ -163,7 +163,7 @@
 
       <h1><span class="brand-name">Luna</span><span class="username-script" id="currentUserName"></span></h1>
 
-      <span class="logo-subtitle">Period Tracker</span>
+      <span class="logo-subtitle">Personal Journal, Tracker and Planner for young ladies.</span>
 
     </div>
 
@@ -477,6 +477,7 @@
 
           <div class="journal-card-actions">
             <button class="btn btn-luna btn-luna-muted" type="button" onclick="openDiaryPage()">Open Full Diary</button>
+            <button class="btn btn-luna btn-luna-muted" type="button" onclick="openJournalPrintModal()">Print Pages</button>
           </div>
 
           <div class="journal-book-stage">
@@ -598,6 +599,51 @@
   </div>
 </div>
 
+<div class="layout-modal-backdrop" id="journalPrintModalBackdrop" onclick="handleJournalPrintBackdropClick(event)">
+  <div class="layout-modal journal-print-modal" role="dialog" aria-modal="true" aria-labelledby="journalPrintTitle">
+    <div class="lm-badge">🖨 DIARY PRINT</div>
+    <h2 id="journalPrintTitle">Print Diary Pages</h2>
+    <p>Choose how you want to print your diary pages.</p>
+
+    <div class="journal-print-options">
+      <label class="journal-print-option">
+        <input type="radio" name="journalPrintMode" value="all" checked onchange="setJournalPrintMode(this.value)">
+        <span>All pages</span>
+      </label>
+      <label class="journal-print-option">
+        <input type="radio" name="journalPrintMode" value="some" onchange="setJournalPrintMode(this.value)">
+        <span>Some pages (date range)</span>
+      </label>
+      <label class="journal-print-option">
+        <input type="radio" name="journalPrintMode" value="specific" onchange="setJournalPrintMode(this.value)">
+        <span>Specific pages</span>
+      </label>
+    </div>
+
+    <div id="journalPrintRangeWrap" class="journal-print-range hidden">
+      <label>From
+        <input id="journalPrintFrom" class="form-control" type="date">
+      </label>
+      <label>To
+        <input id="journalPrintTo" class="form-control" type="date">
+      </label>
+    </div>
+
+    <div id="journalPrintSpecificWrap" class="journal-print-specific hidden">
+      <div class="journal-print-specific-actions">
+        <button type="button" class="btn btn-luna btn-luna-muted" onclick="selectAllJournalPrintEntries()">Select All</button>
+        <button type="button" class="btn btn-luna btn-luna-muted" onclick="clearJournalPrintEntries()">Clear</button>
+      </div>
+      <div id="journalPrintSpecificList" class="journal-print-specific-list"></div>
+    </div>
+
+    <div class="studio-actions">
+      <button class="btn btn-luna" type="button" onclick="printJournalPages()">Print</button>
+      <button class="btn btn-luna btn-luna-muted" type="button" onclick="closeJournalPrintModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="theme-studio-page hidden" id="themeStudioPage">
   <div class="theme-studio-topbar">
     <h2>Theme Studio</h2>
@@ -647,6 +693,48 @@
           <label class="studio-simple-color">
             <span>Accent</span>
             <input id="simpleColorAccent" type="color" oninput="applySimpleThemeColor('accent', this.value)">
+          </label>
+        </div>
+        <div class="studio-step-label" style="margin-top:10px;">Stat Box Colors</div>
+        <div class="studio-simple-grid">
+          <label class="studio-simple-color">
+            <span>Stat Background</span>
+            <input id="simpleColorStatBg" type="color" oninput="applySimpleThemeColor('statBg', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Stat Border</span>
+            <input id="simpleColorStatBorder" type="color" oninput="applySimpleThemeColor('statBorder', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Stat Value</span>
+            <input id="simpleColorStatText" type="color" oninput="applySimpleThemeColor('statText', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Stat Label</span>
+            <input id="simpleColorStatLabel" type="color" oninput="applySimpleThemeColor('statLabel', this.value)">
+          </label>
+        </div>
+        <div class="studio-step-label" style="margin-top:10px;">Collapse Button Colors</div>
+        <div class="studio-simple-grid">
+          <label class="studio-simple-color">
+            <span>Button Background</span>
+            <input id="simpleColorCollapseBg" type="color" oninput="applySimpleThemeColor('collapseBg', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Button Border</span>
+            <input id="simpleColorCollapseBorder" type="color" oninput="applySimpleThemeColor('collapseBorder', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Button Text</span>
+            <input id="simpleColorCollapseText" type="color" oninput="applySimpleThemeColor('collapseText', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Hover Background</span>
+            <input id="simpleColorCollapseHoverBg" type="color" oninput="applySimpleThemeColor('collapseHoverBg', this.value)">
+          </label>
+          <label class="studio-simple-color">
+            <span>Hover Text</span>
+            <input id="simpleColorCollapseHoverText" type="color" oninput="applySimpleThemeColor('collapseHoverText', this.value)">
           </label>
         </div>
       </div>
@@ -1013,6 +1101,7 @@
           <button class="studio-node studio-btn-node" data-key="--btn-bg" onclick="selectStudioElement('--btn-bg')">Primary</button>
           <button class="studio-node studio-btn-node studio-btn-muted" data-key="--btn-muted-bg" onclick="selectStudioElement('--btn-muted-bg')">Muted</button>
           <button class="studio-node studio-btn-node studio-btn-secondary" data-key="--btn-secondary-bg" onclick="selectStudioElement('--btn-secondary-bg')">Secondary</button>
+          <span class="studio-node-pill" data-key="--collapse-btn-bg" onclick="selectStudioElement('--collapse-btn-bg')">Collapse</span>
         </div>
       </div>
 
@@ -1410,6 +1499,13 @@ const ELEMENT_DEFAULTS = {
   "--cal-nav-btn-border": "var(--border)",
   "--cal-nav-btn-radius": "8px",
   "--cal-nav-btn-hover-bg": "var(--blush)",
+  "--collapse-btn-bg": "color-mix(in srgb, var(--blush) 85%, white 15%)",
+  "--collapse-btn-border": "var(--border)",
+  "--collapse-btn-text": "var(--rose)",
+  "--collapse-btn-hover-bg": "color-mix(in srgb, var(--blush) 72%, white 28%)",
+  "--collapse-btn-hover-text": "var(--rose-dk)",
+  "--collapse-btn-radius": "8px",
+  "--collapse-btn-shadow": "0 2px 8px color-mix(in srgb, var(--rose) 28%, transparent)",
   "--cal-legend-bg": "transparent",
   "--cal-legend-border": "var(--border)",
   "--cal-legend-text": "var(--muted)",
@@ -1571,6 +1667,13 @@ const EDITABLE_THEME_FIELDS = [
   { key: "--cal-nav-btn-border", label: "Calendar Nav Button - Border Color" },
   { key: "--cal-nav-btn-radius", label: "Calendar Nav Button - Border Radius" },
   { key: "--cal-nav-btn-hover-bg", label: "Calendar Nav Button - Hover Background" },
+  { key: "--collapse-btn-bg", label: "Collapse Button - Background" },
+  { key: "--collapse-btn-border", label: "Collapse Button - Border" },
+  { key: "--collapse-btn-text", label: "Collapse Button - Text" },
+  { key: "--collapse-btn-hover-bg", label: "Collapse Button - Hover Background" },
+  { key: "--collapse-btn-hover-text", label: "Collapse Button - Hover Text" },
+  { key: "--collapse-btn-radius", label: "Collapse Button - Border Radius" },
+  { key: "--collapse-btn-shadow", label: "Collapse Button - Shadow" },
   { key: "--cal-legend-bg", label: "Calendar Legend Background" },
   { key: "--cal-legend-border", label: "Calendar Legend Border" },
   { key: "--cal-legend-text", label: "Calendar Legend Text" },
@@ -1729,6 +1832,10 @@ let selectedJournalEntryId = null;
 let journalArchive = [];
 
 let journalPageIndex = 0;
+
+let journalPrintMode = "all";
+
+let journalPrintSelection = new Set();
 
 let selectedSymptoms = new Set();
 
@@ -2346,6 +2453,7 @@ function getThemeFieldCategory(field) {
   if (key.startsWith("--card-") || key.startsWith("--shadow") || key.startsWith("--bs-card-")) return "cards";
   if (key.startsWith("--overview-") || key.startsWith("--stat-")) return "overview";
   if (key.startsWith("--journal-")) return "journal";
+  if (key.startsWith("--collapse-btn")) return "buttons";
   if (key.startsWith("--btn-")) return "buttons";
   if (key.startsWith("--input-")) return "inputs";
   if (key.startsWith("--modal-")) return "modals";
@@ -2525,12 +2633,30 @@ function syncSimplePanelFromDraft() {
   const primary = document.getElementById("simpleColorPrimary");
   const secondary = document.getElementById("simpleColorSecondary");
   const accent = document.getElementById("simpleColorAccent");
+  const statBg = document.getElementById("simpleColorStatBg");
+  const statBorder = document.getElementById("simpleColorStatBorder");
+  const statText = document.getElementById("simpleColorStatText");
+  const statLabel = document.getElementById("simpleColorStatLabel");
+  const collapseBg = document.getElementById("simpleColorCollapseBg");
+  const collapseBorder = document.getElementById("simpleColorCollapseBorder");
+  const collapseText = document.getElementById("simpleColorCollapseText");
+  const collapseHoverBg = document.getElementById("simpleColorCollapseHoverBg");
+  const collapseHoverText = document.getElementById("simpleColorCollapseHoverText");
 
   if (bg) bg.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--cream"] || "#fdf8f5")).hex;
   if (text) text.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--ink"] || "#2a1f24")).hex;
   if (primary) primary.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--rose"] || "#c2647a")).hex;
   if (secondary) secondary.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--muted"] || "#8a7075")).hex;
   if (accent) accent.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--symptom"] || "#7a9cbf")).hex;
+  if (statBg) statBg.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--stat-bg"] || "rgba(255,255,255,0.42)")).hex;
+  if (statBorder) statBorder.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--stat-border"] || "#e5d5df")).hex;
+  if (statText) statText.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--stat-text"] || "#8f2f4d")).hex;
+  if (statLabel) statLabel.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--stat-label"] || "#8a7075")).hex;
+  if (collapseBg) collapseBg.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--collapse-btn-bg"] || "#f5e6e8")).hex;
+  if (collapseBorder) collapseBorder.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--collapse-btn-border"] || "#e5d5d8")).hex;
+  if (collapseText) collapseText.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--collapse-btn-text"] || "#c2647a")).hex;
+  if (collapseHoverBg) collapseHoverBg.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--collapse-btn-hover-bg"] || "#f6ebed")).hex;
+  if (collapseHoverText) collapseHoverText.value = parseColorToken(resolveDraftCssValue(themeStudioDraft["--collapse-btn-hover-text"] || "#8b3a50")).hex;
 
   const simpleName = document.getElementById("simpleThemeName");
   const fullName = document.getElementById("themeStudioName");
@@ -2577,6 +2703,33 @@ function applySimpleThemeColor(slot, value) {
     themeStudioDraft["--ovulation"] = tintHex(color, -0.2);
     themeStudioDraft["--predicted"] = tintHex(color, 0.35);
     themeStudioDraft["--logday-pill-active-bg"] = color;
+  }
+  if (slot === "statBg") {
+    themeStudioDraft["--stat-bg"] = color;
+  }
+  if (slot === "statBorder") {
+    themeStudioDraft["--stat-border"] = color;
+  }
+  if (slot === "statText") {
+    themeStudioDraft["--stat-text"] = color;
+  }
+  if (slot === "statLabel") {
+    themeStudioDraft["--stat-label"] = color;
+  }
+  if (slot === "collapseBg") {
+    themeStudioDraft["--collapse-btn-bg"] = color;
+  }
+  if (slot === "collapseBorder") {
+    themeStudioDraft["--collapse-btn-border"] = color;
+  }
+  if (slot === "collapseText") {
+    themeStudioDraft["--collapse-btn-text"] = color;
+  }
+  if (slot === "collapseHoverBg") {
+    themeStudioDraft["--collapse-btn-hover-bg"] = color;
+  }
+  if (slot === "collapseHoverText") {
+    themeStudioDraft["--collapse-btn-hover-text"] = color;
   }
   renderThemeStudioSwatches();
   syncSimplePanelFromDraft();
@@ -5789,6 +5942,222 @@ function openDiaryPage() {
 
 }
 
+function handleJournalPrintBackdropClick(event) {
+
+  if (event.target !== document.getElementById("journalPrintModalBackdrop")) return;
+  closeJournalPrintModal();
+
+}
+
+async function openJournalPrintModal() {
+
+  if (!journalArchive.length) await loadJournalArchive();
+
+  const modal = document.getElementById("journalPrintModalBackdrop");
+  if (!modal) return;
+
+  journalPrintMode = "all";
+  document.querySelectorAll('input[name="journalPrintMode"]').forEach((input) => {
+    input.checked = input.value === "all";
+  });
+
+  const entries = getJournalEntriesSorted("asc");
+  const from = document.getElementById("journalPrintFrom");
+  const to = document.getElementById("journalPrintTo");
+
+  if (entries.length) {
+    if (from) from.value = getJournalDateOnly(entries[0]);
+    if (to) to.value = getJournalDateOnly(entries[entries.length - 1]);
+    journalPrintSelection = new Set(entries.map((entry) => Number(entry.id)));
+  } else {
+    if (from) from.value = "";
+    if (to) to.value = "";
+    journalPrintSelection = new Set();
+  }
+
+  setJournalPrintMode("all");
+  renderJournalPrintSpecificList();
+  modal.classList.add("visible");
+
+}
+
+function closeJournalPrintModal() {
+
+  document.getElementById("journalPrintModalBackdrop")?.classList.remove("visible");
+
+}
+
+function setJournalPrintMode(mode) {
+
+  journalPrintMode = mode || "all";
+  document.getElementById("journalPrintRangeWrap")?.classList.toggle("hidden", journalPrintMode !== "some");
+  document.getElementById("journalPrintSpecificWrap")?.classList.toggle("hidden", journalPrintMode !== "specific");
+
+}
+
+function renderJournalPrintSpecificList() {
+
+  const list = document.getElementById("journalPrintSpecificList");
+  if (!list) return;
+
+  const entries = getJournalEntriesSorted("desc");
+  if (!entries.length) {
+    list.innerHTML = '<div class="journal-archive-empty">No saved pages available.</div>';
+    return;
+  }
+
+  list.innerHTML = entries.map((entry) => {
+    const id = Number(entry.id);
+    const checked = journalPrintSelection.has(id) ? "checked" : "";
+    const text = String(entry.entry_text || "").replace(/\s+/g, " ").trim();
+    const excerpt = text.length > 120 ? `${text.slice(0, 120).trimEnd()}...` : text;
+    return `
+      <label class="journal-print-entry-option">
+        <input type="checkbox" ${checked} onchange="toggleJournalPrintEntry(${id})">
+        <span>
+          <strong>${fmtDate(getJournalDateOnly(entry))}</strong>
+          <small>${escapeHtml(excerpt || "No text")}</small>
+        </span>
+      </label>
+    `;
+  }).join("");
+
+}
+
+function toggleJournalPrintEntry(entryId) {
+
+  const id = Number(entryId);
+  if (journalPrintSelection.has(id)) journalPrintSelection.delete(id);
+  else journalPrintSelection.add(id);
+
+}
+
+function selectAllJournalPrintEntries() {
+
+  const entries = getJournalEntriesSorted("asc");
+  journalPrintSelection = new Set(entries.map((entry) => Number(entry.id)));
+  renderJournalPrintSpecificList();
+
+}
+
+function clearJournalPrintEntries() {
+
+  journalPrintSelection = new Set();
+  renderJournalPrintSpecificList();
+
+}
+
+function getJournalEntriesForPrint() {
+
+  const entries = getJournalEntriesSorted("asc");
+  if (!entries.length) return [];
+
+  if (journalPrintMode === "all") return entries;
+
+  if (journalPrintMode === "some") {
+    const from = document.getElementById("journalPrintFrom")?.value || "";
+    const to = document.getElementById("journalPrintTo")?.value || "";
+    if (!from || !to) return [];
+
+    const start = from <= to ? from : to;
+    const end = from <= to ? to : from;
+    return entries.filter((entry) => {
+      const day = getJournalDateOnly(entry);
+      return day >= start && day <= end;
+    });
+  }
+
+  if (journalPrintMode === "specific") {
+    return entries.filter((entry) => journalPrintSelection.has(Number(entry.id)));
+  }
+
+  return entries;
+
+}
+
+function renderJournalPrintPage(entry, index, total) {
+
+  const date = getJournalDateOnly(entry);
+  const paragraphs = String(entry.entry_text || "")
+    .split(/\n{2,}/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p class="j-line">${escapeHtml(line).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+
+  return `
+    <section class="pdf-page journal-print-page">
+      <div class="p-head journal-print-head">
+        <h2>Diary Page</h2>
+        <div class="p-sub">${fmtDate(date)} • Entry ${index} of ${total}</div>
+      </div>
+      <div class="journal-print-paper">
+        ${paragraphs || '<p class="j-line">(No text)</p>'}
+      </div>
+    </section>
+  `;
+
+}
+
+async function printJournalPages() {
+
+  try {
+    const entries = getJournalEntriesForPrint();
+    if (!entries.length) return toast("No diary pages match that selection", true);
+
+    const pages = entries
+      .map((entry, index) => renderJournalPrintPage(entry, index + 1, entries.length))
+      .join("\n");
+
+    const printHtml = `
+      <!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Luna Diary Print</title>
+        <link rel="stylesheet" href="/css/print-export.css" />
+      </head>
+      <body>
+        ${pages}
+      </body>
+      </html>
+    `;
+
+    closeJournalPrintModal();
+    toast("Preparing diary print...");
+
+    const frame = document.createElement("iframe");
+    frame.style.position = "fixed";
+    frame.style.right = "0";
+    frame.style.bottom = "0";
+    frame.style.width = "0";
+    frame.style.height = "0";
+    frame.style.border = "0";
+    frame.setAttribute("aria-hidden", "true");
+    document.body.appendChild(frame);
+
+    const doc = frame.contentDocument || frame.contentWindow.document;
+    doc.open();
+    doc.write(printHtml);
+    doc.close();
+
+    const cleanup = () => {
+      if (frame && frame.parentNode) frame.parentNode.removeChild(frame);
+    };
+
+    frame.contentWindow.onafterprint = cleanup;
+
+    setTimeout(() => {
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+      setTimeout(cleanup, 1500);
+    }, 250);
+  } catch (err) {
+    toast("Failed to print diary pages", true);
+  }
+
+}
+
 function goHome() {
 
   window.location.href = `${window.location.origin}/`;
@@ -5937,7 +6306,7 @@ function renderExportMonthPage(year, monthIndex, periodDays, predictedDays, symp
     <section class="pdf-page">
       <div class="p-head">
         <h2>${monthLabel(year, monthIndex)}</h2>
-        <div class="p-sub">Luna Period Tracker</div>
+        <div class="p-sub">Luna - Personal Journal, Tracker and Planner for young ladies.</div>
       </div>
       <div class="p-cal-grid">
         <div class="p-day-name">Su</div><div class="p-day-name">Mo</div><div class="p-day-name">Tu</div><div class="p-day-name">We</div><div class="p-day-name">Th</div><div class="p-day-name">Fr</div><div class="p-day-name">Sa</div>
