@@ -339,7 +339,7 @@ curl -H "X-Api-Key: YOUR_API_KEY" \
 
 ```bash
 curl -H "X-Api-Key: YOUR_API_KEY" \
-  "http://YOUR_SERVER_IP/api/ha/embed-config?username=mila&ha_user=alice&base_url=https://pt.example.com"
+  "http://YOUR_SERVER_IP/api/ha/embed-config?username=mila&ha_user=alice&base_url=https://luna.example.com"
 ```
 
 3. Use values from the response:
@@ -352,8 +352,8 @@ Direct planner card example:
 
 ```yaml
 type: iframe
-title: Luna Planner (Mila)
-url: https://pt.example.com/planner?token=GENERATED_TOKEN
+title: Luna Planner (Username)
+url: https://luna.example.com/planner?token=GENERATED_TOKEN
 aspect_ratio: 170%
 ```
 
@@ -361,8 +361,8 @@ Example manual card using response URL:
 
 ```yaml
 type: iframe
-title: Luna Calendar (Mila)
-url: https://pt.example.com/calendar?token=GENERATED_TOKEN
+title: Luna Calendar (Username)
+url: https://luna.example.com/calendar?token=GENERATED_TOKEN
 aspect_ratio: 100%
 ```
 
