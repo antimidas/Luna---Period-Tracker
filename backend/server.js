@@ -138,8 +138,22 @@ async function ensureSchema() {
   await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_at DATETIME NULL`, ["ER_DUP_FIELDNAME"]);
   await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_target VARCHAR(255) NULL`, ["ER_DUP_FIELDNAME"]);
   await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_sent_at DATETIME NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_audio_url VARCHAR(1024) NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_media_player VARCHAR(255) NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_at_2 DATETIME NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_target_2 VARCHAR(255) NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_sent_at_2 DATETIME NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_audio_url_2 VARCHAR(1024) NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_media_player_2 VARCHAR(255) NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_at_3 DATETIME NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_target_3 VARCHAR(255) NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_sent_at_3 DATETIME NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_audio_url_3 VARCHAR(1024) NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_media_player_3 VARCHAR(255) NULL`, ["ER_DUP_FIELDNAME"]);
   await runMigration(`ALTER TABLE planner_items ADD KEY idx_planner_user_date (user_id, plan_date)`, ["ER_DUP_KEYNAME"]);
   await runMigration(`ALTER TABLE planner_items ADD KEY idx_planner_due (user_id, reminder_at, reminder_sent_at)`, ["ER_DUP_KEYNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD KEY idx_planner_due_2 (user_id, reminder_at_2, reminder_sent_at_2)`, ["ER_DUP_KEYNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD KEY idx_planner_due_3 (user_id, reminder_at_3, reminder_sent_at_3)`, ["ER_DUP_KEYNAME"]);
   await runMigration(`ALTER TABLE journal_entries ADD KEY idx_journal_user_date (user_id, log_date)`, ["ER_DUP_KEYNAME"]);
   await runMigration(`ALTER TABLE journal_entries ADD KEY idx_journal_user_created_at (user_id, created_at)`, ["ER_DUP_KEYNAME"]);
   await runMigration(`ALTER TABLE journal_entries DROP INDEX unique_journal_per_day`, ["ER_CANT_DROP_FIELD_OR_KEY"]);
@@ -245,7 +259,7 @@ async function getApiContextUser(req) {
 async function notifyHomeAssistant(eventType, data) {
   const webhookUrl = process.env.HA_WEBHOOK_URL;
   const haToken = process.env.HA_TOKEN;
-  if (!webhookUrl) return;
+  if (!webhookUrl) return { sent: false, skipped: true, reason: "missing_webhook_url" };
 
   try {
     await axios.post(webhookUrl, { event: eventType, ...data }, {
@@ -253,8 +267,162 @@ async function notifyHomeAssistant(eventType, data) {
       timeout: 5000,
     });
     console.log(`[HA] Notified: ${eventType}`);
+    return { sent: true };
   } catch (err) {
     console.error(`[HA] Notification failed: ${err.message}`);
+    return { sent: false, reason: err.message };
+  }
+}
+
+function getHomeAssistantApiConfig() {
+  const baseUrl = String(process.env.HA_BASE_URL || "").trim().replace(/\/+$/, "");
+  const token = String(process.env.HA_TOKEN || "").trim();
+  if (!baseUrl || !token) return null;
+  return { baseUrl, token };
+}
+
+function normalizeHaNotifyTarget(target) {
+  const raw = String(target || "").trim();
+  if (!raw) return "";
+  if (raw.startsWith("notify.")) return raw;
+  if (/^[a-z0-9_]+$/i.test(raw)) return `notify.${raw.toLowerCase()}`;
+  return "";
+}
+
+function formatHaNotifyLabel(entityId) {
+  const safeId = normalizeHaNotifyTarget(entityId);
+  if (!safeId) return "";
+  const name = safeId.replace(/^notify\./, "").replace(/_/g, " ");
+  return name.replace(/\b\w/g, (ch) => ch.toUpperCase());
+}
+
+function normalizeHaMediaPlayerTarget(target) {
+  const raw = String(target || "").trim();
+  if (!raw) return "";
+  if (raw.startsWith("media_player.")) return raw;
+  if (/^[a-z0-9_]+$/i.test(raw)) return `media_player.${raw.toLowerCase()}`;
+  return "";
+}
+
+function formatHaEntityLabel(entityId) {
+  const raw = String(entityId || "").trim();
+  if (!raw) return "";
+  const name = raw.replace(/^[^.]+\./, "").replace(/_/g, " ");
+  return name.replace(/\b\w/g, (ch) => ch.toUpperCase());
+}
+
+async function fetchHomeAssistantNotifyDevices() {
+  const config = getHomeAssistantApiConfig();
+  if (!config) return [];
+
+  try {
+    const servicesResponse = await axios.get(`${config.baseUrl}/api/services`, {
+      headers: { Authorization: `Bearer ${config.token}` },
+      timeout: 7000,
+    });
+
+    const services = Array.isArray(servicesResponse.data) ? servicesResponse.data : [];
+    const notifyDomain = services.find((entry) => entry && entry.domain === "notify");
+    const notifyServices = notifyDomain && typeof notifyDomain.services === "object"
+      ? Object.keys(notifyDomain.services)
+      : [];
+
+    return notifyServices
+      .filter((name) => /^[a-z0-9_]+$/i.test(name))
+      .map((serviceName) => {
+        const service = `notify.${serviceName}`;
+        return {
+          id: service,
+          service,
+          label: formatHaNotifyLabel(service),
+          type: serviceName.startsWith("mobile_app_") ? "mobile_app" : "notify_service",
+        };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
+  } catch (err) {
+    console.error("HA notify device discovery failed:", err.message);
+    return [];
+  }
+}
+
+async function fetchHomeAssistantMediaPlayers() {
+  const config = getHomeAssistantApiConfig();
+  if (!config) return [];
+
+  try {
+    const statesResponse = await axios.get(`${config.baseUrl}/api/states`, {
+      headers: { Authorization: `Bearer ${config.token}` },
+      timeout: 7000,
+    });
+
+    const states = Array.isArray(statesResponse.data) ? statesResponse.data : [];
+    return states
+      .filter((entry) => entry && typeof entry.entity_id === "string" && entry.entity_id.startsWith("media_player."))
+      .filter((entry) => String(entry.state || "").toLowerCase() !== "unavailable")
+      .map((entry) => ({
+        id: entry.entity_id,
+        entity_id: entry.entity_id,
+        label: String(entry.attributes?.friendly_name || formatHaEntityLabel(entry.entity_id)),
+        state: entry.state || "unknown",
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  } catch (err) {
+    console.error("HA media player discovery failed:", err.message);
+    return [];
+  }
+}
+
+async function sendHomeAssistantCompanionNotification(target, title, message, data = {}) {
+  const config = getHomeAssistantApiConfig();
+  const entityId = normalizeHaNotifyTarget(target);
+  if (!config || !entityId) return { sent: false, reason: "missing_config_or_target" };
+
+  const serviceName = entityId.replace(/^notify\./, "");
+  if (!serviceName) return { sent: false, reason: "invalid_service" };
+
+  try {
+    await axios.post(
+      `${config.baseUrl}/api/services/notify/${serviceName}`,
+      {
+        title: String(title || "Luna Reminder"),
+        message: String(message || "Planner reminder"),
+        data,
+      },
+      {
+        headers: { Authorization: `Bearer ${config.token}` },
+        timeout: 7000,
+      }
+    );
+    return { sent: true };
+  } catch (err) {
+    console.error(`HA direct notify failed (${entityId}):`, err.message);
+    return { sent: false, reason: err.message };
+  }
+}
+
+async function playHomeAssistantMedia(mediaPlayerTarget, audioUrl) {
+  const config = getHomeAssistantApiConfig();
+  const entityId = normalizeHaMediaPlayerTarget(mediaPlayerTarget);
+  const mediaContentId = String(audioUrl || "").trim();
+  if (!config || !entityId || !mediaContentId) return { sent: false, reason: "missing_config_or_media" };
+
+  try {
+    await axios.post(
+      `${config.baseUrl}/api/services/media_player/play_media`,
+      {
+        entity_id: entityId,
+        media_content_id: mediaContentId,
+        media_content_type: "music",
+      },
+      {
+        headers: { Authorization: `Bearer ${config.token}` },
+        timeout: 7000,
+      }
+    );
+    return { sent: true };
+  } catch (err) {
+    console.error(`HA media playback failed (${entityId}):`, err.message);
+    return { sent: false, reason: err.message };
   }
 }
 
@@ -924,13 +1092,14 @@ app.delete("/api/journal", requireAuth, async (req, res) => {
 app.get("/api/planner", requireAuth, async (req, res) => {
   try {
     const { date, from, to } = req.query;
+    const reminderSortExpr = `NULLIF(LEAST(IFNULL(reminder_at, '9999-12-31 23:59:59'), IFNULL(reminder_at_2, '9999-12-31 23:59:59'), IFNULL(reminder_at_3, '9999-12-31 23:59:59')), '9999-12-31 23:59:59')`;
     let rows;
 
     if (date) {
       [rows] = await pool.query(
         `SELECT * FROM planner_items
          WHERE user_id=? AND plan_date=?
-         ORDER BY is_done ASC, reminder_at IS NULL, reminder_at ASC, created_at ASC, id ASC`,
+         ORDER BY is_done ASC, (${reminderSortExpr}) IS NULL, ${reminderSortExpr} ASC, created_at ASC, id ASC`,
         [req.user.id, date]
       );
       return res.json(rows);
@@ -940,7 +1109,7 @@ app.get("/api/planner", requireAuth, async (req, res) => {
       [rows] = await pool.query(
         `SELECT * FROM planner_items
          WHERE user_id=? AND plan_date BETWEEN ? AND ?
-         ORDER BY plan_date ASC, is_done ASC, reminder_at IS NULL, reminder_at ASC, created_at ASC, id ASC`,
+         ORDER BY plan_date ASC, is_done ASC, (${reminderSortExpr}) IS NULL, ${reminderSortExpr} ASC, created_at ASC, id ASC`,
         [req.user.id, from, to]
       );
       return res.json(rows);
@@ -949,7 +1118,7 @@ app.get("/api/planner", requireAuth, async (req, res) => {
     [rows] = await pool.query(
       `SELECT * FROM planner_items
        WHERE user_id=?
-       ORDER BY plan_date DESC, is_done ASC, reminder_at IS NULL, reminder_at ASC, created_at DESC, id DESC
+       ORDER BY plan_date DESC, is_done ASC, (${reminderSortExpr}) IS NULL, ${reminderSortExpr} ASC, created_at DESC, id DESC
        LIMIT 500`,
       [req.user.id]
     );
@@ -963,14 +1132,48 @@ app.get("/api/planner", requireAuth, async (req, res) => {
 
 app.post("/api/planner", requireAuth, async (req, res) => {
   try {
-    const { plan_date, title, notes, reminder_at, reminder_target } = req.body || {};
+    const {
+      plan_date,
+      title,
+      notes,
+      reminder_at,
+      reminder_target,
+      reminder_audio_url,
+      reminder_media_player,
+      reminder_at_2,
+      reminder_target_2,
+      reminder_audio_url_2,
+      reminder_media_player_2,
+      reminder_at_3,
+      reminder_target_3,
+      reminder_audio_url_3,
+      reminder_media_player_3,
+    } = req.body || {};
     const cleanedTitle = String(title || "").trim();
+    const hasReminder = [reminder_at, reminder_at_2, reminder_at_3].some((value) => Boolean(value));
     if (!plan_date) return res.status(400).json({ error: "plan_date required" });
-    if (!cleanedTitle) return res.status(400).json({ error: "title required" });
+    if (!cleanedTitle && !hasReminder) return res.status(400).json({ error: "title or reminder required" });
 
     const [result] = await pool.query(
-      `INSERT INTO planner_items (user_id, plan_date, title, notes, reminder_at, reminder_target)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO planner_items (
+        user_id,
+        plan_date,
+        title,
+        notes,
+        reminder_at,
+        reminder_target,
+        reminder_audio_url,
+        reminder_media_player,
+        reminder_at_2,
+        reminder_target_2,
+        reminder_audio_url_2,
+        reminder_media_player_2,
+        reminder_at_3,
+        reminder_target_3,
+        reminder_audio_url_3,
+        reminder_media_player_3
+      )
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         req.user.id,
         plan_date,
@@ -978,6 +1181,16 @@ app.post("/api/planner", requireAuth, async (req, res) => {
         notes ? String(notes) : null,
         reminder_at || null,
         reminder_target ? String(reminder_target).trim() : null,
+        reminder_audio_url ? String(reminder_audio_url).trim() : null,
+        reminder_media_player ? String(reminder_media_player).trim() : null,
+        reminder_at_2 || null,
+        reminder_target_2 ? String(reminder_target_2).trim() : null,
+        reminder_audio_url_2 ? String(reminder_audio_url_2).trim() : null,
+        reminder_media_player_2 ? String(reminder_media_player_2).trim() : null,
+        reminder_at_3 || null,
+        reminder_target_3 ? String(reminder_target_3).trim() : null,
+        reminder_audio_url_3 ? String(reminder_audio_url_3).trim() : null,
+        reminder_media_player_3 ? String(reminder_media_player_3).trim() : null,
       ]
     );
 
@@ -998,7 +1211,39 @@ app.patch("/api/planner/:id", requireAuth, async (req, res) => {
     const id = Number(req.params.id || 0);
     if (!id) return res.status(400).json({ error: "valid id required" });
 
-    const { plan_date, title, notes, is_done, reminder_at, reminder_target } = req.body || {};
+    const [existingRows] = await pool.query(
+      `SELECT title, reminder_at, reminder_at_2, reminder_at_3 FROM planner_items WHERE user_id=? AND id=? LIMIT 1`,
+      [req.user.id, id]
+    );
+    const existingItem = existingRows[0];
+    if (!existingItem) return res.status(404).json({ error: "planner item not found" });
+
+    const {
+      plan_date,
+      title,
+      notes,
+      is_done,
+      reminder_at,
+      reminder_target,
+      reminder_audio_url,
+      reminder_media_player,
+      reminder_at_2,
+      reminder_target_2,
+      reminder_audio_url_2,
+      reminder_media_player_2,
+      reminder_at_3,
+      reminder_target_3,
+      reminder_audio_url_3,
+      reminder_media_player_3,
+    } = req.body || {};
+
+    const mergedTitle = title !== undefined ? String(title || "").trim() : String(existingItem.title || "").trim();
+    const mergedReminder1 = reminder_at !== undefined ? (reminder_at || null) : existingItem.reminder_at;
+    const mergedReminder2 = reminder_at_2 !== undefined ? (reminder_at_2 || null) : existingItem.reminder_at_2;
+    const mergedReminder3 = reminder_at_3 !== undefined ? (reminder_at_3 || null) : existingItem.reminder_at_3;
+    const hasReminder = [mergedReminder1, mergedReminder2, mergedReminder3].some((value) => Boolean(value));
+    if (!mergedTitle && !hasReminder) return res.status(400).json({ error: "title or reminder required" });
+
     const fields = [];
     const values = [];
 
@@ -1026,6 +1271,48 @@ app.patch("/api/planner/:id", requireAuth, async (req, res) => {
     if (reminder_target !== undefined) {
       fields.push("reminder_target=?");
       values.push(reminder_target ? String(reminder_target).trim() : null);
+    }
+    if (reminder_audio_url !== undefined) {
+      fields.push("reminder_audio_url=?");
+      values.push(reminder_audio_url ? String(reminder_audio_url).trim() : null);
+    }
+    if (reminder_media_player !== undefined) {
+      fields.push("reminder_media_player=?");
+      values.push(reminder_media_player ? String(reminder_media_player).trim() : null);
+    }
+    if (reminder_at_2 !== undefined) {
+      fields.push("reminder_at_2=?");
+      values.push(reminder_at_2 || null);
+      fields.push("reminder_sent_at_2=NULL");
+    }
+    if (reminder_target_2 !== undefined) {
+      fields.push("reminder_target_2=?");
+      values.push(reminder_target_2 ? String(reminder_target_2).trim() : null);
+    }
+    if (reminder_audio_url_2 !== undefined) {
+      fields.push("reminder_audio_url_2=?");
+      values.push(reminder_audio_url_2 ? String(reminder_audio_url_2).trim() : null);
+    }
+    if (reminder_media_player_2 !== undefined) {
+      fields.push("reminder_media_player_2=?");
+      values.push(reminder_media_player_2 ? String(reminder_media_player_2).trim() : null);
+    }
+    if (reminder_at_3 !== undefined) {
+      fields.push("reminder_at_3=?");
+      values.push(reminder_at_3 || null);
+      fields.push("reminder_sent_at_3=NULL");
+    }
+    if (reminder_target_3 !== undefined) {
+      fields.push("reminder_target_3=?");
+      values.push(reminder_target_3 ? String(reminder_target_3).trim() : null);
+    }
+    if (reminder_audio_url_3 !== undefined) {
+      fields.push("reminder_audio_url_3=?");
+      values.push(reminder_audio_url_3 ? String(reminder_audio_url_3).trim() : null);
+    }
+    if (reminder_media_player_3 !== undefined) {
+      fields.push("reminder_media_player_3=?");
+      values.push(reminder_media_player_3 ? String(reminder_media_player_3).trim() : null);
     }
 
     if (!fields.length) return res.json({ success: true });
@@ -1209,6 +1496,32 @@ app.get("/api/ha-calendar", requireApiKey, async (req, res) => {
   res.json(calendar);
 });
 
+app.get("/api/ha/notify-devices", requireAuth, async (req, res) => {
+  try {
+    const devices = await fetchHomeAssistantNotifyDevices();
+    res.json({
+      available: devices.length > 0,
+      devices,
+    });
+  } catch (e) {
+    console.error("GET /api/ha/notify-devices error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/ha/media-players", requireAuth, async (req, res) => {
+  try {
+    const devices = await fetchHomeAssistantMediaPlayers();
+    res.json({
+      available: devices.length > 0,
+      devices,
+    });
+  } catch (e) {
+    console.error("GET /api/ha/media-players error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Calendar data for month
 app.get("/api/calendar", requireAuth, async (req, res) => {
   const { year, month } = req.query;
@@ -1293,34 +1606,95 @@ cron.schedule("0 8 * * *", async () => {
 cron.schedule("* * * * *", async () => {
   try {
     const [rows] = await pool.query(
-      `SELECT p.id, p.user_id, p.plan_date, p.title, p.notes, p.reminder_at, p.reminder_target, u.username
+      `SELECT p.id, p.user_id, p.plan_date, p.title, p.notes,
+              p.reminder_at, p.reminder_target, p.reminder_sent_at, p.reminder_audio_url, p.reminder_media_player,
+              p.reminder_at_2, p.reminder_target_2, p.reminder_sent_at_2, p.reminder_audio_url_2, p.reminder_media_player_2,
+              p.reminder_at_3, p.reminder_target_3, p.reminder_sent_at_3, p.reminder_audio_url_3, p.reminder_media_player_3,
+              u.username
        FROM planner_items p
        INNER JOIN users u ON u.id = p.user_id
-       WHERE p.reminder_at IS NOT NULL
-         AND p.reminder_sent_at IS NULL
-         AND p.reminder_at <= NOW()
-       ORDER BY p.reminder_at ASC
+       WHERE (p.reminder_at IS NOT NULL AND p.reminder_sent_at IS NULL AND p.reminder_at <= NOW())
+          OR (p.reminder_at_2 IS NOT NULL AND p.reminder_sent_at_2 IS NULL AND p.reminder_at_2 <= NOW())
+          OR (p.reminder_at_3 IS NOT NULL AND p.reminder_sent_at_3 IS NULL AND p.reminder_at_3 <= NOW())
+       ORDER BY LEAST(
+         IFNULL(p.reminder_at, '9999-12-31 23:59:59'),
+         IFNULL(p.reminder_at_2, '9999-12-31 23:59:59'),
+         IFNULL(p.reminder_at_3, '9999-12-31 23:59:59')
+       ) ASC
        LIMIT 200`
     );
 
     for (const row of rows) {
       try {
-        await notifyHomeAssistant("planner_reminder", {
-          planner_item_id: row.id,
-          user_id: row.user_id,
-          username: row.username,
-          plan_date: row.plan_date,
-          reminder_at: row.reminder_at,
-          reminder_target: row.reminder_target || null,
-          title: row.title,
-          notes: row.notes || "",
-          message: row.notes ? `${row.title} — ${row.notes}` : row.title,
-        });
+        const reminders = [
+          { slot: 1, at: row.reminder_at, target: row.reminder_target, sentAt: row.reminder_sent_at, sentCol: "reminder_sent_at", audioUrl: row.reminder_audio_url, mediaPlayer: row.reminder_media_player },
+          { slot: 2, at: row.reminder_at_2, target: row.reminder_target_2, sentAt: row.reminder_sent_at_2, sentCol: "reminder_sent_at_2", audioUrl: row.reminder_audio_url_2, mediaPlayer: row.reminder_media_player_2 },
+          { slot: 3, at: row.reminder_at_3, target: row.reminder_target_3, sentAt: row.reminder_sent_at_3, sentCol: "reminder_sent_at_3", audioUrl: row.reminder_audio_url_3, mediaPlayer: row.reminder_media_player_3 },
+        ];
 
-        await pool.query(
-          `UPDATE planner_items SET reminder_sent_at=NOW() WHERE id=? AND reminder_sent_at IS NULL`,
-          [row.id]
-        );
+        for (const reminder of reminders) {
+          if (!reminder.at || reminder.sentAt) continue;
+          if (new Date(reminder.at).getTime() > Date.now()) continue;
+
+          const message = row.notes ? `${row.title} — ${row.notes}` : row.title;
+          const deliveryResults = [];
+
+          const webhookResult = await notifyHomeAssistant("planner_reminder", {
+            planner_item_id: row.id,
+            user_id: row.user_id,
+            username: row.username,
+            plan_date: row.plan_date,
+            reminder_slot: reminder.slot,
+            reminder_at: reminder.at,
+            reminder_target: reminder.target || null,
+            reminder_audio_url: reminder.audioUrl || null,
+            reminder_media_player: reminder.mediaPlayer || null,
+            title: row.title,
+            notes: row.notes || "",
+            message,
+          });
+          if (!webhookResult?.skipped) {
+            deliveryResults.push({ channel: "webhook", result: webhookResult });
+          }
+
+          if (reminder.target) {
+            const notifyResult = await sendHomeAssistantCompanionNotification(
+              reminder.target,
+              "Luna Reminder",
+              message,
+              {
+                tag: `luna-planner-${row.id}-${reminder.slot}`,
+                planner_item_id: row.id,
+                reminder_slot: reminder.slot,
+                plan_date: String(row.plan_date || ""),
+              }
+            );
+            deliveryResults.push({ channel: "notify", result: notifyResult });
+          }
+
+          if (reminder.audioUrl && reminder.mediaPlayer) {
+            const audioResult = await playHomeAssistantMedia(reminder.mediaPlayer, reminder.audioUrl);
+            deliveryResults.push({ channel: "audio", result: audioResult });
+          }
+
+          if (!deliveryResults.length) {
+            console.warn(`planner reminder ${row.id}/${reminder.slot} skipped: no Home Assistant delivery path configured`);
+            continue;
+          }
+
+          const failedDelivery = deliveryResults.find(({ result }) => !result?.sent);
+          if (failedDelivery) {
+            console.error(
+              `planner reminder ${row.id}/${reminder.slot} not marked sent because ${failedDelivery.channel} delivery failed: ${failedDelivery.result?.reason || "unknown error"}`
+            );
+            continue;
+          }
+
+          await pool.query(
+            `UPDATE planner_items SET ${reminder.sentCol}=NOW() WHERE id=? AND ${reminder.sentCol} IS NULL`,
+            [row.id]
+          );
+        }
       } catch (err) {
         console.error("planner reminder dispatch failed:", err.message);
       }

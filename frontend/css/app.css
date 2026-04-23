@@ -1235,6 +1235,18 @@
     backdrop-filter: blur(var(--planner-card-blur));
     -webkit-backdrop-filter: blur(var(--planner-card-blur));
     box-shadow: var(--planner-card-shadow);
+    color: var(--planner-text-color);
+    background-image:
+      radial-gradient(circle at 14% 12%, color-mix(in srgb, var(--planner-floral-accent-1) 30%, transparent) 0 18px, transparent 19px),
+      radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--planner-floral-accent-2) 28%, transparent) 0 16px, transparent 17px),
+      repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 31px,
+        var(--planner-line-color) 31px,
+        var(--planner-line-color) 32px
+      ),
+      linear-gradient(180deg, color-mix(in srgb, var(--planner-paper-tone) 86%, white 14%) 0%, var(--planner-paper-tone) 100%);
   }
   .card[data-move-id^="planner-page-"] .card-header h2 {
     color: var(--planner-title-color);
@@ -1252,6 +1264,7 @@
     backdrop-filter: blur(var(--diary-page-card-blur));
     -webkit-backdrop-filter: blur(var(--diary-page-card-blur));
     box-shadow: var(--diary-page-card-shadow);
+    color: var(--diary-page-text-color);
   }
   .card[data-move-id^="diary-page-"] .card-header h2 {
     color: var(--diary-page-title-color);
@@ -1260,6 +1273,48 @@
     color: var(--diary-page-flower-color);
     background: var(--diary-page-flower-bg);
     border-color: var(--diary-page-flower-border);
+  }
+  .card[data-move-id="planner-page-editor-card"] {
+    background: var(--cal-bg) !important;
+    border-color: var(--planner-editor-card-border);
+    backdrop-filter: blur(var(--planner-editor-card-blur));
+    -webkit-backdrop-filter: blur(var(--planner-editor-card-blur));
+    color: var(--planner-editor-card-text);
+  }
+  .card[data-move-id="planner-page-list-card"] {
+    background: var(--cal-bg) !important;
+    border-color: var(--planner-list-card-border);
+    backdrop-filter: blur(var(--planner-list-card-blur));
+    -webkit-backdrop-filter: blur(var(--planner-list-card-blur));
+    color: var(--planner-list-card-text);
+  }
+  .card[data-move-id="planner-page-insights-card"] {
+    background: var(--cal-bg) !important;
+    border-color: var(--planner-insights-card-border);
+    backdrop-filter: blur(var(--planner-insights-card-blur));
+    -webkit-backdrop-filter: blur(var(--planner-insights-card-blur));
+    color: var(--planner-insights-card-text);
+  }
+  .card[data-move-id="diary-page-entry-card"] {
+    background: var(--cal-bg) !important;
+    border-color: var(--diary-entry-card-border);
+    backdrop-filter: blur(var(--diary-entry-card-blur));
+    -webkit-backdrop-filter: blur(var(--diary-entry-card-blur));
+    color: var(--diary-entry-card-text);
+  }
+  .card[data-move-id="diary-page-book-card"] {
+    background: var(--cal-bg) !important;
+    border-color: var(--diary-book-card-border);
+    backdrop-filter: blur(var(--diary-book-card-blur));
+    -webkit-backdrop-filter: blur(var(--diary-book-card-blur));
+    color: var(--diary-book-card-text);
+  }
+  .card[data-move-id="diary-page-archive-card"] {
+    background: var(--cal-bg) !important;
+    border-color: var(--diary-archive-card-border);
+    backdrop-filter: blur(var(--diary-archive-card-blur));
+    -webkit-backdrop-filter: blur(var(--diary-archive-card-blur));
+    color: var(--diary-archive-card-text);
   }
   .card[data-move-id="calendar-card"] .tiny-flower {
     width: 18px;
@@ -1420,15 +1475,9 @@
     max-width: 1480px;
     margin: 0 auto;
   }
-  .planner-canvas .card[data-move-id="planner-page-editor-card"] {
-    top: 172px;
-    left: 20px;
-    width: min(420px, calc(100vw - 48px));
-    min-height: 430px;
-  }
   .planner-canvas .card[data-move-id="planner-page-list-card"] {
     top: 172px;
-    left: min(470px, calc(100vw - 48px));
+    left: 20px;
     width: min(520px, calc(100vw - 48px));
     min-height: 520px;
   }
@@ -1437,6 +1486,12 @@
     right: 20px;
     width: min(380px, calc(100vw - 48px));
     min-height: 430px;
+  }
+  .planner-canvas .card[data-move-id="planner-page-hourly-card"] {
+    top: 172px;
+    left: min(560px, calc(100vw - 48px));
+    width: min(520px, calc(100vw - 48px));
+    min-height: 560px;
   }
   .diary-canvas .card[data-move-id="diary-page-entry-card"] {
     top: 172px;
@@ -1467,7 +1522,7 @@
   .planner-upcoming-item,
   .planner-insight-stat {
     border: 1px solid var(--planner-panel-border);
-    background: var(--planner-panel-bg);
+    background: var(--cal-bg);
     color: var(--planner-panel-text);
     border-radius: 14px;
     box-shadow: 0 10px 18px rgba(34, 28, 39, 0.08);
@@ -1505,6 +1560,104 @@
     display: grid;
     gap: 10px;
   }
+  .planner-hourly-grid {
+    display: block;
+  }
+  .planner-hourly-sheet {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 10px;
+    border-radius: 14px;
+    border: 2px solid color-mix(in srgb, var(--planner-border-darkness) 62%, white 38%);
+    background:
+      repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 25px,
+        color-mix(in srgb, var(--planner-line-color) 70%, transparent) 25px,
+        color-mix(in srgb, var(--planner-line-color) 70%, transparent) 26px
+      ),
+      linear-gradient(180deg, color-mix(in srgb, var(--planner-paper-tone) 94%, white 6%) 0%, var(--planner-paper-tone) 100%);
+    box-shadow: 0 8px 24px rgba(56, 38, 45, 0.16);
+  }
+  .planner-hour-column {
+    border: 1.6px dashed color-mix(in srgb, var(--planner-border-darkness) 64%, white 36%);
+    border-radius: 12px;
+    padding: 8px;
+    background: color-mix(in srgb, var(--planner-paper-tone) 88%, white 12%);
+  }
+  .planner-hour-column-title {
+    margin: 0 0 8px;
+    text-align: center;
+    font-family: var(--heading-font, 'Cormorant Garamond', serif);
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--planner-border-darkness) 82%, var(--planner-panel-text) 18%);
+    border-bottom: 1px dashed color-mix(in srgb, var(--planner-border-darkness) 40%, white 60%);
+    padding-bottom: 6px;
+  }
+  .planner-hour-column-slots {
+    display: grid;
+    gap: 4px;
+  }
+  .planner-hour-slot {
+    display: grid;
+    grid-template-columns: 74px 1fr;
+    gap: 8px;
+    border-radius: 10px;
+    padding: 4px 6px;
+    border: 1px solid transparent;
+    background: color-mix(in srgb, var(--planner-paper-tone) 94%, white 6%);
+    cursor: pointer;
+  }
+  .planner-hour-label {
+    font-size: 0.77rem;
+    color: black;
+    letter-spacing: 0.03em;
+    text-transform: lowercase;
+    font-family: var(--heading-font, 'Cormorant Garamond', serif);
+    font-weight: 600;
+    padding-top: 2px;
+  }
+  .planner-hour-events {
+    display: grid;
+    gap: 4px;
+    border-left: 1px dashed color-mix(in srgb, var(--planner-border-darkness) 38%, white 62%);
+    padding-left: 8px;
+    min-height: 24px;
+  }
+  .planner-hour-empty {
+    color: transparent;
+    font-size: 0.72rem;
+    border-bottom: 1px dotted color-mix(in srgb, var(--planner-line-color) 70%, transparent);
+    min-height: 16px;
+  }
+  .planner-hour-event {
+    border-radius: 8px;
+    padding: 4px 7px;
+    border: 1px solid color-mix(in srgb, var(--planner-border-darkness) 52%, white 48%);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--planner-floral-accent-1) 11%, white 89%) 0%, color-mix(in srgb, var(--planner-floral-accent-2) 8%, white 92%) 100%);
+    color: var(--planner-panel-text);
+    font-size: 0.75rem;
+    line-height: 1.35;
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--planner-border-darkness) 24%, transparent);
+    cursor: pointer;
+  }
+  .planner-hour-event small {
+    display: block;
+    margin-top: 2px;
+    color: var(--planner-panel-muted);
+    font-size: 0.67rem;
+    text-transform: lowercase;
+  }
+  @media (max-width: 980px) {
+    .planner-hourly-sheet {
+      grid-template-columns: 1fr;
+    }
+  }
   .planner-upcoming-item {
     padding: 12px 14px;
   }
@@ -1535,8 +1688,8 @@
   body.embed-overview [data-move-id="overview-card"],
   body.embed-logday [data-move-id="logday-card"],
   body.embed-diary [data-move-id="journal-card"],
-  body.embed-planner [data-move-id="planner-page-editor-card"],
   body.embed-planner [data-move-id="planner-page-list-card"],
+  body.embed-planner [data-move-id="planner-page-hourly-card"],
   body.embed-planner [data-move-id="planner-page-insights-card"] { display: block; }
   body.embed-calendar .sidebar, body.embed-overview .container > div:first-child,
   body.embed-logday .container > div:first-child,
@@ -1634,6 +1787,7 @@
   }
   .planner-reminder-row {
     grid-template-columns: 1fr 1fr;
+    align-items: center;
   }
   .planner-actions-row {
     margin-top: 8px;
@@ -1643,7 +1797,7 @@
   .planner-meta {
     margin-top: 10px;
     font-size: 0.78rem;
-    color: var(--muted);
+    color: var(--planner-panel-muted);
   }
   .planner-list {
     margin-top: 8px;
@@ -1653,18 +1807,18 @@
     overflow: auto;
   }
   .planner-empty {
-    border: 1px dashed var(--border);
+    border: 1px dashed color-mix(in srgb, var(--planner-border-darkness) 54%, white 46%);
     border-radius: 10px;
     padding: 10px;
     font-size: 0.82rem;
-    color: var(--muted);
-    background: color-mix(in srgb, var(--card) 90%, white 10%);
+    color: var(--planner-panel-muted);
+    background: color-mix(in srgb, var(--planner-paper-tone) 88%, white 12%);
   }
   .planner-item {
-    border: 1px solid var(--border);
+    border: 1px solid color-mix(in srgb, var(--planner-border-darkness) 62%, white 38%);
     border-radius: 10px;
     padding: 10px;
-    background: color-mix(in srgb, var(--card) 94%, white 6%);
+    background: color-mix(in srgb, var(--planner-paper-tone) 92%, white 8%);
   }
   .planner-item.is-done {
     opacity: 0.72;
@@ -1679,7 +1833,8 @@
   }
   .planner-item-title {
     font-weight: 600;
-    color: var(--ink);
+    color: var(--planner-panel-text);
+    cursor: pointer;
   }
   .planner-item.is-done .planner-item-title {
     text-decoration: line-through;
@@ -1687,12 +1842,12 @@
   .planner-item-reminder {
     margin-top: 6px;
     font-size: 0.74rem;
-    color: var(--muted);
+    color: var(--planner-panel-muted);
   }
   .planner-item-notes {
     margin-top: 6px;
     font-size: 0.8rem;
-    color: var(--ink);
+    color: var(--planner-panel-text);
     white-space: pre-wrap;
   }
   .planner-item-actions {
