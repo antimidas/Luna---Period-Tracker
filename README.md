@@ -3,6 +3,16 @@
 
 ---
 
+## Project Description
+
+Luna was born out of a father's instinct to protect his daughter's privacy. Unwilling to hand her personal health data over to third-party companies, he built something better: a self-hosted period tracker that kept everything close to home.
+
+What started as a simple cycle tracker grew into something much more: a full health companion with cycle tracking, journaling, day planning, and smart reminders, all delivered privately, on your own terms. Luna even integrates with Home Assistant, so notifications reach the right devices without ever leaving your network.
+
+This project is free to use, modify, and share.
+
+---
+
 ## Architecture
 
 ```
