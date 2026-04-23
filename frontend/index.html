@@ -205,6 +205,7 @@
 
     <div class="layout-tools">
       <button class="btn btn-sm layout-action-btn" onclick="exportCalendarPdf()">Print Calendar</button>
+      <button class="btn btn-sm layout-action-btn" onclick="openPlannerPage()">Planner</button>
       <button class="btn btn-sm layout-action-btn" onclick="openDiaryPage()">Diary</button>
       <button class="btn btn-sm layout-action-btn" onclick="resetDashboardLayout()">Reset Layout</button>
 
@@ -568,7 +569,195 @@
 
 </div>
 
+<div class="planner-page" id="plannerPage">
+  <div class="page-topbar">
+    <div>
+      <div class="page-kicker">Dedicated Planner</div>
+      <h2>Planner Board</h2>
+      <div class="selected-date-label" id="plannerPageDateLabel">Select a date</div>
+    </div>
+    <div class="page-topbar-actions">
+      <button class="btn btn-luna btn-luna-muted" type="button" onclick="shiftSelectedDate(-1)">Previous Day</button>
+      <button class="btn btn-luna btn-luna-muted" type="button" onclick="shiftSelectedDate(1)">Next Day</button>
+      <button class="btn btn-luna btn-luna-muted" type="button" onclick="goHome()">Home</button>
+    </div>
+  </div>
 
+  <div class="page-canvas planner-canvas">
+    <div class="card movable resizable" data-move-id="planner-page-editor-card">
+      <div class="card-header">
+        <h2 class="header-title">Planner Draft <span class="tiny-flower"></span></h2>
+        <div class="card-header-actions">
+          <button class="panel-reset-btn" type="button" onclick="resetPanelLayout('planner-page-editor-card')" title="Reset this panel">↺</button>
+          <button class="collapse-btn" data-collapse-target="planner-page-editor-card" onclick="toggleCardCollapse('planner-page-editor-card')" title="Collapse">−</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="section-label">Task title</div>
+        <div class="planner-add-row">
+          <input id="plannerPageTitleInput" class="form-control" type="text" maxlength="255" placeholder="Plan the day...">
+        </div>
+        <div class="planner-add-row planner-reminder-row">
+          <input id="plannerPageReminderInput" class="form-control" type="datetime-local">
+          <input id="plannerPageReminderTargetInput" class="form-control" type="text" maxlength="255" placeholder="Reminder target (optional)">
+        </div>
+        <div class="planner-add-row">
+          <textarea id="plannerPageNotesInput" class="form-control" rows="6" placeholder="Notes, details, or steps..."></textarea>
+        </div>
+        <div class="planner-actions-row">
+          <button class="btn btn-luna" type="button" onclick="addPlannerItem('page')">Add Task</button>
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="clearPlannerDraft('page')">Clear Draft</button>
+        </div>
+        <div class="planner-summary-block" id="plannerPageSummaryBlock"></div>
+      </div>
+      <div class="resize-handle" data-resize-target="planner-page-editor-card" data-resize-always="true" title="Resize planner draft">↘</div>
+    </div>
+
+    <div class="card movable resizable" data-move-id="planner-page-list-card">
+      <div class="card-header">
+        <h2 class="header-title">Day Schedule <span class="tiny-flower"></span></h2>
+        <div class="card-header-actions">
+          <button class="panel-reset-btn" type="button" onclick="resetPanelLayout('planner-page-list-card')" title="Reset this panel">↺</button>
+          <button class="collapse-btn" data-collapse-target="planner-page-list-card" onclick="toggleCardCollapse('planner-page-list-card')" title="Collapse">−</button>
+        </div>
+      </div>
+      <div class="card-body planner-page-card-body">
+        <div class="planner-meta" id="plannerPageMeta">No tasks for this date yet.</div>
+        <div class="planner-list planner-page-list" id="plannerPageList"></div>
+      </div>
+      <div class="resize-handle" data-resize-target="planner-page-list-card" data-resize-always="true" title="Resize planner list">↘</div>
+    </div>
+
+    <div class="card movable resizable" data-move-id="planner-page-insights-card">
+      <div class="card-header">
+        <h2 class="header-title">Upcoming Reminders <span class="tiny-flower"></span></h2>
+        <div class="card-header-actions">
+          <button class="panel-reset-btn" type="button" onclick="resetPanelLayout('planner-page-insights-card')" title="Reset this panel">↺</button>
+          <button class="collapse-btn" data-collapse-target="planner-page-insights-card" onclick="toggleCardCollapse('planner-page-insights-card')" title="Collapse">−</button>
+        </div>
+      </div>
+      <div class="card-body planner-page-card-body">
+        <div class="planner-insights-grid" id="plannerPageInsightStats"></div>
+        <div class="section-label" style="margin-top:18px;">Next reminders</div>
+        <div class="planner-upcoming-list" id="plannerPageUpcomingList"></div>
+      </div>
+      <div class="resize-handle" data-resize-target="planner-page-insights-card" data-resize-always="true" title="Resize planner insights">↘</div>
+    </div>
+  </div>
+</div>
+
+<div class="diary-page" id="diaryPage">
+  <div class="page-topbar">
+    <div>
+      <div class="page-kicker">Dedicated Diary</div>
+      <h2>Diary Studio</h2>
+      <div class="selected-date-label" id="diaryPageDateLabel">Select a date</div>
+    </div>
+    <div class="page-topbar-actions">
+      <button class="btn btn-luna btn-luna-muted" type="button" onclick="shiftSelectedDate(-1)">Previous Day</button>
+      <button class="btn btn-luna btn-luna-muted" type="button" onclick="shiftSelectedDate(1)">Next Day</button>
+      <button class="btn btn-luna btn-luna-muted" type="button" onclick="openJournalPrintModal()">Print</button>
+      <button class="btn btn-luna btn-luna-muted" type="button" onclick="goHome()">Home</button>
+    </div>
+  </div>
+
+  <div class="page-canvas diary-canvas">
+    <div class="card movable resizable" data-move-id="diary-page-entry-card">
+      <div class="card-header">
+        <h2 class="header-title">Write Entry <span class="tiny-flower"></span></h2>
+        <div class="card-header-actions">
+          <button class="panel-reset-btn" type="button" onclick="resetPanelLayout('diary-page-entry-card')" title="Reset this panel">↺</button>
+          <button class="collapse-btn" data-collapse-target="diary-page-entry-card" onclick="toggleCardCollapse('diary-page-entry-card')" title="Collapse">−</button>
+        </div>
+      </div>
+      <div class="card-body diary-page-card-body">
+        <div class="section-label">Rendered page</div>
+        <div class="journal-page-preview" id="diaryPagePreview">
+          <div class="journal-empty-state">Your diary page will appear here in a handwritten style.</div>
+        </div>
+
+        <div class="section-label" style="margin-top:16px;">Write here</div>
+        <textarea id="diaryPageEntryInput" class="form-control journal-entry-input" placeholder="Dear diary..." oninput="onJournalDraftInput('page')"></textarea>
+
+        <div class="journal-editor-meta">
+          <span id="diaryPageWordCount">0 words</span>
+          <span id="diaryPageSaveHint">Select a date to start writing.</span>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn btn-luna" style="flex:1;" onclick="saveJournalEntry()">Save Entry ✎</button>
+          <button class="btn btn-luna btn-luna-muted" style="flex:1;" onclick="startNewJournalEntry()">New Page</button>
+          <button class="btn btn-luna btn-luna-muted" style="flex:1;" onclick="clearJournalEntry()">Clear Entry</button>
+        </div>
+      </div>
+      <div class="resize-handle" data-resize-target="diary-page-entry-card" data-resize-always="true" title="Resize diary editor">↘</div>
+    </div>
+
+    <div class="card movable resizable" data-move-id="diary-page-book-card">
+      <div class="card-header">
+        <h2 class="header-title">Book View <span class="tiny-flower"></span></h2>
+        <div class="card-header-actions">
+          <button class="panel-reset-btn" type="button" onclick="resetPanelLayout('diary-page-book-card')" title="Reset this panel">↺</button>
+          <button class="collapse-btn" data-collapse-target="diary-page-book-card" onclick="toggleCardCollapse('diary-page-book-card')" title="Collapse">−</button>
+        </div>
+      </div>
+      <div class="card-body diary-page-card-body">
+        <div class="journal-book-stage diary-book-stage">
+          <div class="journal-window-graphic" aria-hidden="true">
+            <div class="journal-window-sky">
+              <span class="journal-window-cloud cloud-one"></span>
+              <span class="journal-window-cloud cloud-two"></span>
+              <span class="journal-window-sun"></span>
+            </div>
+            <div class="journal-window-frame vertical"></div>
+            <div class="journal-window-frame horizontal"></div>
+          </div>
+
+          <div class="journal-book-shell">
+            <div class="journal-book-toolbar">
+              <button class="btn btn-luna btn-luna-muted" type="button" onclick="stepJournalEntry(-1)">Older</button>
+              <div class="journal-book-meta">
+                <div class="journal-book-date" id="diaryPageBookDateLabel">No entry selected</div>
+                <div class="journal-book-subtitle" id="diaryPageBookEntryLabel">Diary window</div>
+              </div>
+              <button class="btn btn-luna btn-luna-muted" type="button" onclick="stepJournalEntry(1)">Newer</button>
+            </div>
+
+            <div class="journal-book-viewer" id="diaryPageBookViewer">
+              <button class="journal-page-turn prev" type="button" aria-label="Previous page" onclick="stepJournalPage(-1)"></button>
+              <div class="journal-book-spread">
+                <article class="journal-book-page left" id="diaryPageBookPageLeft"></article>
+                <article class="journal-book-page right" id="diaryPageBookPageRight"></article>
+              </div>
+              <button class="journal-page-turn next" type="button" aria-label="Next page" onclick="stepJournalPage(1)"></button>
+            </div>
+
+            <div class="journal-book-footer">
+              <button class="btn btn-luna btn-luna-muted" type="button" onclick="stepJournalPage(-1)">Previous Page</button>
+              <span id="diaryPageCounter">Page 0 of 0</span>
+              <button class="btn btn-luna btn-luna-muted" type="button" onclick="stepJournalPage(1)">Next Page</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="resize-handle" data-resize-target="diary-page-book-card" data-resize-always="true" title="Resize diary book">↘</div>
+    </div>
+
+    <div class="card movable resizable" data-move-id="diary-page-archive-card">
+      <div class="card-header">
+        <h2 class="header-title">Saved Pages <span class="tiny-flower"></span></h2>
+        <div class="card-header-actions">
+          <button class="panel-reset-btn" type="button" onclick="resetPanelLayout('diary-page-archive-card')" title="Reset this panel">↺</button>
+          <button class="collapse-btn" data-collapse-target="diary-page-archive-card" onclick="toggleCardCollapse('diary-page-archive-card')" title="Collapse">−</button>
+        </div>
+      </div>
+      <div class="card-body diary-page-card-body">
+        <div class="journal-archive-list" id="diaryPageArchiveList"></div>
+      </div>
+      <div class="resize-handle" data-resize-target="diary-page-archive-card" data-resize-always="true" title="Resize diary archive">↘</div>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -969,6 +1158,52 @@
             <span id="calendarGlassBlurValue">5px</span>
           </div>
 
+          <div class="studio-label" style="font-size:0.72rem;opacity:0.9;margin-top:4px;">Planner Page Card Tint</div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="plannerGlassTintColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="plannerGlassTintOpacity" style="font-size:0.72rem;margin:0;">Planner Tint Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="plannerGlassTintOpacity" type="range" min="0" max="100" value="55" oninput="onGlassValueLabelInput('plannerGlassTintOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="plannerGlassTintOpacityValue">55%</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="plannerGlassBorderColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="plannerGlassBorderOpacity" style="font-size:0.72rem;margin:0;">Planner Border Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="plannerGlassBorderOpacity" type="range" min="0" max="100" value="65" oninput="onGlassValueLabelInput('plannerGlassBorderOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="plannerGlassBorderOpacityValue">65%</span>
+            </div>
+          </div>
+          <label class="studio-label" for="plannerGlassBlur" style="font-size:0.72rem;margin:0;">Planner Glass Blur</label>
+          <div class="studio-opacity-row">
+            <input id="plannerGlassBlur" type="range" min="0" max="20" step="1" value="5" oninput="onGlassValueLabelInput('plannerGlassBlurValue', this.value, 'px');applyGlassBackgroundToDraft(true)">
+            <span id="plannerGlassBlurValue">5px</span>
+          </div>
+
+          <div class="studio-label" style="font-size:0.72rem;opacity:0.9;margin-top:4px;">Diary Page Card Tint</div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="diaryGlassTintColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="diaryGlassTintOpacity" style="font-size:0.72rem;margin:0;">Diary Tint Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="diaryGlassTintOpacity" type="range" min="0" max="100" value="55" oninput="onGlassValueLabelInput('diaryGlassTintOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="diaryGlassTintOpacityValue">55%</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;">
+            <input id="diaryGlassBorderColor" type="color" class="form-control form-control-color" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;" oninput="applyGlassBackgroundToDraft(true)">
+            <label class="studio-label" for="diaryGlassBorderOpacity" style="font-size:0.72rem;margin:0;">Diary Border Opacity</label>
+            <div class="studio-opacity-row">
+              <input id="diaryGlassBorderOpacity" type="range" min="0" max="100" value="65" oninput="onGlassValueLabelInput('diaryGlassBorderOpacityValue', this.value, '%');applyGlassBackgroundToDraft(true)">
+              <span id="diaryGlassBorderOpacityValue">65%</span>
+            </div>
+          </div>
+          <label class="studio-label" for="diaryGlassBlur" style="font-size:0.72rem;margin:0;">Diary Glass Blur</label>
+          <div class="studio-opacity-row">
+            <input id="diaryGlassBlur" type="range" min="0" max="20" step="1" value="5" oninput="onGlassValueLabelInput('diaryGlassBlurValue', this.value, 'px');applyGlassBackgroundToDraft(true)">
+            <span id="diaryGlassBlurValue">5px</span>
+          </div>
+
           <div class="studio-actions" style="margin-top:0;">
             <button class="btn btn-luna" type="button" onclick="applyQuartzGlassPreset()">Apply Quartz Glass</button>
             <button class="btn btn-luna" type="button" onclick="applyBlackGlassPreset()">Apply Black Glass</button>
@@ -1070,6 +1305,7 @@
           <option value="header">Header</option>
           <option value="cards">Cards</option>
           <option value="overview">Cycle Overview</option>
+          <option value="planner">Planner</option>
           <option value="buttons">Buttons</option>
           <option value="inputs">Inputs</option>
           <option value="journal">Diary</option>
@@ -1144,6 +1380,14 @@
         </div>
       </div>
 
+      <div class="studio-preview-group" data-group="planner">
+        <div class="studio-node studio-logday-node" data-key="--planner-card-bg" onclick="selectStudioElement('--planner-card-bg')">
+          <span data-key="--planner-title-color" onclick="selectStudioElement('--planner-title-color')">Planner</span>
+          <span class="studio-node-pill" data-key="--planner-panel-bg" onclick="selectStudioElement('--planner-panel-bg')">Panel</span>
+          <span class="studio-node-pill" data-key="--planner-panel-muted" onclick="selectStudioElement('--planner-panel-muted')">Muted</span>
+        </div>
+      </div>
+
       <div class="studio-preview-group" data-group="journal">
         <div class="studio-node studio-logday-node" data-key="--journal-card-bg" onclick="selectStudioElement('--journal-card-bg')">
           <span data-key="--journal-title-color" onclick="selectStudioElement('--journal-title-color')">Diary</span>
@@ -1206,6 +1450,10 @@ const STUDIO_VALUE_FIELD_META = {
   "--overview-card-shadow": { placeholder: "0 2px 20px rgba(0,0,0,0.15)", helper: "Use any valid box-shadow string." },
   "--logday-card-blur": { placeholder: "5px", helper: "Use a CSS length like 0px, 5px, or 0.5rem." },
   "--logday-card-shadow": { placeholder: "0 2px 20px rgba(0,0,0,0.15)", helper: "Use any valid box-shadow string." },
+  "--planner-card-blur": { placeholder: "5px", helper: "Use a CSS length like 0px, 5px, or 0.5rem." },
+  "--planner-card-shadow": { placeholder: "0 2px 20px rgba(0,0,0,0.15)", helper: "Use any valid box-shadow string." },
+  "--diary-page-card-blur": { placeholder: "5px", helper: "Use a CSS length like 0px, 5px, or 0.5rem." },
+  "--diary-page-card-shadow": { placeholder: "0 2px 20px rgba(0,0,0,0.15)", helper: "Use any valid box-shadow string." },
   "--btn-border-width": { placeholder: "1px", helper: "Examples: 1px or 2px." },
   "--btn-radius": { placeholder: "10px", helper: "Examples: 10px, 0.75rem, or 999px." },
   "--btn-shadow": { placeholder: "none", helper: "Use any valid box-shadow string, or none." },
@@ -1489,9 +1737,29 @@ const ELEMENT_DEFAULTS = {
   "--logday-card-border": "var(--bs-card-border-color)",
   "--logday-card-blur": "var(--card-blur)",
   "--logday-card-shadow": "var(--shadow)",
+  "--planner-card-bg": "var(--bs-card-bg)",
+  "--planner-card-border": "var(--bs-card-border-color)",
+  "--planner-card-blur": "var(--card-blur)",
+  "--planner-card-shadow": "var(--shadow)",
+  "--planner-title-color": "var(--bs-card-cap-color)",
+  "--planner-flower-color": "var(--rose-dk)",
+  "--planner-flower-bg": "var(--blush)",
+  "--planner-flower-border": "var(--rose-lt)",
+  "--planner-panel-bg": "color-mix(in srgb, var(--card) 94%, white 6%)",
+  "--planner-panel-border": "var(--border)",
+  "--planner-panel-text": "var(--ink)",
+  "--planner-panel-muted": "var(--muted)",
   "--journal-card-bg": "linear-gradient(180deg, color-mix(in srgb, var(--card) 88%, white 12%) 0%, color-mix(in srgb, var(--card) 96%, white 4%) 100%)",
   "--journal-card-border": "color-mix(in srgb, var(--rose-lt) 46%, var(--border) 54%)",
   "--journal-card-shadow": "0 18px 40px rgba(87, 48, 79, 0.16)",
+  "--diary-page-card-bg": "var(--journal-card-bg)",
+  "--diary-page-card-border": "var(--journal-card-border)",
+  "--diary-page-card-blur": "var(--card-blur)",
+  "--diary-page-card-shadow": "var(--journal-card-shadow)",
+  "--diary-page-title-color": "var(--journal-title-color)",
+  "--diary-page-flower-color": "var(--journal-flower-color)",
+  "--diary-page-flower-bg": "var(--journal-flower-bg)",
+  "--diary-page-flower-border": "var(--journal-flower-border)",
   "--calendar-card-bg": "var(--cal-bg)",
   "--calendar-card-border": "var(--bs-card-border-color)",
   "--calendar-card-blur": "var(--card-blur)",
@@ -1658,6 +1926,18 @@ const EDITABLE_THEME_FIELDS = [
   { key: "--logday-card-border", label: "Log Day Card Border" },
   { key: "--logday-card-blur", label: "Log Day Card Blur" },
   { key: "--logday-card-shadow", label: "Log Day Card Shadow" },
+  { key: "--planner-card-bg", label: "Planner Page Card Background" },
+  { key: "--planner-card-border", label: "Planner Page Card Border" },
+  { key: "--planner-card-blur", label: "Planner Page Card Blur" },
+  { key: "--planner-card-shadow", label: "Planner Page Card Shadow" },
+  { key: "--planner-title-color", label: "Planner Page Title" },
+  { key: "--planner-flower-color", label: "Planner Page Flower Icon" },
+  { key: "--planner-flower-bg", label: "Planner Page Flower Background" },
+  { key: "--planner-flower-border", label: "Planner Page Flower Border" },
+  { key: "--planner-panel-bg", label: "Planner Surface Background" },
+  { key: "--planner-panel-border", label: "Planner Surface Border" },
+  { key: "--planner-panel-text", label: "Planner Surface Text" },
+  { key: "--planner-panel-muted", label: "Planner Surface Muted Text" },
   { key: "--calendar-card-bg", label: "Calendar Card Background" },
   { key: "--calendar-card-border", label: "Calendar Card Border" },
   { key: "--calendar-card-blur", label: "Calendar Card Blur" },
@@ -1731,6 +2011,14 @@ const EDITABLE_THEME_FIELDS = [
   { key: "--journal-card-bg", label: "Diary Card Background" },
   { key: "--journal-card-border", label: "Diary Card Border" },
   { key: "--journal-card-shadow", label: "Diary Card Shadow" },
+  { key: "--diary-page-card-bg", label: "Diary Page Card Background" },
+  { key: "--diary-page-card-border", label: "Diary Page Card Border" },
+  { key: "--diary-page-card-blur", label: "Diary Page Card Blur" },
+  { key: "--diary-page-card-shadow", label: "Diary Page Card Shadow" },
+  { key: "--diary-page-title-color", label: "Diary Page Title" },
+  { key: "--diary-page-flower-color", label: "Diary Page Flower Icon" },
+  { key: "--diary-page-flower-bg", label: "Diary Page Flower Background" },
+  { key: "--diary-page-flower-border", label: "Diary Page Flower Border" },
   { key: "--journal-title-color", label: "Diary Title" },
   { key: "--journal-flower-color", label: "Diary Flower Icon" },
   { key: "--journal-flower-bg", label: "Diary Flower Background" },
@@ -1908,27 +2196,56 @@ function getStudioValueFieldMeta(key) {
 
 const today = new Date();
 
+const APP_VIEW = getAppView();
 const EMBED_VIEW = getEmbedView();
 const lunaChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('luna-updates') : null;
 
-function getEmbedView() {
-  const segment = window.location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || "";
-  if (segment === "calendar") return "calendar";
-  if (segment === "log-day" || segment === "logday") return "logday";
-  if (segment === "cycle-overview" || segment === "overview") return "overview";
+function getPathSegment() {
+  return window.location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || "";
+}
+
+function getAppView() {
+  const segment = getPathSegment();
+  if (segment === "planner") return "planner";
   if (segment === "diary" || segment === "journal") return "diary";
   return "";
 }
 
+function getEmbedView() {
+  const segment = getPathSegment();
+  const params = new URLSearchParams(window.location.search);
+  const forceEmbed = params.get("embed") === "1";
+  if (segment === "calendar") return "calendar";
+  if (segment === "log-day" || segment === "logday") return "logday";
+  if (segment === "cycle-overview" || segment === "overview") return "overview";
+  if ((segment === "diary" || segment === "journal") && forceEmbed) return "diary";
+  if (segment === "planner" && forceEmbed) return "planner";
+  return "";
+}
+
 function applyEmbedView() {
-  if (!EMBED_VIEW) return;
+  if (APP_VIEW) {
+    document.body.classList.add(`view-${APP_VIEW}`);
+    document.title = APP_VIEW === "planner" ? "Luna Planner" : "Luna Diary";
+  }
+
+  if (!EMBED_VIEW) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get("token");
+    if (urlToken) {
+      authToken = urlToken;
+      localStorage.setItem(TOKEN_KEY, urlToken);
+    }
+    return;
+  }
+
   document.body.classList.add("embed-view", `embed-${EMBED_VIEW}`);
   if (EMBED_VIEW === "calendar") document.title = "Luna Calendar";
   if (EMBED_VIEW === "logday") document.title = "Luna Log Day";
   if (EMBED_VIEW === "overview") document.title = "Luna Cycle Overview";
   if (EMBED_VIEW === "diary") document.title = "Luna Diary";
+  if (EMBED_VIEW === "planner") document.title = "Luna Planner";
 
-  // Accept ?token= in embed URLs for auto-login (e.g. from HA iframes)
   const urlParams = new URLSearchParams(window.location.search);
   const urlToken = urlParams.get("token");
   if (urlToken) {
@@ -2472,7 +2789,8 @@ function getThemeFieldCategory(field) {
   if (key.startsWith("--header-")) return "header";
   if (key.startsWith("--card-") || key.startsWith("--shadow") || key.startsWith("--bs-card-")) return "cards";
   if (key.startsWith("--overview-") || key.startsWith("--stat-")) return "overview";
-  if (key.startsWith("--journal-")) return "journal";
+  if (key.startsWith("--planner-")) return "planner";
+  if (key.startsWith("--journal-") || key.startsWith("--diary-page-")) return "journal";
   if (key.startsWith("--collapse-btn")) return "buttons";
   if (key.startsWith("--btn-")) return "buttons";
   if (key.startsWith("--input-")) return "inputs";
@@ -2493,6 +2811,7 @@ function renderThemeEditorCategoryOptions() {
     header: "Header",
     cards: "Cards",
     overview: "Cycle Overview",
+    planner: "Planner",
     journal: "Diary",
     buttons: "Buttons",
     inputs: "Inputs",
@@ -2543,7 +2862,7 @@ function onThemeEditorCategoryChange() {
   populateThemeEditorFieldOptions(category);
   const filterSelect = document.getElementById("themeStudioPreviewFilter");
   if (filterSelect) {
-    const allowed = ["all", "core", "header", "cards", "overview", "buttons", "inputs", "modals", "calendar", "logday", "bootstrap"];
+    const allowed = ["all", "core", "header", "cards", "overview", "planner", "buttons", "inputs", "modals", "calendar", "logday", "bootstrap", "journal"];
     filterSelect.value = allowed.includes(category) ? category : "all";
     onThemeStudioPreviewFilterChange();
   }
@@ -3139,6 +3458,10 @@ function loadGlassBackgroundControls() {
   syncGlassBorderRow("logdayGlass", "--logday-card-border", "--bs-card-border-color");
   syncGlassControlRow("calendarGlass", "--calendar-card-bg", "--calendar-card-blur", "--cal-bg", "--card-blur");
   syncGlassBorderRow("calendarGlass", "--calendar-card-border", "--bs-card-border-color");
+  syncGlassControlRow("plannerGlass", "--planner-card-bg", "--planner-card-blur", "--card", "--card-blur");
+  syncGlassBorderRow("plannerGlass", "--planner-card-border", "--bs-card-border-color");
+  syncGlassControlRow("diaryGlass", "--diary-page-card-bg", "--diary-page-card-blur", "--journal-card-bg", "--card-blur");
+  syncGlassBorderRow("diaryGlass", "--diary-page-card-border", "--journal-card-border");
 }
 
 function applyGlassBackgroundToDraft(silent = false) {
@@ -3154,6 +3477,12 @@ function applyGlassBackgroundToDraft(silent = false) {
   const calendarColor = document.getElementById("calendarGlassTintColor");
   const calendarOpacity = document.getElementById("calendarGlassTintOpacity");
   const calendarBlur = document.getElementById("calendarGlassBlur");
+  const plannerColor = document.getElementById("plannerGlassTintColor");
+  const plannerOpacity = document.getElementById("plannerGlassTintOpacity");
+  const plannerBlur = document.getElementById("plannerGlassBlur");
+  const diaryColor = document.getElementById("diaryGlassTintColor");
+  const diaryOpacity = document.getElementById("diaryGlassTintOpacity");
+  const diaryBlur = document.getElementById("diaryGlassBlur");
   const sharedBorderColor = document.getElementById("glassCardBorderColor");
   const sharedBorderOpacity = document.getElementById("glassCardBorderOpacity");
   const overviewBorderColor = document.getElementById("overviewGlassBorderColor");
@@ -3162,7 +3491,11 @@ function applyGlassBackgroundToDraft(silent = false) {
   const logdayBorderOpacity = document.getElementById("logdayGlassBorderOpacity");
   const calendarBorderColor = document.getElementById("calendarGlassBorderColor");
   const calendarBorderOpacity = document.getElementById("calendarGlassBorderOpacity");
-  if (!tintColor || !tintOpacity || !blurInput || !overviewColor || !overviewOpacity || !overviewBlur || !logdayColor || !logdayOpacity || !logdayBlur || !calendarColor || !calendarOpacity || !calendarBlur || !sharedBorderColor || !sharedBorderOpacity || !overviewBorderColor || !overviewBorderOpacity || !logdayBorderColor || !logdayBorderOpacity || !calendarBorderColor || !calendarBorderOpacity) return;
+  const plannerBorderColor = document.getElementById("plannerGlassBorderColor");
+  const plannerBorderOpacity = document.getElementById("plannerGlassBorderOpacity");
+  const diaryBorderColor = document.getElementById("diaryGlassBorderColor");
+  const diaryBorderOpacity = document.getElementById("diaryGlassBorderOpacity");
+  if (!tintColor || !tintOpacity || !blurInput || !overviewColor || !overviewOpacity || !overviewBlur || !logdayColor || !logdayOpacity || !logdayBlur || !calendarColor || !calendarOpacity || !calendarBlur || !plannerColor || !plannerOpacity || !plannerBlur || !diaryColor || !diaryOpacity || !diaryBlur || !sharedBorderColor || !sharedBorderOpacity || !overviewBorderColor || !overviewBorderOpacity || !logdayBorderColor || !logdayBorderOpacity || !calendarBorderColor || !calendarBorderOpacity || !plannerBorderColor || !plannerBorderOpacity || !diaryBorderColor || !diaryBorderOpacity) return;
 
   const color = String(tintColor.value || "#ffffff").trim();
   const opacity = Math.max(0, Math.min(100, Number(tintOpacity.value || 55)));
@@ -3172,13 +3505,19 @@ function applyGlassBackgroundToDraft(silent = false) {
   const overviewGlassColor = composeColorValue(String(overviewColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(overviewOpacity.value || 55))));
   const logdayGlassColor = composeColorValue(String(logdayColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(logdayOpacity.value || 55))));
   const calendarGlassColor = composeColorValue(String(calendarColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(calendarOpacity.value || 55))));
+  const plannerGlassColor = composeColorValue(String(plannerColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(plannerOpacity.value || 55))));
+  const diaryGlassColor = composeColorValue(String(diaryColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(diaryOpacity.value || 55))));
   const sharedBorderGlass = composeColorValue(String(sharedBorderColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(sharedBorderOpacity.value || 65))));
   const overviewBorderGlass = composeColorValue(String(overviewBorderColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(overviewBorderOpacity.value || 65))));
   const logdayBorderGlass = composeColorValue(String(logdayBorderColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(logdayBorderOpacity.value || 65))));
   const calendarBorderGlass = composeColorValue(String(calendarBorderColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(calendarBorderOpacity.value || 65))));
+  const plannerBorderGlass = composeColorValue(String(plannerBorderColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(plannerBorderOpacity.value || 65))));
+  const diaryBorderGlass = composeColorValue(String(diaryBorderColor.value || "#ffffff").trim(), Math.max(0, Math.min(100, Number(diaryBorderOpacity.value || 65))));
   const overviewBlurValue = Math.max(0, Math.min(20, Number(overviewBlur.value || 5)));
   const logdayBlurValue = Math.max(0, Math.min(20, Number(logdayBlur.value || 5)));
   const calendarBlurValue = Math.max(0, Math.min(20, Number(calendarBlur.value || 5)));
+  const plannerBlurValue = Math.max(0, Math.min(20, Number(plannerBlur.value || 5)));
+  const diaryBlurValue = Math.max(0, Math.min(20, Number(diaryBlur.value || 5)));
 
   themeStudioDraft["--card"] = glassColor;
   themeStudioDraft["--card-blur"] = `${Math.round(blur)}px`;
@@ -3193,6 +3532,12 @@ function applyGlassBackgroundToDraft(silent = false) {
   themeStudioDraft["--calendar-card-border"] = calendarBorderGlass;
   themeStudioDraft["--calendar-card-blur"] = `${Math.round(calendarBlurValue)}px`;
   themeStudioDraft["--cal-bg"] = calendarGlassColor;
+  themeStudioDraft["--planner-card-bg"] = plannerGlassColor;
+  themeStudioDraft["--planner-card-border"] = plannerBorderGlass;
+  themeStudioDraft["--planner-card-blur"] = `${Math.round(plannerBlurValue)}px`;
+  themeStudioDraft["--diary-page-card-bg"] = diaryGlassColor;
+  themeStudioDraft["--diary-page-card-border"] = diaryBorderGlass;
+  themeStudioDraft["--diary-page-card-blur"] = `${Math.round(diaryBlurValue)}px`;
 
   THEMES[activeStudioTheme] = { ...themeStudioDraft };
   applyTheme(activeStudioTheme);
@@ -3343,16 +3688,18 @@ function applyQuartzGlassPreset() {
   themeStudioDraft["--overview-card-shadow"] = themeStudioDraft["--shadow"];
   themeStudioDraft["--logday-card-shadow"] = themeStudioDraft["--shadow"];
   themeStudioDraft["--calendar-card-shadow"] = themeStudioDraft["--shadow"];
+  themeStudioDraft["--planner-card-shadow"] = themeStudioDraft["--shadow"];
+  themeStudioDraft["--diary-page-card-shadow"] = themeStudioDraft["--shadow"];
   applyGlassBackgroundToDraft(true);
   loadGlassBackgroundControls();
   toast("Quartz-style glass applied");
 }
 
 function applyBlackGlassPreset() {
-  const tintTargets = ["glassCardTintColor", "overviewGlassTintColor", "logdayGlassTintColor", "calendarGlassTintColor"];
-  const tintOpacityTargets = ["glassCardTintOpacity", "overviewGlassTintOpacity", "logdayGlassTintOpacity", "calendarGlassTintOpacity"];
-  const borderTargets = ["glassCardBorderColor", "overviewGlassBorderColor", "logdayGlassBorderColor", "calendarGlassBorderColor"];
-  const borderOpacityTargets = ["glassCardBorderOpacity", "overviewGlassBorderOpacity", "logdayGlassBorderOpacity", "calendarGlassBorderOpacity"];
+  const tintTargets = ["glassCardTintColor", "overviewGlassTintColor", "logdayGlassTintColor", "calendarGlassTintColor", "plannerGlassTintColor", "diaryGlassTintColor"];
+  const tintOpacityTargets = ["glassCardTintOpacity", "overviewGlassTintOpacity", "logdayGlassTintOpacity", "calendarGlassTintOpacity", "plannerGlassTintOpacity", "diaryGlassTintOpacity"];
+  const borderTargets = ["glassCardBorderColor", "overviewGlassBorderColor", "logdayGlassBorderColor", "calendarGlassBorderColor", "plannerGlassBorderColor", "diaryGlassBorderColor"];
+  const borderOpacityTargets = ["glassCardBorderOpacity", "overviewGlassBorderOpacity", "logdayGlassBorderOpacity", "calendarGlassBorderOpacity", "plannerGlassBorderOpacity", "diaryGlassBorderOpacity"];
 
   tintTargets.forEach((id) => {
     const el = document.getElementById(id);
@@ -3371,7 +3718,7 @@ function applyBlackGlassPreset() {
     if (el) el.value = "42";
   });
 
-  const blurTargets = ["glassCardBlur", "overviewGlassBlur", "logdayGlassBlur", "calendarGlassBlur"];
+  const blurTargets = ["glassCardBlur", "overviewGlassBlur", "logdayGlassBlur", "calendarGlassBlur", "plannerGlassBlur", "diaryGlassBlur"];
   blurTargets.forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.value = "12";
@@ -3382,6 +3729,8 @@ function applyBlackGlassPreset() {
   themeStudioDraft["--overview-card-shadow"] = themeStudioDraft["--shadow"];
   themeStudioDraft["--logday-card-shadow"] = themeStudioDraft["--shadow"];
   themeStudioDraft["--calendar-card-shadow"] = themeStudioDraft["--shadow"];
+  themeStudioDraft["--planner-card-shadow"] = themeStudioDraft["--shadow"];
+  themeStudioDraft["--diary-page-card-shadow"] = themeStudioDraft["--shadow"];
 
   applyGlassBackgroundToDraft(true);
   loadGlassBackgroundControls();
@@ -3393,14 +3742,20 @@ function resetCardBackgroundToSolid() {
   themeStudioDraft["--card-blur"] = "0px";
   themeStudioDraft["--card-art"] = "none";
   themeStudioDraft["--overview-card-bg"] = "#ffffff";
+  themeStudioDraft["--planner-card-bg"] = "#ffffff";
+  themeStudioDraft["--diary-page-card-bg"] = themeStudioDraft["--journal-card-bg"] || "#ffffff";
   themeStudioDraft["--overview-card-blur"] = "0px";
   themeStudioDraft["--overview-card-shadow"] = themeStudioDraft["--shadow"] || "none";
   themeStudioDraft["--logday-card-bg"] = "#ffffff";
   themeStudioDraft["--logday-card-blur"] = "0px";
   themeStudioDraft["--logday-card-shadow"] = themeStudioDraft["--shadow"] || "none";
+  themeStudioDraft["--planner-card-blur"] = "0px";
+  themeStudioDraft["--planner-card-shadow"] = themeStudioDraft["--shadow"] || "none";
   themeStudioDraft["--calendar-card-bg"] = "#ffffff";
   themeStudioDraft["--calendar-card-blur"] = "0px";
   themeStudioDraft["--calendar-card-shadow"] = themeStudioDraft["--shadow"] || "none";
+  themeStudioDraft["--diary-page-card-blur"] = "0px";
+  themeStudioDraft["--diary-page-card-shadow"] = themeStudioDraft["--journal-card-shadow"] || themeStudioDraft["--shadow"] || "none";
   themeStudioDraft["--cal-bg"] = "#ffffff";
   loadGlassBackgroundControls();
   renderThemeStudioSwatches();
@@ -4912,8 +5267,10 @@ async function selectDate(dateStr, journalEntryId = null) {
 
   selectedDate = dateStr;
 
-  document.getElementById("selectedDateLabel").textContent = fmtDate(dateStr);
-  document.getElementById("journalDateLabel").textContent = fmtDate(dateStr);
+  ["selectedDateLabel", "journalDateLabel", "plannerPageDateLabel", "diaryPageDateLabel"].forEach((id) => {
+    const node = document.getElementById(id);
+    if (node) node.textContent = fmtDate(dateStr);
+  });
 
 
 
@@ -4995,22 +5352,36 @@ function formatPlannerReminder(value) {
   return d.toLocaleString();
 }
 
-function renderPlannerUI() {
-  const list = document.getElementById("plannerList");
-  const meta = document.getElementById("plannerMeta");
-  if (!list || !meta) return;
+function getPlannerSurfaces() {
+  return [
+    {
+      scope: "home",
+      listId: "plannerList",
+      metaId: "plannerMeta",
+      titleId: "plannerTitleInput",
+      notesId: "plannerNotesInput",
+      reminderId: "plannerReminderInput",
+      targetId: "plannerReminderTargetInput",
+    },
+    {
+      scope: "page",
+      listId: "plannerPageList",
+      metaId: "plannerPageMeta",
+      titleId: "plannerPageTitleInput",
+      notesId: "plannerPageNotesInput",
+      reminderId: "plannerPageReminderInput",
+      targetId: "plannerPageReminderTargetInput",
+      summaryId: "plannerPageSummaryBlock",
+      insightStatsId: "plannerPageInsightStats",
+      upcomingId: "plannerPageUpcomingList",
+    },
+  ].filter((surface) => document.getElementById(surface.listId) && document.getElementById(surface.metaId));
+}
 
-  const items = plannerItemsForSelectedDate();
-  if (!items.length) {
-    meta.textContent = "No tasks for this date yet.";
-    list.innerHTML = '<div class="planner-empty">Add your first task for this day.</div>';
-    return;
-  }
+function renderPlannerListMarkup(items) {
+  if (!items.length) return '<div class="planner-empty">Add your first task for this day.</div>';
 
-  const doneCount = items.filter((item) => Number(item.is_done) === 1).length;
-  meta.textContent = `${doneCount}/${items.length} complete`;
-
-  list.innerHTML = items.map((item) => {
+  return items.map((item) => {
     const doneClass = Number(item.is_done) === 1 ? " is-done" : "";
     const reminderText = formatPlannerReminder(item.reminder_at);
     const targetText = item.reminder_target ? ` • target: ${escapeHtml(item.reminder_target)}` : "";
@@ -5033,15 +5404,73 @@ function renderPlannerUI() {
   }).join("");
 }
 
-function clearPlannerDraft() {
-  const title = document.getElementById("plannerTitleInput");
-  const notes = document.getElementById("plannerNotesInput");
-  const reminder = document.getElementById("plannerReminderInput");
-  const target = document.getElementById("plannerReminderTargetInput");
-  if (title) title.value = "";
-  if (notes) notes.value = "";
-  if (reminder) reminder.value = "";
-  if (target) target.value = "";
+function renderPlannerInsights(items) {
+  const stats = document.getElementById("plannerPageInsightStats");
+  const upcoming = document.getElementById("plannerPageUpcomingList");
+  const summary = document.getElementById("plannerPageSummaryBlock");
+  if (!stats || !upcoming || !summary) return;
+
+  const doneCount = items.filter((item) => Number(item.is_done) === 1).length;
+  const pendingCount = items.length - doneCount;
+  const reminderItems = plannerItems
+    .filter((item) => item.reminder_at)
+    .slice()
+    .sort((a, b) => new Date(a.reminder_at) - new Date(b.reminder_at));
+  const upcomingItems = reminderItems.slice(0, 4);
+
+  summary.textContent = items.length
+    ? `${doneCount} complete, ${pendingCount} still to do on ${fmtDate(selectedDate)}.`
+    : `No tasks yet for ${selectedDate ? fmtDate(selectedDate) : "this day"}.`;
+
+  stats.innerHTML = [
+    { value: items.length, label: "Tasks" },
+    { value: doneCount, label: "Done" },
+    { value: pendingCount, label: "Open" },
+    { value: upcomingItems.length, label: "Queued Reminders" },
+  ].map((stat) => `<div class="planner-insight-stat"><strong>${stat.value}</strong><span>${stat.label}</span></div>`).join("");
+
+  if (!upcomingItems.length) {
+    upcoming.innerHTML = '<div class="planner-empty">No reminders are scheduled yet.</div>';
+    return;
+  }
+
+  upcoming.innerHTML = upcomingItems.map((item) => `
+    <div class="planner-upcoming-item">
+      <strong>${escapeHtml(item.title || "Untitled task")}</strong>
+      <small>${escapeHtml(formatPlannerReminder(item.reminder_at))}${item.reminder_target ? ` • ${escapeHtml(item.reminder_target)}` : ""}</small>
+    </div>
+  `).join("");
+}
+
+function renderPlannerUI() {
+  const items = plannerItemsForSelectedDate();
+  const doneCount = items.filter((item) => Number(item.is_done) === 1).length;
+
+  getPlannerSurfaces().forEach((surface) => {
+    const list = document.getElementById(surface.listId);
+    const meta = document.getElementById(surface.metaId);
+    if (!list || !meta) return;
+
+    meta.textContent = items.length ? `${doneCount}/${items.length} complete` : "No tasks for this date yet.";
+    list.innerHTML = renderPlannerListMarkup(items);
+  });
+
+  renderPlannerInsights(items);
+}
+
+function clearPlannerDraft(scope = "all") {
+  getPlannerSurfaces()
+    .filter((surface) => scope === "all" || surface.scope === scope)
+    .forEach((surface) => {
+      const title = document.getElementById(surface.titleId);
+      const notes = document.getElementById(surface.notesId);
+      const reminder = document.getElementById(surface.reminderId);
+      const target = document.getElementById(surface.targetId);
+      if (title) title.value = "";
+      if (notes) notes.value = "";
+      if (reminder) reminder.value = "";
+      if (target) target.value = "";
+    });
 }
 
 function normalizePlannerReminderForApi(rawValue) {
@@ -5066,13 +5495,16 @@ async function loadPlannerItems() {
   renderPlannerUI();
 }
 
-async function addPlannerItem() {
+async function addPlannerItem(scope = "home") {
   if (!selectedDate) return toast("Select a date first", true);
 
-  const title = (document.getElementById("plannerTitleInput")?.value || "").trim();
-  const notes = (document.getElementById("plannerNotesInput")?.value || "").trim();
-  const reminderInput = document.getElementById("plannerReminderInput")?.value || "";
-  const reminderTarget = (document.getElementById("plannerReminderTargetInput")?.value || "").trim();
+  const surface = getPlannerSurfaces().find((entry) => entry.scope === scope) || getPlannerSurfaces()[0];
+  if (!surface) return;
+
+  const title = (document.getElementById(surface.titleId)?.value || "").trim();
+  const notes = (document.getElementById(surface.notesId)?.value || "").trim();
+  const reminderInput = document.getElementById(surface.reminderId)?.value || "";
+  const reminderTarget = (document.getElementById(surface.targetId)?.value || "").trim();
 
   if (!title) return toast("Planner task title is required", true);
 
@@ -5087,7 +5519,7 @@ async function addPlannerItem() {
 
     const result = await api("POST", "/planner", payload);
     if (result?.item) plannerItems.push(result.item);
-    clearPlannerDraft();
+    clearPlannerDraft(scope);
     renderPlannerUI();
     toast("Planner task added");
   } catch (err) {
@@ -5564,34 +5996,70 @@ function syncJournalArchiveSelection() {
 
 }
 
+function getJournalSurfaces() {
+
+  return [
+    {
+      scope: "home",
+      inputId: "journalEntryInput",
+      previewId: "journalPreview",
+      archiveId: "journalArchiveList",
+      wordCountId: "journalWordCount",
+      saveHintId: "journalSaveHint",
+      bookLeftId: "journalBookPageLeft",
+      bookRightId: "journalBookPageRight",
+      bookDateId: "journalBookDateLabel",
+      bookEntryId: "journalBookEntryLabel",
+      pageCounterId: "journalPageCounter",
+      viewerId: "journalBookViewer",
+    },
+    {
+      scope: "page",
+      inputId: "diaryPageEntryInput",
+      previewId: "diaryPagePreview",
+      archiveId: "diaryPageArchiveList",
+      wordCountId: "diaryPageWordCount",
+      saveHintId: "diaryPageSaveHint",
+      bookLeftId: "diaryPageBookPageLeft",
+      bookRightId: "diaryPageBookPageRight",
+      bookDateId: "diaryPageBookDateLabel",
+      bookEntryId: "diaryPageBookEntryLabel",
+      pageCounterId: "diaryPageCounter",
+      viewerId: "diaryPageBookViewer",
+    },
+  ].filter((surface) => document.getElementById(surface.inputId));
+
+}
+
 function renderJournalBook() {
 
   const entries = getJournalEntriesSorted("asc");
-  const pageCounter = document.getElementById("journalPageCounter");
-  const entryLabel = document.getElementById("journalBookEntryLabel");
-  const dateLabel = document.getElementById("journalBookDateLabel");
-  if (!pageCounter || !entryLabel || !dateLabel) return;
-
   const activeEntry = getSelectedJournalEntry();
   const sourceText = selectedJournalText || activeEntry?.entry_text || "";
   const pages = paginateJournalText(sourceText);
   const spreadCount = Math.max(1, Math.ceil(pages.length / 2));
   journalPageIndex = Math.min(Math.max(journalPageIndex, 0), spreadCount - 1);
 
-  renderJournalBookPage("journalBookPageLeft", pages[journalPageIndex * 2] || "");
-  renderJournalBookPage("journalBookPageRight", pages[journalPageIndex * 2 + 1] || "");
-
   const matchingEntry = activeEntry || null;
   const entryIndex = matchingEntry ? entries.findIndex((entry) => entry === matchingEntry) + 1 : 0;
-  dateLabel.textContent = selectedDate ? fmtDate(selectedDate) : "No entry selected";
-  entryLabel.textContent = matchingEntry ? `Saved entry ${entryIndex} of ${entries.length}` : "Draft page";
-  pageCounter.textContent = `Page ${pages.length ? journalPageIndex + 1 : 0} of ${spreadCount}`;
+
+  getJournalSurfaces().forEach((surface) => {
+    const pageCounter = document.getElementById(surface.pageCounterId);
+    const entryLabel = document.getElementById(surface.bookEntryId);
+    const dateLabel = document.getElementById(surface.bookDateId);
+    if (!pageCounter || !entryLabel || !dateLabel) return;
+
+    renderJournalBookPage(surface.bookLeftId, pages[journalPageIndex * 2] || "");
+    renderJournalBookPage(surface.bookRightId, pages[journalPageIndex * 2 + 1] || "");
+
+    dateLabel.textContent = selectedDate ? fmtDate(selectedDate) : "No entry selected";
+    entryLabel.textContent = matchingEntry ? `Saved entry ${entryIndex} of ${entries.length}` : "Draft page";
+    pageCounter.textContent = `Page ${pages.length ? journalPageIndex + 1 : 0} of ${spreadCount}`;
+  });
 
 }
 
-function renderJournalArchive() {
-
-  const archive = document.getElementById("journalArchiveList");
+function renderJournalArchiveInto(archive) {
 
   if (!archive) return;
 
@@ -5646,64 +6114,49 @@ function renderJournalArchive() {
 
 function renderJournalUI() {
 
-  const input = document.getElementById("journalEntryInput");
-
-  if (!input) return;
-
-
-
-  input.value = selectedJournalText || "";
-
-
-
-  const preview = document.getElementById("journalPreview");
-
   const sections = (selectedJournalText || "")
-
     .split(/\n{2,}/)
-
     .map(part => part.trim())
-
     .filter(Boolean);
-
-
-
-  if (!sections.length) {
-
-    preview.innerHTML = '<div class="journal-empty-state">Your diary page will appear here in a handwritten style.</div>';
-
-  } else {
-
-    preview.innerHTML = sections
-
-      .map(part => `<p class="journal-line">${escapeHtml(part).replace(/\n/g, "<br>")}</p>`)
-
-      .join("");
-
-  }
-
-
-
   const wordCount = (selectedJournalText || "").trim().split(/\s+/).filter(Boolean).length;
   const activeEntry = getSelectedJournalEntry();
 
-  document.getElementById("journalWordCount").textContent = `${wordCount} ${wordCount === 1 ? "word" : "words"}`;
+  getJournalSurfaces().forEach((surface) => {
+    const input = document.getElementById(surface.inputId);
+    const preview = document.getElementById(surface.previewId);
+    const wordCountEl = document.getElementById(surface.wordCountId);
+    const saveHintEl = document.getElementById(surface.saveHintId);
+    const archive = document.getElementById(surface.archiveId);
+    if (!input || !preview || !wordCountEl || !saveHintEl || !archive) return;
 
-  document.getElementById("journalSaveHint").textContent = activeEntry
+    input.value = selectedJournalText || "";
 
-    ? `Editing entry for ${fmtDate(getJournalDateOnly(activeEntry))}`
+    if (!sections.length) {
+      preview.innerHTML = '<div class="journal-empty-state">Your diary page will appear here in a handwritten style.</div>';
+    } else {
+      preview.innerHTML = sections
+        .map(part => `<p class="journal-line">${escapeHtml(part).replace(/\n/g, "<br>")}</p>`)
+        .join("");
+    }
 
-    : (selectedDate ? `New page for ${fmtDate(selectedDate)}` : "Select a date to start writing.");
+    wordCountEl.textContent = `${wordCount} ${wordCount === 1 ? "word" : "words"}`;
+    saveHintEl.textContent = activeEntry
+      ? `Editing entry for ${fmtDate(getJournalDateOnly(activeEntry))}`
+      : (selectedDate ? `New page for ${fmtDate(selectedDate)}` : "Select a date to start writing.");
 
-  renderJournalArchive();
+    renderJournalArchiveInto(archive);
+  });
 
   renderJournalBook();
 
 }
 
-function onJournalDraftInput() {
+function onJournalDraftInput(scope = "home") {
 
-  selectedJournalText = document.getElementById("journalEntryInput").value;
+  const surface = getJournalSurfaces().find((entry) => entry.scope === scope) || getJournalSurfaces()[0];
+  if (!surface) return;
+
+  selectedJournalText = document.getElementById(surface.inputId)?.value || "";
 
   renderJournalUI();
 
@@ -5853,7 +6306,7 @@ function startNewJournalEntry() {
   selectedJournalText = "";
   journalPageIndex = 0;
   renderJournalUI();
-  document.getElementById("journalEntryInput")?.focus();
+  document.getElementById(APP_VIEW === "diary" ? "diaryPageEntryInput" : "journalEntryInput")?.focus();
 
 }
 
@@ -5885,11 +6338,12 @@ async function openJournalEntry(entryId, mode = "edit") {
   await selectDate(getJournalDateOnly(entry), entry.id);
 
   if (mode === "read") {
-    document.getElementById("journalBookViewer")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const preferredViewer = APP_VIEW === "diary" ? "diaryPageBookViewer" : "journalBookViewer";
+    document.getElementById(preferredViewer)?.scrollIntoView({ behavior: "smooth", block: "center" });
     return;
   }
 
-  document.getElementById("journalEntryInput")?.focus();
+  document.getElementById(APP_VIEW === "diary" ? "diaryPageEntryInput" : "journalEntryInput")?.focus();
 
 }
 
@@ -6138,6 +6592,25 @@ function stepJournalPage(direction) {
   const spreadCount = Math.max(1, Math.ceil(paginateJournalText(selectedJournalText || activeEntry?.entry_text || "").length / 2));
   journalPageIndex = Math.min(spreadCount - 1, Math.max(0, journalPageIndex + Number(direction || 0)));
   renderJournalBook();
+
+}
+
+async function shiftSelectedDate(direction) {
+
+  const base = selectedDate ? new Date(`${selectedDate}T12:00:00`) : new Date();
+  base.setDate(base.getDate() + Number(direction || 0));
+  currentYear = base.getFullYear();
+  currentMonth = base.getMonth() + 1;
+  renderCalendar();
+  await selectDate(base.toISOString().split("T")[0]);
+
+}
+
+function openPlannerPage() {
+
+  const url = new URL(`${window.location.origin}/planner`);
+  if (selectedDate) url.searchParams.set("date", selectedDate);
+  window.location.href = url.toString();
 
 }
 
@@ -6614,8 +7087,10 @@ async function initApp() {
 
   selectedDate = requestedDate || today.toISOString().split("T")[0];
 
-  document.getElementById("selectedDateLabel").textContent = fmtDate(selectedDate);
-  document.getElementById("journalDateLabel").textContent = fmtDate(selectedDate);
+  ["selectedDateLabel", "journalDateLabel", "plannerPageDateLabel", "diaryPageDateLabel"].forEach((id) => {
+    const node = document.getElementById(id);
+    if (node) node.textContent = fmtDate(selectedDate);
+  });
 
   buildSymptomPills();
 
