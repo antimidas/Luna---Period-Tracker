@@ -194,6 +194,69 @@ sudo journalctl -u luna -f
 3. Copy full URL to `.env` as `HA_WEBHOOK_URL`
 4. Restart the API: `pkill -f "node server.js"` then `node server.js &`
 
+### 7b. Set up planner reminders to Home Assistant users/devices
+
+Luna now sends `planner_reminder` webhook events when planner reminders become due.
+
+Create a Home Assistant automation that receives those webhook events and forwards them to a user/device.
+
+Example automation YAML:
+
+```yaml
+alias: Luna Planner Reminder
+description: Send planner reminders from Luna to a mobile app device
+mode: parallel
+trigger:
+  - platform: webhook
+    webhook_id: period_tracker_12345
+condition:
+  - condition: template
+    value_template: "{{ trigger.json.event == 'planner_reminder' }}"
+action:
+  - service: notify.mobile_app_your_phone
+    data:
+      title: "Luna Reminder"
+      message: >-
+        {{ trigger.json.title }}
+        {% if trigger.json.notes %}
+        - {{ trigger.json.notes }}
+        {% endif %}
+      data:
+        tag: "luna-planner-reminder"
+```
+
+Routing reminders to specific users/devices:
+- Set planner `reminder_target` in Luna (for example: `alice_phone`, `mom_tablet`, `group_family`).
+- In Home Assistant, use `choose` logic on `trigger.json.reminder_target` to call different `notify.*` services.
+
+Example target routing snippet:
+
+```yaml
+action:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.json.reminder_target == 'alice_phone' }}"
+        sequence:
+          - service: notify.mobile_app_alice_phone
+            data:
+              title: "Luna Reminder"
+              message: "{{ trigger.json.message }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.json.reminder_target == 'mom_tablet' }}"
+        sequence:
+          - service: notify.mobile_app_mom_tablet
+            data:
+              title: "Luna Reminder"
+              message: "{{ trigger.json.message }}"
+    default:
+      - service: notify.notify
+        data:
+          title: "Luna Reminder"
+          message: "{{ trigger.json.message }}"
+```
+
 ### 8. Add HA sensors
 
 Copy the contents of `ha-config/configuration.yaml` into your HA `configuration.yaml`.
@@ -263,6 +326,29 @@ All journal endpoints require authentication token.
 | `GET` | `/api/journal?date=YYYY-MM-DD` | Get journal entries for a date |
 | `POST` | `/api/journal` | Create or update an entry (by `id` when provided) |
 | `DELETE` | `/api/journal/:id` | Delete one journal entry |
+
+---
+
+## Daily Planner + Reminders
+
+Luna includes a daily planner with reminders:
+
+- Add planner tasks for any selected date
+- Mark tasks complete/incomplete
+- Edit or delete planner tasks
+- Optional reminder datetime per task
+- Optional reminder target value for routing in Home Assistant
+
+When a reminder is due, Luna sends a `planner_reminder` event to your configured `HA_WEBHOOK_URL`.
+
+Planner API endpoints:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/planner?date=YYYY-MM-DD` | List planner tasks for a date |
+| `POST` | `/api/planner` | Create planner task |
+| `PATCH` | `/api/planner/:id` | Update planner task fields |
+| `DELETE` | `/api/planner/:id` | Delete planner task |
 
 ---
 

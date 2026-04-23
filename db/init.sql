@@ -86,6 +86,24 @@ CREATE TABLE IF NOT EXISTS journal_entries (
     CONSTRAINT fk_journal_entries_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Daily planner items with optional reminders
+CREATE TABLE IF NOT EXISTS planner_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    plan_date DATE NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    notes TEXT NULL,
+    is_done TINYINT(1) NOT NULL DEFAULT 0,
+    reminder_at DATETIME NULL,
+    reminder_target VARCHAR(255) NULL,
+    reminder_sent_at DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_planner_user_date (user_id, plan_date),
+    KEY idx_planner_due (user_id, reminder_at, reminder_sent_at),
+    CONSTRAINT fk_planner_items_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Settings table: user preferences & HA config
 CREATE TABLE IF NOT EXISTS settings (
     id INT AUTO_INCREMENT PRIMARY KEY,

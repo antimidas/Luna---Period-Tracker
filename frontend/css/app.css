@@ -1413,6 +1413,80 @@
     font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px;
     color: var(--section-label-color); font-weight: 500; margin-bottom: 8px; margin-top: 14px;
   }
+
+  .planner-add-row {
+    margin-top: 8px;
+    display: grid;
+    gap: 8px;
+  }
+  .planner-reminder-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .planner-actions-row {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+  }
+  .planner-meta {
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .planner-list {
+    margin-top: 8px;
+    display: grid;
+    gap: 8px;
+    max-height: 280px;
+    overflow: auto;
+  }
+  .planner-empty {
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--card) 90%, white 10%);
+  }
+  .planner-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    background: color-mix(in srgb, var(--card) 94%, white 6%);
+  }
+  .planner-item.is-done {
+    opacity: 0.72;
+    background: color-mix(in srgb, var(--blush) 36%, var(--card) 64%);
+  }
+  .planner-item-top {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+  .planner-item-title {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .planner-item.is-done .planner-item-title {
+    text-decoration: line-through;
+  }
+  .planner-item-reminder {
+    margin-top: 6px;
+    font-size: 0.74rem;
+    color: var(--muted);
+  }
+  .planner-item-notes {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+  .planner-item-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+  }
   .period-toggle {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 14px; border-radius: 10px;
@@ -1786,6 +1860,9 @@
     .journal-page-turn {
       width: 36px;
       height: 54px;
+    }
+    .planner-reminder-row {
+      grid-template-columns: 1fr;
     }
   }
 

@@ -115,6 +115,31 @@ async function ensureSchema() {
       CONSTRAINT fk_journal_entries_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )`
   );
+  await runMigration(
+    `CREATE TABLE IF NOT EXISTS planner_items (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      plan_date DATE NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      notes TEXT NULL,
+      is_done TINYINT(1) NOT NULL DEFAULT 0,
+      reminder_at DATETIME NULL,
+      reminder_target VARCHAR(255) NULL,
+      reminder_sent_at DATETIME NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      KEY idx_planner_user_date (user_id, plan_date),
+      KEY idx_planner_due (user_id, reminder_at, reminder_sent_at),
+      CONSTRAINT fk_planner_items_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )`
+  );
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN notes TEXT NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN is_done TINYINT(1) NOT NULL DEFAULT 0`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_at DATETIME NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_target VARCHAR(255) NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD COLUMN reminder_sent_at DATETIME NULL`, ["ER_DUP_FIELDNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD KEY idx_planner_user_date (user_id, plan_date)`, ["ER_DUP_KEYNAME"]);
+  await runMigration(`ALTER TABLE planner_items ADD KEY idx_planner_due (user_id, reminder_at, reminder_sent_at)`, ["ER_DUP_KEYNAME"]);
   await runMigration(`ALTER TABLE journal_entries ADD KEY idx_journal_user_date (user_id, log_date)`, ["ER_DUP_KEYNAME"]);
   await runMigration(`ALTER TABLE journal_entries ADD KEY idx_journal_user_created_at (user_id, created_at)`, ["ER_DUP_KEYNAME"]);
   await runMigration(`ALTER TABLE journal_entries DROP INDEX unique_journal_per_day`, ["ER_CANT_DROP_FIELD_OR_KEY"]);
@@ -896,6 +921,148 @@ app.delete("/api/journal", requireAuth, async (req, res) => {
   }
 });
 
+app.get("/api/planner", requireAuth, async (req, res) => {
+  try {
+    const { date, from, to } = req.query;
+    let rows;
+
+    if (date) {
+      [rows] = await pool.query(
+        `SELECT * FROM planner_items
+         WHERE user_id=? AND plan_date=?
+         ORDER BY is_done ASC, reminder_at IS NULL, reminder_at ASC, created_at ASC, id ASC`,
+        [req.user.id, date]
+      );
+      return res.json(rows);
+    }
+
+    if (from && to) {
+      [rows] = await pool.query(
+        `SELECT * FROM planner_items
+         WHERE user_id=? AND plan_date BETWEEN ? AND ?
+         ORDER BY plan_date ASC, is_done ASC, reminder_at IS NULL, reminder_at ASC, created_at ASC, id ASC`,
+        [req.user.id, from, to]
+      );
+      return res.json(rows);
+    }
+
+    [rows] = await pool.query(
+      `SELECT * FROM planner_items
+       WHERE user_id=?
+       ORDER BY plan_date DESC, is_done ASC, reminder_at IS NULL, reminder_at ASC, created_at DESC, id DESC
+       LIMIT 500`,
+      [req.user.id]
+    );
+
+    return res.json(rows);
+  } catch (e) {
+    console.error("GET /api/planner error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/planner", requireAuth, async (req, res) => {
+  try {
+    const { plan_date, title, notes, reminder_at, reminder_target } = req.body || {};
+    const cleanedTitle = String(title || "").trim();
+    if (!plan_date) return res.status(400).json({ error: "plan_date required" });
+    if (!cleanedTitle) return res.status(400).json({ error: "title required" });
+
+    const [result] = await pool.query(
+      `INSERT INTO planner_items (user_id, plan_date, title, notes, reminder_at, reminder_target)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        req.user.id,
+        plan_date,
+        cleanedTitle,
+        notes ? String(notes) : null,
+        reminder_at || null,
+        reminder_target ? String(reminder_target).trim() : null,
+      ]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT * FROM planner_items WHERE user_id=? AND id=? LIMIT 1`,
+      [req.user.id, result.insertId]
+    );
+
+    res.json({ success: true, item: rows[0] || null });
+  } catch (e) {
+    console.error("POST /api/planner error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.patch("/api/planner/:id", requireAuth, async (req, res) => {
+  try {
+    const id = Number(req.params.id || 0);
+    if (!id) return res.status(400).json({ error: "valid id required" });
+
+    const { plan_date, title, notes, is_done, reminder_at, reminder_target } = req.body || {};
+    const fields = [];
+    const values = [];
+
+    if (plan_date !== undefined) {
+      fields.push("plan_date=?");
+      values.push(plan_date);
+    }
+    if (title !== undefined) {
+      fields.push("title=?");
+      values.push(String(title || "").trim());
+    }
+    if (notes !== undefined) {
+      fields.push("notes=?");
+      values.push(notes ? String(notes) : null);
+    }
+    if (is_done !== undefined) {
+      fields.push("is_done=?");
+      values.push(is_done ? 1 : 0);
+    }
+    if (reminder_at !== undefined) {
+      fields.push("reminder_at=?");
+      values.push(reminder_at || null);
+      fields.push("reminder_sent_at=NULL");
+    }
+    if (reminder_target !== undefined) {
+      fields.push("reminder_target=?");
+      values.push(reminder_target ? String(reminder_target).trim() : null);
+    }
+
+    if (!fields.length) return res.json({ success: true });
+
+    values.push(req.user.id, id);
+    const [result] = await pool.query(
+      `UPDATE planner_items
+       SET ${fields.join(", ")}
+       WHERE user_id=? AND id=?`,
+      values
+    );
+    if (!result.affectedRows) return res.status(404).json({ error: "planner item not found" });
+
+    const [rows] = await pool.query(
+      `SELECT * FROM planner_items WHERE user_id=? AND id=? LIMIT 1`,
+      [req.user.id, id]
+    );
+
+    res.json({ success: true, item: rows[0] || null });
+  } catch (e) {
+    console.error("PATCH /api/planner/:id error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete("/api/planner/:id", requireAuth, async (req, res) => {
+  try {
+    const id = Number(req.params.id || 0);
+    if (!id) return res.status(400).json({ error: "valid id required" });
+    await pool.query(`DELETE FROM planner_items WHERE user_id=? AND id=?`, [req.user.id, id]);
+    res.json({ success: true });
+  } catch (e) {
+    console.error("DELETE /api/planner/:id error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get("/api/theme-customization", requireAuth, async (req, res) => {
   try {
     const keys = [
@@ -1119,6 +1286,47 @@ cron.schedule("0 8 * * *", async () => {
     });
   } catch (err) {
     console.error("[CRON] daily summary failed:", err.message);
+  }
+});
+
+// Reminder dispatcher: checks every minute and sends due planner reminders to Home Assistant webhook.
+cron.schedule("* * * * *", async () => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT p.id, p.user_id, p.plan_date, p.title, p.notes, p.reminder_at, p.reminder_target, u.username
+       FROM planner_items p
+       INNER JOIN users u ON u.id = p.user_id
+       WHERE p.reminder_at IS NOT NULL
+         AND p.reminder_sent_at IS NULL
+         AND p.reminder_at <= NOW()
+       ORDER BY p.reminder_at ASC
+       LIMIT 200`
+    );
+
+    for (const row of rows) {
+      try {
+        await notifyHomeAssistant("planner_reminder", {
+          planner_item_id: row.id,
+          user_id: row.user_id,
+          username: row.username,
+          plan_date: row.plan_date,
+          reminder_at: row.reminder_at,
+          reminder_target: row.reminder_target || null,
+          title: row.title,
+          notes: row.notes || "",
+          message: row.notes ? `${row.title} — ${row.notes}` : row.title,
+        });
+
+        await pool.query(
+          `UPDATE planner_items SET reminder_sent_at=NOW() WHERE id=? AND reminder_sent_at IS NULL`,
+          [row.id]
+        );
+      } catch (err) {
+        console.error("planner reminder dispatch failed:", err.message);
+      }
+    }
+  } catch (err) {
+    console.error("planner reminder cron failed:", err.message);
   }
 });
 

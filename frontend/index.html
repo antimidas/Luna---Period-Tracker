@@ -440,6 +440,24 @@
           <button class="btn btn-luna btn-luna-muted" style="flex:1" onclick="clearDay()" title="Remove all data for this date">Clear 🗑</button>
         </div>
 
+        <div class="section-label" style="margin-top:16px;">Daily Planner</div>
+        <div class="planner-add-row">
+          <input id="plannerTitleInput" class="form-control" type="text" maxlength="255" placeholder="Add a planner task...">
+        </div>
+        <div class="planner-add-row planner-reminder-row">
+          <input id="plannerReminderInput" class="form-control" type="datetime-local">
+          <input id="plannerReminderTargetInput" class="form-control" type="text" maxlength="255" placeholder="Reminder target (optional)">
+        </div>
+        <div class="planner-add-row">
+          <textarea id="plannerNotesInput" class="form-control" rows="2" placeholder="Optional note"></textarea>
+        </div>
+        <div class="planner-actions-row">
+          <button class="btn btn-luna" type="button" onclick="addPlannerItem()">Add Task</button>
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="clearPlannerDraft()">Clear Draft</button>
+        </div>
+        <div class="planner-meta" id="plannerMeta">No tasks for this date yet.</div>
+        <div class="planner-list" id="plannerList"></div>
+
       </div>
 
   </div>
@@ -1832,6 +1850,8 @@ let selectedJournalEntryId = null;
 let journalArchive = [];
 
 let journalPageIndex = 0;
+
+let plannerItems = [];
 
 let journalPrintMode = "all";
 
@@ -4574,6 +4594,8 @@ async function bootstrapData() {
 
   await loadJournalArchive();
 
+  await loadPlannerItems();
+
   await loadSummary();
 
   document.getElementById("headerStatus").textContent = "Connected";
@@ -4947,8 +4969,193 @@ async function selectDate(dateStr, journalEntryId = null) {
 
   renderJournalUI();
 
+  renderPlannerUI();
+
   renderCalendar();
 
+}
+
+function plannerItemsForSelectedDate() {
+  if (!selectedDate) return [];
+  return plannerItems
+    .filter((item) => String(item.plan_date || "").startsWith(selectedDate))
+    .sort((a, b) => {
+      if (Number(a.is_done) !== Number(b.is_done)) return Number(a.is_done) - Number(b.is_done);
+      const ar = a.reminder_at ? new Date(a.reminder_at).getTime() : Number.POSITIVE_INFINITY;
+      const br = b.reminder_at ? new Date(b.reminder_at).getTime() : Number.POSITIVE_INFINITY;
+      if (ar !== br) return ar - br;
+      return Number(a.id) - Number(b.id);
+    });
+}
+
+function formatPlannerReminder(value) {
+  if (!value) return "No reminder";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "No reminder";
+  return d.toLocaleString();
+}
+
+function renderPlannerUI() {
+  const list = document.getElementById("plannerList");
+  const meta = document.getElementById("plannerMeta");
+  if (!list || !meta) return;
+
+  const items = plannerItemsForSelectedDate();
+  if (!items.length) {
+    meta.textContent = "No tasks for this date yet.";
+    list.innerHTML = '<div class="planner-empty">Add your first task for this day.</div>';
+    return;
+  }
+
+  const doneCount = items.filter((item) => Number(item.is_done) === 1).length;
+  meta.textContent = `${doneCount}/${items.length} complete`;
+
+  list.innerHTML = items.map((item) => {
+    const doneClass = Number(item.is_done) === 1 ? " is-done" : "";
+    const reminderText = formatPlannerReminder(item.reminder_at);
+    const targetText = item.reminder_target ? ` • target: ${escapeHtml(item.reminder_target)}` : "";
+    const reminderState = item.reminder_at && item.reminder_sent_at ? "Sent" : (item.reminder_at ? "Pending" : "None");
+    const notes = String(item.notes || "").trim();
+    return `
+      <div class="planner-item${doneClass}">
+        <label class="planner-item-top">
+          <input type="checkbox" ${Number(item.is_done) === 1 ? "checked" : ""} onchange="togglePlannerDone(${Number(item.id)}, this.checked)">
+          <span class="planner-item-title">${escapeHtml(item.title || "")}</span>
+        </label>
+        <div class="planner-item-reminder">Reminder: ${escapeHtml(reminderText)}${targetText} • ${reminderState}</div>
+        ${notes ? `<div class="planner-item-notes">${escapeHtml(notes)}</div>` : ""}
+        <div class="planner-item-actions">
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="editPlannerItem(${Number(item.id)})">Edit</button>
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="deletePlannerItem(${Number(item.id)})">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function clearPlannerDraft() {
+  const title = document.getElementById("plannerTitleInput");
+  const notes = document.getElementById("plannerNotesInput");
+  const reminder = document.getElementById("plannerReminderInput");
+  const target = document.getElementById("plannerReminderTargetInput");
+  if (title) title.value = "";
+  if (notes) notes.value = "";
+  if (reminder) reminder.value = "";
+  if (target) target.value = "";
+}
+
+function normalizePlannerReminderForApi(rawValue) {
+  if (!rawValue) return null;
+  return String(rawValue).replace("T", " ") + ":00";
+}
+
+function normalizeReminderForInput(rawValue) {
+  if (!rawValue) return "";
+  const d = new Date(rawValue);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (v) => String(v).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+async function loadPlannerItems() {
+  try {
+    plannerItems = await api("GET", "/planner");
+  } catch (_) {
+    plannerItems = [];
+  }
+  renderPlannerUI();
+}
+
+async function addPlannerItem() {
+  if (!selectedDate) return toast("Select a date first", true);
+
+  const title = (document.getElementById("plannerTitleInput")?.value || "").trim();
+  const notes = (document.getElementById("plannerNotesInput")?.value || "").trim();
+  const reminderInput = document.getElementById("plannerReminderInput")?.value || "";
+  const reminderTarget = (document.getElementById("plannerReminderTargetInput")?.value || "").trim();
+
+  if (!title) return toast("Planner task title is required", true);
+
+  try {
+    const payload = {
+      plan_date: selectedDate,
+      title,
+      notes: notes || null,
+      reminder_at: normalizePlannerReminderForApi(reminderInput),
+      reminder_target: reminderTarget || null,
+    };
+
+    const result = await api("POST", "/planner", payload);
+    if (result?.item) plannerItems.push(result.item);
+    clearPlannerDraft();
+    renderPlannerUI();
+    toast("Planner task added");
+  } catch (err) {
+    toast("Failed to add planner task: " + err.message, true);
+  }
+}
+
+async function togglePlannerDone(id, done) {
+  try {
+    const result = await api("PATCH", `/planner/${id}`, { is_done: done ? 1 : 0 });
+    if (result?.item) {
+      plannerItems = plannerItems.map((item) => Number(item.id) === Number(id) ? result.item : item);
+    }
+    renderPlannerUI();
+  } catch (err) {
+    toast("Failed to update planner task: " + err.message, true);
+  }
+}
+
+async function editPlannerItem(id) {
+  const item = plannerItems.find((entry) => Number(entry.id) === Number(id));
+  if (!item) return;
+
+  const nextTitle = prompt("Edit task title", item.title || "");
+  if (nextTitle === null) return;
+  const trimmedTitle = String(nextTitle).trim();
+  if (!trimmedTitle) return toast("Task title cannot be empty", true);
+
+  const nextNotes = prompt("Edit notes (optional)", item.notes || "");
+  if (nextNotes === null) return;
+
+  const currentReminderInput = normalizeReminderForInput(item.reminder_at);
+  const nextReminderInput = prompt("Edit reminder (YYYY-MM-DDTHH:MM, blank to clear)", currentReminderInput);
+  if (nextReminderInput === null) return;
+
+  const nextTarget = prompt("Edit reminder target (optional)", item.reminder_target || "");
+  if (nextTarget === null) return;
+
+  try {
+    const result = await api("PATCH", `/planner/${id}`, {
+      title: trimmedTitle,
+      notes: String(nextNotes || "").trim() || null,
+      reminder_at: normalizePlannerReminderForApi(String(nextReminderInput || "").trim()),
+      reminder_target: String(nextTarget || "").trim() || null,
+    });
+    if (result?.item) {
+      plannerItems = plannerItems.map((entry) => Number(entry.id) === Number(id) ? result.item : entry);
+    }
+    renderPlannerUI();
+    toast("Planner task updated");
+  } catch (err) {
+    toast("Failed to update planner task: " + err.message, true);
+  }
+}
+
+async function deletePlannerItem(id) {
+  const item = plannerItems.find((entry) => Number(entry.id) === Number(id));
+  if (!item) return;
+  if (!confirm(`Delete planner task "${item.title}"?`)) return;
+
+  try {
+    await api("DELETE", `/planner/${id}`);
+    plannerItems = plannerItems.filter((entry) => Number(entry.id) !== Number(id));
+    renderPlannerUI();
+    toast("Planner task deleted");
+  } catch (err) {
+    toast("Failed to delete planner task: " + err.message, true);
+  }
 }
 
 
