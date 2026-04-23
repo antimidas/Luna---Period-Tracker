@@ -19,6 +19,7 @@ services:
       MYSQL_ROOT_PASSWORD: rootpass
       API_KEY: mysecretapikey
       JWT_SECRET: change-me-in-env
+      HA_BASE_URL: ""
       HA_WEBHOOK_URL: ""
       HA_TOKEN: ""
       SSH_USER: luna

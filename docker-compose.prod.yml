@@ -18,6 +18,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in your environment or .env}
       API_KEY: ${API_KEY:?Set API_KEY in your environment or .env}
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in your environment or .env}
+      HA_BASE_URL: ${HA_BASE_URL:-}
       HA_WEBHOOK_URL: ${HA_WEBHOOK_URL:-}
       HA_TOKEN: ${HA_TOKEN:-}
       SSH_USER: ${SSH_USER:-luna}
