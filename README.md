@@ -28,6 +28,8 @@ This repo now includes:
 Start it from the project root:
 
 ```bash
+cp .env.example .env
+# edit .env as needed
 docker compose up -d --build
 ```
 
@@ -36,7 +38,7 @@ Then open:
 - API health: `http://YOUR_SERVER_IP/api/health`
 - SSH: `ssh luna@YOUR_SERVER_IP -p 2222`
 
-Default compose credentials are placeholders. Update `DB_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `API_KEY`, `JWT_SECRET`, and `SSH_PASSWORD` in `docker-compose.yml` before production use.
+The development compose file now reads `.env` automatically. Default values are placeholders, so set `DB_PASSWORD` or `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `API_KEY`, `JWT_SECRET`, and any optional Home Assistant values before relying on it.
 
 ### Hardened Production Variant
 
@@ -72,6 +74,7 @@ Notes:
 1. Copy `.env.prod.example` to `.env`
 2. Set strong random values for `DB_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `API_KEY`, and `JWT_SECRET`
 3. Set `SSH_PUBLIC_KEY` to a valid single-line OpenSSH public key
+4. Set `HA_BASE_URL`, `HA_WEBHOOK_URL`, and `HA_TOKEN` if you want Home Assistant device discovery and companion app notifications in Docker
 
 #### Common Docker Operations
 
@@ -144,9 +147,11 @@ Key values to set:
 |---|---|
 | `MYSQL_ROOT_PASSWORD` | Strong root DB password |
 | `MYSQL_PASSWORD` | App DB user password |
+| `DB_PASSWORD` | Preferred app DB user password variable for Docker/systemd deployments |
 | `API_KEY` | Secret key for API access |
+| `HA_BASE_URL` | Base URL for Home Assistant API, e.g. `https://homeassistant.example.com` |
 | `HA_WEBHOOK_URL` | Your HA webhook URL (see step 6) |
-| `HA_TOKEN` | HA long-lived token (optional, for future use) |
+| `HA_TOKEN` | HA long-lived token for device discovery and companion app notifications |
 
 ### 4. Set up MariaDB
 
@@ -197,6 +202,19 @@ sudo journalctl -u luna -f
 ### 7b. Set up planner reminders to Home Assistant users/devices
 
 Luna now sends `planner_reminder` webhook events when planner reminders become due.
+
+For direct device discovery and companion-app notifications, set both `HA_BASE_URL` and `HA_TOKEN` in `.env`. When those are present, Luna can:
+
+- populate planner reminder target dropdowns from Home Assistant
+- discover `notify.*` services, including `notify.mobile_app_*`
+- resolve `device_tracker.*` entities to matching mobile app notify services when possible
+- send reminder notifications directly through Home Assistant companion apps in addition to the webhook event
+
+Useful Home Assistant helper endpoints:
+
+- `GET /api/ha/notify-devices` returns the current list of valid Home Assistant reminder targets for the signed-in Luna user
+- `GET /api/ha/users` lists Luna users for embed generation
+- `GET /api/ha/embed-config?username=<luna_username>&base_url=<public_luna_url>` returns per-user planner, diary, calendar, and overview iframe URLs
 
 Create a Home Assistant automation that receives those webhook events and forwards them to a user/device.
 
@@ -282,11 +300,21 @@ Use these routes directly:
 - `http://YOUR_SERVER_IP/calendar`
 - `http://YOUR_SERVER_IP/log-day`
 - `http://YOUR_SERVER_IP/cycle-overview`
+- `http://YOUR_SERVER_IP/planner`
+- `http://YOUR_SERVER_IP/diary`
+
+Landing page behavior:
+
+- `/planner` opens the dedicated planner landing page directly
+- `/diary` opens the dedicated diary landing page directly
+- both routes accept `?token=YOUR_EMBED_TOKEN` for Home Assistant iframes
 
 If you are using embed token auth, append `?token=YOUR_EMBED_TOKEN` to each URL:
 - `http://YOUR_SERVER_IP/calendar?token=YOUR_EMBED_TOKEN`
 - `http://YOUR_SERVER_IP/log-day?token=YOUR_EMBED_TOKEN`
 - `http://YOUR_SERVER_IP/cycle-overview?token=YOUR_EMBED_TOKEN`
+- `http://YOUR_SERVER_IP/planner?token=YOUR_EMBED_TOKEN`
+- `http://YOUR_SERVER_IP/diary?token=YOUR_EMBED_TOKEN`
 
 ### 11. Embed the full Diary view in Home Assistant
 
@@ -295,6 +323,53 @@ You can embed the full diary page directly:
 
 With embed token auth:
 - `http://YOUR_SERVER_IP/diary?token=YOUR_EMBED_TOKEN`
+
+### 12. Add Luna calendar for a specific Home Assistant user
+
+Luna now provides helper endpoints so you can generate per-user calendar/planner embed links and card JSON.
+
+1. List Luna users:
+
+```bash
+curl -H "X-Api-Key: YOUR_API_KEY" \
+  "http://YOUR_SERVER_IP/api/ha/users"
+```
+
+2. Generate Home Assistant embed config for one Luna user:
+
+```bash
+curl -H "X-Api-Key: YOUR_API_KEY" \
+  "http://YOUR_SERVER_IP/api/ha/embed-config?username=mila&ha_user=alice&base_url=https://pt.example.com"
+```
+
+3. Use values from the response:
+- `urls.calendar` for a calendar iframe card
+- `urls.planner` for a planner iframe card
+- `urls.diary` for a diary iframe card
+- `lovelace.calendar_webpage_card` and `lovelace.planner_webpage_card` for ready-to-paste card config
+
+Direct planner card example:
+
+```yaml
+type: iframe
+title: Luna Planner (Mila)
+url: https://pt.example.com/planner?token=GENERATED_TOKEN
+aspect_ratio: 170%
+```
+
+Example manual card using response URL:
+
+```yaml
+type: iframe
+title: Luna Calendar (Mila)
+url: https://pt.example.com/calendar?token=GENERATED_TOKEN
+aspect_ratio: 100%
+```
+
+Notes:
+- Tokens generated by `/api/ha/embed-config` are valid for `365d`.
+- Use one embed token per Luna user profile.
+- Regenerate a token anytime if you need to rotate access.
 
 ---
 
@@ -333,11 +408,13 @@ All journal endpoints require authentication token.
 
 Luna includes a daily planner with reminders:
 
+- Dedicated planner landing page at `/planner`
+- Timed events with start/end times rendered in the hourly planner
 - Add planner tasks for any selected date
-- Mark tasks complete/incomplete
 - Edit or delete planner tasks
-- Optional reminder datetime per task
-- Optional reminder target value for routing in Home Assistant
+- Up to 3 reminders per event
+- Optional Home Assistant reminder target per reminder
+- Reminder targets can come from discovered Home Assistant companion apps and device trackers
 
 When a reminder is due, Luna sends a `planner_reminder` event to your configured `HA_WEBHOOK_URL`.
 
@@ -464,6 +541,16 @@ Luna ships with several built-in colour themes selectable from the dropdown in t
 
 Theme Studio lets you create and save fully custom themes. Open it by clicking **🎨 Theme Studio** in the header.
 
+Current theming coverage includes the main dashboard, cycle overview, log day, calendar, planner landing page, and diary landing page.
+
+Theme Studio supports:
+
+- quick and advanced editing modes
+- per-card background, border, blur, shadow, title text, and body text controls
+- dedicated Quartz/Glass controls for dashboard cards, overview cards, log day cards, calendar cards, planner cards, and diary cards
+- planner-specific paper tone, line colour, floral accent, and border darkness controls
+- wallpaper-backed page shells so planner and diary can visually match the main app while still keeping their own card styling
+
 #### Layout
 
 Theme Studio has two panels:
@@ -482,7 +569,9 @@ Swatches are grouped into collapsible sections:
 | **Cards** | Card background, card art overlay, drop shadow |
 | **Stats** | Stat tile background, border, text, label |
 | **Calendar** | Calendar grid background, day hover, today border, other-month days, header text, legend |
+| **Planner** | Planner card glass, planner text, paper tone, line colour, floral accents, planner event styling |
 | **Log Day** | Section labels, toggle borders/active states, pill borders/active states |
+| **Diary** | Diary card glass, diary text, diary title, book container styling |
 | **Buttons** | Primary button background, text, border, hover background, hover text, muted button, muted hover, secondary button variants |
 | **Inputs** | Input background, text, border, placeholder, focus border, focus ring |
 | **Modals** | Overlay, modal background, border, accent, text, muted text |
@@ -517,9 +606,10 @@ Adds a transparent/frosted card background to any theme:
 1. Choose a **tint colour** with the colour picker.
 2. Drag the **Opacity** slider to control how transparent the cards are.
 3. Drag the **Blur** slider to control backdrop blur strength (0–20 px).
-4. Tick **Apply same clear background to calendar card** to match the calendar card.
-5. Click **Apply Quartz Glass** for a one-click preset (white tint, 38% opacity, 5 px blur, gradient art).
-6. Click **Reset Solid** to return cards to a plain white solid background.
+4. Adjust the matching border opacity controls for each card family.
+5. Use the dedicated planner and diary glass rows to tune those page cards independently from the main dashboard.
+6. Click **Apply Quartz Glass** for a one-click preset (white tint, 38% opacity, 5 px blur, gradient art).
+7. Click **Reset Solid** to return cards to a plain white solid background.
 
 #### Saving a Theme
 
