@@ -206,6 +206,7 @@
     <div class="layout-tools">
       <button class="btn btn-sm layout-action-btn" onclick="exportCalendarPdf()">Print Calendar</button>
       <button class="btn btn-sm layout-action-btn" onclick="openPlannerPage()">Planner</button>
+      <button class="btn btn-sm layout-action-btn" onclick="openPlannerReminderModal()">Add Reminder</button>
       <button class="btn btn-sm layout-action-btn" onclick="openDiaryPage()">Diary</button>
       <button class="btn btn-sm layout-action-btn" onclick="resetDashboardLayout()">Reset Layout</button>
 
@@ -299,7 +300,7 @@
 
   <!-- Floating: Cycle Overview -->
 
-  <div class="card movable" data-move-id="overview-card">
+  <div class="card movable resizable" data-move-id="overview-card">
 
       <div class="card-header"><h2 class="header-title">Cycle Overview <span class="tiny-flower"></span></h2><div class="card-header-actions"><button class="panel-reset-btn" type="button" onclick="resetPanelLayout('overview-card')" title="Reset this panel">↺</button><button class="collapse-btn" data-collapse-target="overview-card" onclick="toggleCardCollapse('overview-card')" title="Collapse">−</button></div></div>
 
@@ -343,13 +344,15 @@
 
       </div>
 
+      <div class="resize-handle" data-resize-target="overview-card" data-resize-always="true" title="Resize cycle overview">↘</div>
+
     </div>
 
 
 
     <!-- Day Logger -->
 
-    <div class="card movable" data-move-id="logday-card">
+    <div class="card movable resizable" data-move-id="logday-card">
 
       <div class="card-header">
 
@@ -446,6 +449,8 @@
       
 
       </div>
+
+        <div class="resize-handle" data-resize-target="logday-card" data-resize-always="true" title="Resize day logger">↘</div>
 
   </div>
 
@@ -571,6 +576,7 @@
       <div class="card-header">
         <h2 class="header-title">Day Schedule <span class="tiny-flower"></span></h2>
         <div class="card-header-actions">
+          <button class="btn btn-luna btn-luna-muted" type="button" onclick="openPlannerReminderModal()">Add Reminder</button>
           <button class="panel-reset-btn" type="button" onclick="resetPanelLayout('planner-page-list-card')" title="Reset this panel">↺</button>
           <button class="collapse-btn" data-collapse-target="planner-page-list-card" onclick="toggleCardCollapse('planner-page-list-card')" title="Collapse">−</button>
         </div>
@@ -809,60 +815,100 @@
 </div>
 
 <div class="layout-modal-backdrop" id="plannerEventModalBackdrop" onclick="handlePlannerEventModalBackdropClick(event)">
-  <div class="layout-modal journal-print-modal" role="dialog" aria-modal="true" aria-labelledby="plannerEventModalTitleLabel">
-    <div class="lm-badge">⏰ PLANNER EVENT</div>
-    <h2 id="plannerEventModalTitleLabel">Edit Planner Event</h2>
-    <p id="plannerEventModalSubtitle">Create or update an event or reminder alarm for the selected day.</p>
+  <div class="layout-modal planner-event-modal" role="dialog" aria-modal="true" aria-labelledby="plannerEventModalTitleLabel">
+    <div class="planner-event-head">
+      <div class="lm-badge">Planner Event</div>
+      <h2 id="plannerEventModalTitleLabel">Edit Planner Event</h2>
+      <p id="plannerEventModalSubtitle">Create or update an event for the selected day.</p>
+      <div class="planner-event-day-note">Reminder times are for the selected day.</div>
+    </div>
 
-    <div class="planner-add-row">
+    <div class="planner-event-fields">
+      <label class="planner-alarm-only-toggle" for="plannerEventAlarmOnlyToggle">
+        <input id="plannerEventAlarmOnlyToggle" type="checkbox" onchange="setPlannerAlarmOnlyMode(this.checked)">
+        <span>Alarm-only mode (skip full event details)</span>
+      </label>
+      <div class="planner-alarm-only-hint" id="plannerAlarmOnlyHint">Use this for Home Assistant alarms without creating a full event description.</div>
+
+      <label class="studio-label" for="plannerEventTitleInput">Event title</label>
       <input id="plannerEventTitleInput" class="form-control" type="text" maxlength="255" placeholder="Event title (optional for reminder-only alarms)">
+
+      <label class="studio-label" for="plannerEventNotesInput">Notes</label>
+      <textarea id="plannerEventNotesInput" class="form-control" rows="3" placeholder="Add context for this event (optional)"></textarea>
     </div>
 
-    <div class="planner-add-row planner-reminder-row">
-      <input id="plannerEventReminderInput1" class="form-control" type="datetime-local" aria-label="Reminder 1 time">
-      <select id="plannerEventTargetInput1" class="form-control" aria-label="Reminder 1 device">
-        <option value="">Reminder 1 target (optional)</option>
-      </select>
-    </div>
-    <div class="planner-add-row planner-reminder-row">
-      <input id="plannerEventAudioUrlInput1" class="form-control" type="text" placeholder="Reminder 1 audio URL or media source (optional)" aria-label="Reminder 1 audio URL">
-      <select id="plannerEventMediaPlayerInput1" class="form-control" aria-label="Reminder 1 media player">
-        <option value="">Reminder 1 media player (optional)</option>
-      </select>
-    </div>
-    <div class="planner-add-row planner-reminder-row">
-      <input id="plannerEventReminderInput2" class="form-control" type="datetime-local" aria-label="Reminder 2 time">
-      <select id="plannerEventTargetInput2" class="form-control" aria-label="Reminder 2 device">
-        <option value="">Reminder 2 target (optional)</option>
-      </select>
-    </div>
-    <div class="planner-add-row planner-reminder-row">
-      <input id="plannerEventAudioUrlInput2" class="form-control" type="text" placeholder="Reminder 2 audio URL or media source (optional)" aria-label="Reminder 2 audio URL">
-      <select id="plannerEventMediaPlayerInput2" class="form-control" aria-label="Reminder 2 media player">
-        <option value="">Reminder 2 media player (optional)</option>
-      </select>
-    </div>
-    <div class="planner-add-row planner-reminder-row">
-      <input id="plannerEventReminderInput3" class="form-control" type="datetime-local" aria-label="Reminder 3 time">
-      <select id="plannerEventTargetInput3" class="form-control" aria-label="Reminder 3 device">
-        <option value="">Reminder 3 target (optional)</option>
-      </select>
-    </div>
-    <div class="planner-add-row planner-reminder-row">
-      <input id="plannerEventAudioUrlInput3" class="form-control" type="text" placeholder="Reminder 3 audio URL or media source (optional)" aria-label="Reminder 3 audio URL">
-      <select id="plannerEventMediaPlayerInput3" class="form-control" aria-label="Reminder 3 media player">
-        <option value="">Reminder 3 media player (optional)</option>
-      </select>
+    <div class="planner-reminder-slots">
+      <details class="planner-reminder-slot" id="plannerReminderSlot1" open>
+        <summary>Reminder 1</summary>
+        <div class="planner-reminder-slot-body">
+        <div class="planner-reminder-row">
+          <label class="studio-label" for="plannerEventReminderInput1">Time</label>
+          <input id="plannerEventReminderInput1" class="form-control" type="time" aria-label="Reminder 1 time" step="60">
+          <label class="studio-label" for="plannerEventTargetInput1">Notify target</label>
+          <select id="plannerEventTargetInput1" class="form-control" aria-label="Reminder 1 device">
+            <option value="">Reminder 1 target (optional)</option>
+          </select>
+        </div>
+        <div class="planner-reminder-row planner-reminder-row-secondary">
+          <label class="studio-label" for="plannerEventMediaPlayerInput1">TTS</label>
+          <input class="form-control" type="text" value="Reminder notes will be spoken via TTS" aria-label="Reminder 1 tts" readonly>
+          <label class="studio-label" for="plannerEventMediaPlayerInput1">Media player</label>
+          <select id="plannerEventMediaPlayerInput1" class="form-control" aria-label="Reminder 1 media player">
+            <option value="">Reminder 1 media player (optional)</option>
+          </select>
+        </div>
+        </div>
+      </details>
+
+      <details class="planner-reminder-slot" id="plannerReminderSlot2">
+        <summary>Reminder 2</summary>
+        <div class="planner-reminder-slot-body">
+        <div class="planner-reminder-row">
+          <label class="studio-label" for="plannerEventReminderInput2">Time</label>
+          <input id="plannerEventReminderInput2" class="form-control" type="time" aria-label="Reminder 2 time" step="60">
+          <label class="studio-label" for="plannerEventTargetInput2">Notify target</label>
+          <select id="plannerEventTargetInput2" class="form-control" aria-label="Reminder 2 device">
+            <option value="">Reminder 2 target (optional)</option>
+          </select>
+        </div>
+        <div class="planner-reminder-row planner-reminder-row-secondary">
+          <label class="studio-label" for="plannerEventMediaPlayerInput2">TTS</label>
+          <input class="form-control" type="text" value="Reminder notes will be spoken via TTS" aria-label="Reminder 2 tts" readonly>
+          <label class="studio-label" for="plannerEventMediaPlayerInput2">Media player</label>
+          <select id="plannerEventMediaPlayerInput2" class="form-control" aria-label="Reminder 2 media player">
+            <option value="">Reminder 2 media player (optional)</option>
+          </select>
+        </div>
+        </div>
+      </details>
+
+      <details class="planner-reminder-slot" id="plannerReminderSlot3">
+        <summary>Reminder 3</summary>
+        <div class="planner-reminder-slot-body">
+        <div class="planner-reminder-row">
+          <label class="studio-label" for="plannerEventReminderInput3">Time</label>
+          <input id="plannerEventReminderInput3" class="form-control" type="time" aria-label="Reminder 3 time" step="60">
+          <label class="studio-label" for="plannerEventTargetInput3">Notify target</label>
+          <select id="plannerEventTargetInput3" class="form-control" aria-label="Reminder 3 device">
+            <option value="">Reminder 3 target (optional)</option>
+          </select>
+        </div>
+        <div class="planner-reminder-row planner-reminder-row-secondary">
+          <label class="studio-label" for="plannerEventMediaPlayerInput3">TTS</label>
+          <input class="form-control" type="text" value="Reminder notes will be spoken via TTS" aria-label="Reminder 3 tts" readonly>
+          <label class="studio-label" for="plannerEventMediaPlayerInput3">Media player</label>
+          <select id="plannerEventMediaPlayerInput3" class="form-control" aria-label="Reminder 3 media player">
+            <option value="">Reminder 3 media player (optional)</option>
+          </select>
+        </div>
+        </div>
+      </details>
     </div>
 
-    <div class="planner-add-row">
-      <textarea id="plannerEventNotesInput" class="form-control" rows="4" placeholder="Notes (optional)"></textarea>
-    </div>
-
-    <div class="studio-actions">
+    <div class="studio-actions planner-event-actions">
       <button class="btn btn-luna btn-luna-muted" type="button" onclick="loadHaNotifyDevices(true)">Refresh Home Assistant Devices</button>
       <button class="btn btn-luna btn-luna-muted hidden" id="plannerEventDeleteBtn" type="button" onclick="deletePlannerEventFromModal()">Delete</button>
-      <button class="btn btn-luna" type="button" onclick="savePlannerEventFromModal()">Save Planner Item</button>
+      <button class="btn btn-luna" id="plannerEventSaveBtn" type="button" onclick="savePlannerEventFromModal()">Save Planner Item</button>
       <button class="btn btn-luna btn-luna-muted" type="button" onclick="closePlannerEventModal()">Close</button>
     </div>
   </div>
@@ -2301,6 +2347,8 @@ let haNotifyDevices = [];
 let haMediaPlayers = [];
 
 let plannerModalEditingId = null;
+
+let plannerModalAlarmOnly = false;
 
 let journalPrintMode = "all";
 
@@ -4575,6 +4623,18 @@ function resetDashboardLayout() {
 
 function enableLayoutDragging() {
 
+  if (!enableLayoutDragging.touchGuardInstalled) {
+    const preventTouchScrollWhileDragging = (ev) => {
+      if (!document.body.classList.contains("layout-dragging")) return;
+      ev.preventDefault();
+    };
+
+    // iOS Safari can still scroll during pointer drags; block touchmove while dragging.
+    window.addEventListener("touchmove", preventTouchScrollWhileDragging, { passive: false, capture: true });
+    window.addEventListener("touchstart", preventTouchScrollWhileDragging, { passive: false, capture: true });
+    enableLayoutDragging.touchGuardInstalled = true;
+  }
+
   document.querySelectorAll(".movable").forEach((el) => {
 
     if (el.dataset.dragReady === "1") return;
@@ -4588,6 +4648,7 @@ function enableLayoutDragging() {
       if (ev.target.closest("button, input, select, textarea, a, .collapse-btn")) return;
 
       ev.preventDefault();
+      ev.stopPropagation();
 
       const id = el.dataset.moveId;
 
@@ -4597,9 +4658,24 @@ function enableLayoutDragging() {
 
       const startY = ev.clientY;
 
+      const pointerId = ev.pointerId;
+
+      if (typeof el.setPointerCapture === "function") {
+        try {
+          el.setPointerCapture(pointerId);
+        } catch (_) {
+          // Ignore capture failures for unsupported pointers/devices.
+        }
+      }
+
       el.classList.add("dragging");
+      document.body.classList.add("layout-dragging");
 
       const onMove = (moveEv) => {
+
+        if (moveEv.pointerId !== pointerId) return;
+
+        moveEv.preventDefault();
 
         const dx = moveEv.clientX - startX;
 
@@ -4615,7 +4691,16 @@ function enableLayoutDragging() {
 
       const onUp = () => {
 
+        if (typeof el.releasePointerCapture === "function") {
+          try {
+            el.releasePointerCapture(pointerId);
+          } catch (_) {
+            // Ignore release failures when pointer capture was not set.
+          }
+        }
+
         el.classList.remove("dragging");
+        document.body.classList.remove("layout-dragging");
 
         window.removeEventListener("pointermove", onMove);
 
@@ -4627,7 +4712,7 @@ function enableLayoutDragging() {
 
       };
 
-      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointermove", onMove, { passive: false });
 
       window.addEventListener("pointerup", onUp);
 
@@ -4668,6 +4753,17 @@ function enableCardResizing() {
       const startW = card.offsetWidth;
 
       const startH = card.offsetHeight;
+
+      const computed = window.getComputedStyle(card);
+
+      // If a card is right-anchored, width growth appears inverted.
+      // Re-anchor to the current left edge so resizing follows pointer direction.
+      if (computed.right !== "auto") {
+        // Use offsetLeft (layout coordinates) to avoid jumps when transform is active.
+        const nextLeft = Math.round(card.offsetLeft || 0);
+        card.style.left = `${nextLeft}px`;
+        card.style.right = "auto";
+      }
 
       const minW = 360;
 
@@ -5608,6 +5704,7 @@ function plannerItemsForSelectedDate() {
 function normalizePlannerReminderTarget(rawValue) {
   const value = String(rawValue || "").trim();
   if (!value) return "";
+  if (["undefined", "null", "none", "n/a"].includes(value.toLowerCase())) return "";
   if (value.startsWith("notify.")) return value;
   return value;
 }
@@ -5837,8 +5934,16 @@ function renderPlannerUI() {
 }
 
 function normalizePlannerReminderForApi(rawValue) {
-  if (!rawValue) return null;
-  return String(rawValue).replace("T", " ") + ":00";
+  const value = String(rawValue || "").trim();
+  if (!value) return null;
+  if (/^\d{2}:\d{2}$/.test(value)) {
+    if (!selectedDate) return null;
+    return `${selectedDate} ${value}:00`;
+  }
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) {
+    return `${value.replace("T", " ")}:00`;
+  }
+  return null;
 }
 
 function normalizeReminderForInput(rawValue) {
@@ -5846,7 +5951,7 @@ function normalizeReminderForInput(rawValue) {
   const d = new Date(rawValue);
   if (Number.isNaN(d.getTime())) return "";
   const pad = (v) => String(v).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function renderPlannerTargetDropdowns() {
@@ -6013,6 +6118,26 @@ function closePlannerEventModal() {
   const backdrop = document.getElementById("plannerEventModalBackdrop");
   if (backdrop) backdrop.classList.remove("visible");
   plannerModalEditingId = null;
+  setPlannerAlarmOnlyMode(false);
+}
+
+function setPlannerReminderSlotExpanded(slot, expanded) {
+  const details = document.getElementById(`plannerReminderSlot${slot}`);
+  if (!details) return;
+  details.open = Boolean(expanded);
+}
+
+function setPlannerAlarmOnlyMode(enabled) {
+  const alarmOnly = Boolean(enabled);
+  plannerModalAlarmOnly = alarmOnly;
+  const modal = document.querySelector("#plannerEventModalBackdrop .planner-event-modal");
+  if (modal) modal.classList.toggle("alarm-only-mode", alarmOnly);
+
+  const toggle = document.getElementById("plannerEventAlarmOnlyToggle");
+  if (toggle && toggle.checked !== alarmOnly) toggle.checked = alarmOnly;
+
+  const saveBtn = document.getElementById("plannerEventSaveBtn");
+  if (saveBtn) saveBtn.textContent = alarmOnly ? "Save Alarm" : "Save Planner Item";
 }
 
 function openPlannerEventModal(options = {}) {
@@ -6040,11 +6165,6 @@ function openPlannerEventModal(options = {}) {
     document.getElementById("plannerEventTargetInput2"),
     document.getElementById("plannerEventTargetInput3"),
   ];
-  const audioInputs = [
-    document.getElementById("plannerEventAudioUrlInput1"),
-    document.getElementById("plannerEventAudioUrlInput2"),
-    document.getElementById("plannerEventAudioUrlInput3"),
-  ];
   const mediaPlayerInputs = [
     document.getElementById("plannerEventMediaPlayerInput1"),
     document.getElementById("plannerEventMediaPlayerInput2"),
@@ -6053,9 +6173,11 @@ function openPlannerEventModal(options = {}) {
   const heading = document.getElementById("plannerEventModalTitleLabel");
   const subtitle = document.getElementById("plannerEventModalSubtitle");
   const deleteBtn = document.getElementById("plannerEventDeleteBtn");
+  const saveBtn = document.getElementById("plannerEventSaveBtn");
+  const alarmOnlyToggle = document.getElementById("plannerEventAlarmOnlyToggle");
   const backdrop = document.getElementById("plannerEventModalBackdrop");
 
-  if (!titleInput || !notesInput || !heading || !subtitle || !deleteBtn || !backdrop) return;
+  if (!titleInput || !notesInput || !heading || !subtitle || !deleteBtn || !saveBtn || !alarmOnlyToggle || !backdrop) return;
 
   renderPlannerTargetDropdowns();
   renderPlannerMediaPlayerDropdowns();
@@ -6088,12 +6210,18 @@ function openPlannerEventModal(options = {}) {
     setSelectValueSafe(targetInputs[0], item.reminder_target || "");
     setSelectValueSafe(targetInputs[1], item.reminder_target_2 || "");
     setSelectValueSafe(targetInputs[2], item.reminder_target_3 || "");
-    audioInputs[0].value = item.reminder_audio_url || "";
-    audioInputs[1].value = item.reminder_audio_url_2 || "";
-    audioInputs[2].value = item.reminder_audio_url_3 || "";
     setSelectValueSafe(mediaPlayerInputs[0], item.reminder_media_player || "");
     setSelectValueSafe(mediaPlayerInputs[1], item.reminder_media_player_2 || "");
     setSelectValueSafe(mediaPlayerInputs[2], item.reminder_media_player_3 || "");
+    const itemLooksAlarmOnly = !String(item.title || "").trim() && [
+      item.reminder_at,
+      item.reminder_at_2,
+      item.reminder_at_3,
+    ].some((v) => Boolean(v));
+    setPlannerAlarmOnlyMode(itemLooksAlarmOnly);
+    setPlannerReminderSlotExpanded(1, true);
+    setPlannerReminderSlotExpanded(2, Boolean(reminderInputs[1]?.value || targetInputs[1]?.value || mediaPlayerInputs[1]?.value));
+    setPlannerReminderSlotExpanded(3, Boolean(reminderInputs[2]?.value || targetInputs[2]?.value || mediaPlayerInputs[2]?.value));
     deleteBtn.classList.remove("hidden");
   } else {
     heading.textContent = reminderOnly ? "New Reminder Alarm" : "New Planner Event";
@@ -6104,18 +6232,22 @@ function openPlannerEventModal(options = {}) {
     notesInput.value = "";
     reminderInputs.forEach((input) => { if (input) input.value = ""; });
     targetInputs.forEach((select) => { if (select) select.value = ""; });
-    audioInputs.forEach((input) => { if (input) input.value = ""; });
     mediaPlayerInputs.forEach((select) => { if (select) select.value = ""; });
     if (slotHour != null && reminderInputs[0]) {
-      const defaultValue = `${selectedDate}T${String(slotHour).padStart(2, "0")}:00`;
+      const defaultValue = `${String(slotHour).padStart(2, "0")}:00`;
       reminderInputs[0].value = defaultValue;
     }
     if (reminderOnly && reminderInputs[0] && !reminderInputs[0].value) {
-      reminderInputs[0].value = `${selectedDate}T09:00`;
+      reminderInputs[0].value = "09:00";
     }
+    setPlannerAlarmOnlyMode(reminderOnly);
+    setPlannerReminderSlotExpanded(1, true);
+    setPlannerReminderSlotExpanded(2, false);
+    setPlannerReminderSlotExpanded(3, false);
     deleteBtn.classList.add("hidden");
   }
 
+  if (!plannerModalAlarmOnly) saveBtn.textContent = "Save Planner Item";
   backdrop.classList.add("visible");
   if (reminderOnly && reminderInputs[0]) reminderInputs[0].focus();
   else titleInput.focus();
@@ -6134,11 +6266,6 @@ async function savePlannerEventFromModal() {
     (document.getElementById("plannerEventTargetInput2")?.value || "").trim(),
     (document.getElementById("plannerEventTargetInput3")?.value || "").trim(),
   ];
-  const reminderAudioUrls = [
-    (document.getElementById("plannerEventAudioUrlInput1")?.value || "").trim(),
-    (document.getElementById("plannerEventAudioUrlInput2")?.value || "").trim(),
-    (document.getElementById("plannerEventAudioUrlInput3")?.value || "").trim(),
-  ];
   const reminderMediaPlayers = [
     (document.getElementById("plannerEventMediaPlayerInput1")?.value || "").trim(),
     (document.getElementById("plannerEventMediaPlayerInput2")?.value || "").trim(),
@@ -6147,26 +6274,29 @@ async function savePlannerEventFromModal() {
 
   if (!selectedDate) return toast("Select a date first", true);
 
+  const alarmOnly = Boolean(document.getElementById("plannerEventAlarmOnlyToggle")?.checked);
+  const effectiveTitle = title || (alarmOnly ? "Reminder alarm" : "");
+
   const payload = {
     plan_date: selectedDate,
-    title,
-    notes: notes || null,
+    title: effectiveTitle,
+    notes: alarmOnly ? null : (notes || null),
     reminder_at: normalizePlannerReminderForApi(reminderInputs[0]),
     reminder_target: reminderTargets[0] || null,
-    reminder_audio_url: reminderAudioUrls[0] || null,
+    reminder_audio_url: null,
     reminder_media_player: reminderMediaPlayers[0] || null,
     reminder_at_2: normalizePlannerReminderForApi(reminderInputs[1]),
     reminder_target_2: reminderTargets[1] || null,
-    reminder_audio_url_2: reminderAudioUrls[1] || null,
+    reminder_audio_url_2: null,
     reminder_media_player_2: reminderMediaPlayers[1] || null,
     reminder_at_3: normalizePlannerReminderForApi(reminderInputs[2]),
     reminder_target_3: reminderTargets[2] || null,
-    reminder_audio_url_3: reminderAudioUrls[2] || null,
+    reminder_audio_url_3: null,
     reminder_media_player_3: reminderMediaPlayers[2] || null,
   };
 
   const hasReminder = [payload.reminder_at, payload.reminder_at_2, payload.reminder_at_3].some((value) => Boolean(value));
-  if (!title && !hasReminder) return toast("Add a title or at least one reminder alarm", true);
+  if (!effectiveTitle && !hasReminder) return toast("Add a title or at least one reminder alarm", true);
 
   try {
     if (plannerModalEditingId) {

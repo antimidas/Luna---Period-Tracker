@@ -50,6 +50,20 @@ const JWT_EXPIRES_IN = "7d";
 const API_KEY = process.env.API_KEY || "mysecretapikey";
 const PHPMYADMIN_URL = process.env.PHPMYADMIN_URL || "/phpmyadmin";
 const BACKUP_DIR = path.join(__dirname, "..", "backups");
+const BUILTIN_PLANNER_ALARM_SOUNDS = new Set([
+  "/audio/alarms/chime-soft.wav",
+  "/audio/alarms/bell-clear.wav",
+  "/audio/alarms/morning-bloom.wav",
+  "/audio/alarms/gentle-harp.wav",
+  "/audio/alarms/tiny-marimba.wav",
+  "/audio/alarms/sunrise-tone.wav",
+]);
+
+function normalizePlannerAlarmAudio(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  return BUILTIN_PLANNER_ALARM_SOUNDS.has(raw) ? raw : null;
+}
 
 function symptomEmoji(symptom) {
   return SYMPTOM_EMOJIS[symptom] || "✏️";
@@ -284,9 +298,31 @@ function getHomeAssistantApiConfig() {
 function normalizeHaNotifyTarget(target) {
   const raw = String(target || "").trim();
   if (!raw) return "";
+  const lowered = raw.toLowerCase();
+  if (["undefined", "null", "none", "n/a"].includes(lowered)) return "";
+  if (lowered === "notify.undefined" || lowered === "notify.null" || lowered === "notify.none" || lowered === "notify.n/a") return "";
   if (raw.startsWith("notify.")) return raw;
   if (/^[a-z0-9_]+$/i.test(raw)) return `notify.${raw.toLowerCase()}`;
   return "";
+}
+
+function normalizeHaNotifyTargets(targets) {
+  const raw = String(targets || "");
+  if (!raw.trim()) return [];
+  const seen = new Set();
+  const normalized = [];
+
+  raw
+    .split(/[\n,;]+/)
+    .map((part) => normalizeHaNotifyTarget(part))
+    .filter(Boolean)
+    .forEach((service) => {
+      if (seen.has(service)) return;
+      seen.add(service);
+      normalized.push(service);
+    });
+
+  return normalized;
 }
 
 function formatHaNotifyLabel(entityId) {
@@ -299,6 +335,8 @@ function formatHaNotifyLabel(entityId) {
 function normalizeHaMediaPlayerTarget(target) {
   const raw = String(target || "").trim();
   if (!raw) return "";
+  const lowered = raw.toLowerCase();
+  if (["media_player.undefined", "media_player.null", "media_player.none", "media_player.n/a"].includes(lowered)) return "";
   if (raw.startsWith("media_player.")) return raw;
   if (/^[a-z0-9_]+$/i.test(raw)) return `media_player.${raw.toLowerCase()}`;
   return "";
@@ -374,30 +412,42 @@ async function fetchHomeAssistantMediaPlayers() {
 
 async function sendHomeAssistantCompanionNotification(target, title, message, data = {}) {
   const config = getHomeAssistantApiConfig();
-  const entityId = normalizeHaNotifyTarget(target);
-  if (!config || !entityId) return { sent: false, reason: "missing_config_or_target" };
+  const entityIds = normalizeHaNotifyTargets(target);
+  if (!config || !entityIds.length) return { sent: false, reason: "missing_config_or_target" };
 
-  const serviceName = entityId.replace(/^notify\./, "");
-  if (!serviceName) return { sent: false, reason: "invalid_service" };
+  const failures = [];
+  let delivered = 0;
 
-  try {
-    await axios.post(
-      `${config.baseUrl}/api/services/notify/${serviceName}`,
-      {
-        title: String(title || "Luna Reminder"),
-        message: String(message || "Planner reminder"),
-        data,
-      },
-      {
-        headers: { Authorization: `Bearer ${config.token}` },
-        timeout: 7000,
-      }
-    );
-    return { sent: true };
-  } catch (err) {
-    console.error(`HA direct notify failed (${entityId}):`, err.message);
-    return { sent: false, reason: err.message };
+  for (const entityId of entityIds) {
+    const serviceName = entityId.replace(/^notify\./, "");
+    if (!serviceName) {
+      failures.push(`${entityId}: invalid_service`);
+      continue;
+    }
+
+    try {
+      await axios.post(
+        `${config.baseUrl}/api/services/notify/${serviceName}`,
+        {
+          title: String(title || "Luna Reminder"),
+          message: String(message || "Planner reminder"),
+          data,
+        },
+        {
+          headers: { Authorization: `Bearer ${config.token}` },
+          timeout: 7000,
+        }
+      );
+      delivered += 1;
+    } catch (err) {
+      const reason = err?.response?.data?.message || err?.message || "unknown_error";
+      failures.push(`${entityId}: ${reason}`);
+      console.error(`HA direct notify failed (${entityId}):`, reason);
+    }
   }
+
+  if (delivered > 0) return { sent: true, delivered, attempted: entityIds.length };
+  return { sent: false, reason: failures.join(" | ") || "delivery_failed" };
 }
 
 async function playHomeAssistantMedia(mediaPlayerTarget, audioUrl) {
@@ -424,6 +474,87 @@ async function playHomeAssistantMedia(mediaPlayerTarget, audioUrl) {
     console.error(`HA media playback failed (${entityId}):`, err.message);
     return { sent: false, reason: err.message };
   }
+}
+
+async function speakHomeAssistantTts(mediaPlayerTarget, message) {
+  const config = getHomeAssistantApiConfig();
+  const entityId = normalizeHaMediaPlayerTarget(mediaPlayerTarget);
+  const speech = String(message || "").trim();
+  if (!config || !entityId || !speech) return { sent: false, reason: "missing_config_or_message" };
+
+  const ttsEntity = String(process.env.HA_TTS_ENTITY || process.env.HA_TTS_ENGINE || "tts.google_en_com").trim();
+  const attempts = [];
+
+  attempts.push(async () => axios.post(
+    `${config.baseUrl}/api/services/tts/speak`,
+    {
+      target: { entity_id: ttsEntity },
+      data: {
+        media_player_entity_id: entityId,
+        message: speech,
+      },
+    },
+    {
+      headers: { Authorization: `Bearer ${config.token}` },
+      timeout: 7000,
+    }
+  ));
+
+  attempts.push(async () => axios.post(
+    `${config.baseUrl}/api/services/tts/google_translate_say`,
+    {
+      entity_id: entityId,
+      message: speech,
+    },
+    {
+      headers: { Authorization: `Bearer ${config.token}` },
+      timeout: 7000,
+    }
+  ));
+
+  // Alexa Media Player fallback path: some Alexa devices reject generic media_player TTS calls.
+  attempts.push(async () => axios.post(
+    `${config.baseUrl}/api/services/notify/alexa_media`,
+    {
+      message: speech,
+      data: {
+        type: "tts",
+        target: [entityId],
+      },
+    },
+    {
+      headers: { Authorization: `Bearer ${config.token}` },
+      timeout: 7000,
+    }
+  ));
+
+  const alexaDeviceService = entityId.replace(/^media_player\./, "alexa_media_");
+  attempts.push(async () => axios.post(
+    `${config.baseUrl}/api/services/notify/${alexaDeviceService}`,
+    {
+      message: speech,
+      data: {
+        type: "tts",
+      },
+    },
+    {
+      headers: { Authorization: `Bearer ${config.token}` },
+      timeout: 7000,
+    }
+  ));
+
+  let lastReason = "unknown_error";
+  for (const attempt of attempts) {
+    try {
+      await attempt();
+      return { sent: true, method: "tts" };
+    } catch (err) {
+      lastReason = err?.response?.data?.message || err?.message || "unknown_error";
+    }
+  }
+
+  console.error(`HA TTS delivery failed (${entityId}):`, lastReason);
+  return { sent: false, reason: lastReason };
 }
 
 async function getPrediction(userId) {
@@ -1151,6 +1282,9 @@ app.post("/api/planner", requireAuth, async (req, res) => {
     } = req.body || {};
     const cleanedTitle = String(title || "").trim();
     const hasReminder = [reminder_at, reminder_at_2, reminder_at_3].some((value) => Boolean(value));
+    const safeAudio1 = normalizePlannerAlarmAudio(reminder_audio_url);
+    const safeAudio2 = normalizePlannerAlarmAudio(reminder_audio_url_2);
+    const safeAudio3 = normalizePlannerAlarmAudio(reminder_audio_url_3);
     if (!plan_date) return res.status(400).json({ error: "plan_date required" });
     if (!cleanedTitle && !hasReminder) return res.status(400).json({ error: "title or reminder required" });
 
@@ -1181,15 +1315,15 @@ app.post("/api/planner", requireAuth, async (req, res) => {
         notes ? String(notes) : null,
         reminder_at || null,
         reminder_target ? String(reminder_target).trim() : null,
-        reminder_audio_url ? String(reminder_audio_url).trim() : null,
+        safeAudio1,
         reminder_media_player ? String(reminder_media_player).trim() : null,
         reminder_at_2 || null,
         reminder_target_2 ? String(reminder_target_2).trim() : null,
-        reminder_audio_url_2 ? String(reminder_audio_url_2).trim() : null,
+        safeAudio2,
         reminder_media_player_2 ? String(reminder_media_player_2).trim() : null,
         reminder_at_3 || null,
         reminder_target_3 ? String(reminder_target_3).trim() : null,
-        reminder_audio_url_3 ? String(reminder_audio_url_3).trim() : null,
+        safeAudio3,
         reminder_media_player_3 ? String(reminder_media_player_3).trim() : null,
       ]
     );
@@ -1274,7 +1408,7 @@ app.patch("/api/planner/:id", requireAuth, async (req, res) => {
     }
     if (reminder_audio_url !== undefined) {
       fields.push("reminder_audio_url=?");
-      values.push(reminder_audio_url ? String(reminder_audio_url).trim() : null);
+      values.push(normalizePlannerAlarmAudio(reminder_audio_url));
     }
     if (reminder_media_player !== undefined) {
       fields.push("reminder_media_player=?");
@@ -1291,7 +1425,7 @@ app.patch("/api/planner/:id", requireAuth, async (req, res) => {
     }
     if (reminder_audio_url_2 !== undefined) {
       fields.push("reminder_audio_url_2=?");
-      values.push(reminder_audio_url_2 ? String(reminder_audio_url_2).trim() : null);
+      values.push(normalizePlannerAlarmAudio(reminder_audio_url_2));
     }
     if (reminder_media_player_2 !== undefined) {
       fields.push("reminder_media_player_2=?");
@@ -1308,7 +1442,7 @@ app.patch("/api/planner/:id", requireAuth, async (req, res) => {
     }
     if (reminder_audio_url_3 !== undefined) {
       fields.push("reminder_audio_url_3=?");
-      values.push(reminder_audio_url_3 ? String(reminder_audio_url_3).trim() : null);
+      values.push(normalizePlannerAlarmAudio(reminder_audio_url_3));
     }
     if (reminder_media_player_3 !== undefined) {
       fields.push("reminder_media_player_3=?");
@@ -1634,9 +1768,11 @@ cron.schedule("* * * * *", async () => {
 
         for (const reminder of reminders) {
           if (!reminder.at || reminder.sentAt) continue;
-          if (new Date(reminder.at).getTime() > Date.now()) continue;
 
-          const message = row.notes ? `${row.title} — ${row.notes}` : row.title;
+          const safeTitle = String(row.title || "").trim() || "Reminder alarm";
+          const safeNotes = String(row.notes || "").trim();
+          const message = safeNotes ? `${safeTitle} - ${safeNotes}` : safeTitle;
+
           const deliveryResults = [];
 
           const webhookResult = await notifyHomeAssistant("planner_reminder", {
@@ -1649,8 +1785,8 @@ cron.schedule("* * * * *", async () => {
             reminder_target: reminder.target || null,
             reminder_audio_url: reminder.audioUrl || null,
             reminder_media_player: reminder.mediaPlayer || null,
-            title: row.title,
-            notes: row.notes || "",
+            title: safeTitle,
+            notes: safeNotes,
             message,
           });
           if (!webhookResult?.skipped) {
@@ -1672,9 +1808,10 @@ cron.schedule("* * * * *", async () => {
             deliveryResults.push({ channel: "notify", result: notifyResult });
           }
 
-          if (reminder.audioUrl && reminder.mediaPlayer) {
-            const audioResult = await playHomeAssistantMedia(reminder.mediaPlayer, reminder.audioUrl);
-            deliveryResults.push({ channel: "audio", result: audioResult });
+          if (reminder.mediaPlayer) {
+            const speechMessage = safeNotes || safeTitle;
+            const ttsResult = await speakHomeAssistantTts(reminder.mediaPlayer, speechMessage);
+            deliveryResults.push({ channel: "tts", result: ttsResult });
           }
 
           if (!deliveryResults.length) {
@@ -1682,12 +1819,23 @@ cron.schedule("* * * * *", async () => {
             continue;
           }
 
-          const failedDelivery = deliveryResults.find(({ result }) => !result?.sent);
-          if (failedDelivery) {
+          const succeededDelivery = deliveryResults.find(({ result }) => !!result?.sent);
+          if (!succeededDelivery) {
+            const failureSummary = deliveryResults
+              .map(({ channel, result }) => `${channel}: ${result?.reason || "unknown error"}`)
+              .join(" | ");
             console.error(
-              `planner reminder ${row.id}/${reminder.slot} not marked sent because ${failedDelivery.channel} delivery failed: ${failedDelivery.result?.reason || "unknown error"}`
+              `planner reminder ${row.id}/${reminder.slot} not marked sent because no delivery channel succeeded: ${failureSummary}`
             );
             continue;
+          }
+
+          const failedDeliveries = deliveryResults.filter(({ result }) => !result?.sent);
+          if (failedDeliveries.length) {
+            const partialSummary = failedDeliveries
+              .map(({ channel, result }) => `${channel}: ${result?.reason || "unknown error"}`)
+              .join(" | ");
+            console.warn(`planner reminder ${row.id}/${reminder.slot} partially delivered; continuing because at least one channel succeeded (${partialSummary})`);
           }
 
           await pool.query(

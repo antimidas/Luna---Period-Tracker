@@ -217,8 +217,27 @@ For direct device discovery and companion-app notifications, set both `HA_BASE_U
 
 - populate planner reminder target dropdowns from Home Assistant
 - discover `notify.*` services, including `notify.mobile_app_*`
+- discover `media_player.*` entities for spoken reminder notes (TTS)
 - resolve `device_tracker.*` entities to matching mobile app notify services when possible
 - send reminder notifications directly through Home Assistant companion apps in addition to the webhook event
+
+### Alexa / TTS reminder notes
+
+Planner reminders can speak reminder notes through Home Assistant media players (including Alexa devices).
+
+- In Luna, set a planner reminder media player target (for example `media_player.office_dot_2`).
+- Luna will attempt TTS in this order:
+  - `tts.speak`
+  - `tts.google_translate_say`
+  - Alexa Media Player notify fallback (`notify.alexa_media` and device-specific `notify.alexa_media_*`)
+- Optional env vars:
+  - `HA_TTS_ENTITY` (preferred) or `HA_TTS_ENGINE` (fallback), default: `tts.google_en_com`
+
+Delivery behavior:
+
+- A reminder is marked sent when at least one configured channel succeeds (webhook, notify target, or TTS).
+- Failed side channels no longer block successful channels from marking reminders sent.
+- Placeholder invalid targets like `notify.undefined` and `media_player.undefined` are ignored.
 
 Useful Home Assistant helper endpoints:
 

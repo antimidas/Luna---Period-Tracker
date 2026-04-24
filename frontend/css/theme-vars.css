@@ -212,6 +212,7 @@
     --input-focus-border: var(--rose);
     --input-focus-ring: color-mix(in srgb, var(--rose) 25%, transparent);
     --bg-art: none;
+    --bg-art-fallback: linear-gradient(135deg, #f5d8e6 0%, #d9e7ff 52%, #f7e4c8 100%);
     --bg-position: center center;
     --card-art: none;
     --shadow:  0 2px 20px rgba(194,100,122,0.08);

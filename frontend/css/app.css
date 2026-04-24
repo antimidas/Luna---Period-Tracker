@@ -4,13 +4,24 @@
   body {
     font-family: var(--app-font, 'DM Sans', sans-serif);
     background-color: var(--cream);
-    background-image: var(--bg-art);
+    background-image: var(--bg-art), var(--bg-art-fallback, linear-gradient(135deg, #f5d8e6 0%, #d9e7ff 52%, #f7e4c8 100%));
     background-position: var(--bg-position);
     background-attachment: fixed;
     background-size: cover;
     color: var(--ink);
     min-height: 100vh;
     margin: 0;
+  }
+  @media (hover: none) and (pointer: coarse) {
+    body {
+      background-attachment: scroll;
+      background-size: cover;
+    }
+  }
+  body.layout-dragging {
+    overflow: hidden;
+    touch-action: none;
+    overscroll-behavior: none;
   }
 
   /* ── Header ─────────────────────────────────── */
@@ -179,9 +190,10 @@
     inset: 0;
     background: var(--modal-overlay);
     z-index: 9000;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding-top: 80px;
+    padding: 16px;
+    overflow-y: auto;
   }
   .layout-modal-backdrop.visible { display: flex; }
   .layout-modal {
@@ -191,6 +203,8 @@
     padding: 28px 32px 24px;
     max-width: 420px;
     width: 90%;
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
     box-shadow: 0 8px 40px rgba(0,0,0,0.28);
     text-align: center;
     animation: modalPop 0.2s ease;
@@ -230,6 +244,8 @@
     width: min(92vw, 760px);
     text-align: left;
     padding: 20px;
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
   }
   .wallpaper-modal h2 { margin-bottom: 6px; }
   .wallpaper-add-row {
@@ -308,6 +324,8 @@
     width: min(92vw, 760px);
     text-align: left;
     padding: 20px;
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
   }
   .journal-print-modal h2 { margin-bottom: 6px; }
   .journal-print-options {
@@ -369,6 +387,114 @@
     color: var(--muted);
     font-size: 0.75rem;
     line-height: 1.35;
+  }
+
+  .planner-event-modal {
+    max-width: 900px;
+    width: min(96vw, 900px);
+    text-align: left;
+    padding: 18px;
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+  }
+  .planner-event-head h2 {
+    margin: 4px 0 6px;
+  }
+  .planner-event-day-note {
+    font-size: 0.8rem;
+    color: var(--modal-muted);
+    margin-bottom: 10px;
+  }
+  .planner-event-fields {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .planner-alarm-only-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--ink);
+    margin-bottom: 2px;
+    cursor: pointer;
+  }
+  .planner-alarm-only-toggle input {
+    margin: 0;
+  }
+  .planner-alarm-only-hint {
+    font-size: 0.74rem;
+    color: var(--modal-muted);
+    margin-bottom: 6px;
+  }
+  .planner-event-modal.alarm-only-mode .planner-event-fields .studio-label,
+  .planner-event-modal.alarm-only-mode #plannerEventTitleInput,
+  .planner-event-modal.alarm-only-mode #plannerEventNotesInput {
+    opacity: 0.65;
+  }
+  .planner-reminder-slots {
+    display: grid;
+    gap: 10px;
+  }
+  .planner-reminder-slot {
+    border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--modal-bg) 92%, var(--ink) 8%);
+    padding: 10px;
+    display: grid;
+    gap: 8px;
+  }
+  .planner-reminder-slot summary {
+    margin: 0;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .planner-reminder-slot summary::-webkit-details-marker {
+    display: none;
+  }
+  .planner-reminder-slot summary::after {
+    content: "+";
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--modal-accent);
+  }
+  .planner-reminder-slot[open] summary::after {
+    content: "−";
+  }
+  .planner-reminder-slot summary,
+  .planner-reminder-slot h3 {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--modal-accent);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .planner-reminder-slot-body {
+    display: grid;
+    gap: 8px;
+  }
+  .planner-reminder-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 180px) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+  }
+  .planner-reminder-row .studio-label {
+    margin: 0;
+    font-size: 0.72rem;
+    color: var(--modal-muted);
+  }
+  .planner-reminder-row input[type="time"] {
+    min-height: 38px;
+  }
+  .planner-event-actions {
+    margin-top: 12px;
+    justify-content: flex-end;
   }
 
 
@@ -972,6 +1098,16 @@
       grid-template-columns: 1fr 1fr !important;
       align-items: end !important;
     }
+
+    .planner-event-modal {
+      width: min(98vw, 98vw);
+      padding: 14px;
+    }
+    .planner-reminder-row {
+      grid-template-columns: 1fr;
+      align-items: stretch;
+      gap: 6px;
+    }
   }
 
   @media (max-width: 680px) {
@@ -1215,6 +1351,11 @@
     background: var(--overview-flower-bg);
     border-color: var(--overview-flower-border);
   }
+  .movable .card-header {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
   .card[data-move-id="logday-card"] .card-header h2 { color: var(--logday-title-color); }
   .card[data-move-id="logday-card"] .tiny-flower {
     color: var(--logday-flower-color);
@@ -1228,7 +1369,7 @@
     border-color: var(--journal-flower-border);
   }
   .card[data-move-id^="planner-page-"] {
-    position: fixed;
+    position: absolute;
     z-index: 100;
     background: var(--planner-card-bg) !important;
     border-color: var(--planner-card-border);
@@ -1257,7 +1398,7 @@
     border-color: var(--planner-flower-border);
   }
   .card[data-move-id^="diary-page-"] {
-    position: fixed;
+    position: absolute;
     z-index: 100;
     background: var(--diary-page-card-bg) !important;
     border-color: var(--diary-page-card-border);
@@ -1476,39 +1617,39 @@
     margin: 0 auto;
   }
   .planner-canvas .card[data-move-id="planner-page-list-card"] {
-    top: 172px;
-    left: 20px;
-    width: min(520px, calc(100vw - 48px));
+    top: 0;
+    left: 0;
+    width: min(520px, calc(36% - 12px));
     min-height: 520px;
   }
   .planner-canvas .card[data-move-id="planner-page-insights-card"] {
-    top: 172px;
-    right: 20px;
-    width: min(380px, calc(100vw - 48px));
+    top: 0;
+    right: 0;
+    width: min(380px, 24%);
     min-height: 430px;
   }
   .planner-canvas .card[data-move-id="planner-page-hourly-card"] {
-    top: 172px;
-    left: min(560px, calc(100vw - 48px));
-    width: min(520px, calc(100vw - 48px));
+    top: 0;
+    left: calc(36% + 12px);
+    width: min(520px, calc(40% - 24px));
     min-height: 560px;
   }
   .diary-canvas .card[data-move-id="diary-page-entry-card"] {
-    top: 172px;
-    left: 20px;
-    width: min(470px, calc(100vw - 48px));
+    top: 0;
+    left: 0;
+    width: min(470px, calc(32% - 12px));
     min-height: 560px;
   }
   .diary-canvas .card[data-move-id="diary-page-book-card"] {
-    top: 172px;
-    left: min(530px, calc(100vw - 48px));
-    width: min(620px, calc(100vw - 48px));
+    top: 0;
+    left: calc(32% + 12px);
+    width: min(620px, calc(46% - 24px));
     min-height: 560px;
   }
   .diary-canvas .card[data-move-id="diary-page-archive-card"] {
-    top: 172px;
-    right: 20px;
-    width: min(360px, calc(100vw - 48px));
+    top: 0;
+    right: 0;
+    width: min(360px, 22%);
     min-height: 560px;
   }
   .planner-page-card-body,
@@ -1670,6 +1811,100 @@
     margin-top: 4px;
     color: var(--planner-panel-muted);
   }
+
+  @media (max-width: 1200px) and (min-width: 721px) {
+    .view-planner .resizable,
+    .view-diary .resizable {
+      min-width: 300px;
+    }
+
+    .planner-canvas .card[data-move-id="planner-page-list-card"],
+    .planner-canvas .card[data-move-id="planner-page-hourly-card"],
+    .diary-canvas .card[data-move-id="diary-page-entry-card"],
+    .diary-canvas .card[data-move-id="diary-page-book-card"] {
+      top: 0;
+      width: calc(50% - 10px);
+      min-height: 470px;
+    }
+
+    .planner-canvas .card[data-move-id="planner-page-list-card"],
+    .diary-canvas .card[data-move-id="diary-page-entry-card"] {
+      left: 0;
+      right: auto;
+    }
+
+    .planner-canvas .card[data-move-id="planner-page-hourly-card"],
+    .diary-canvas .card[data-move-id="diary-page-book-card"] {
+      left: auto;
+      right: 0;
+    }
+
+    .planner-canvas .card[data-move-id="planner-page-insights-card"],
+    .diary-canvas .card[data-move-id="diary-page-archive-card"] {
+      top: 500px;
+      left: 0;
+      right: 0;
+      width: 100%;
+      min-height: 360px;
+    }
+
+    .page-canvas {
+      min-height: 1020px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .layout-modal-backdrop {
+      align-items: flex-start;
+      padding: 10px;
+    }
+    .layout-modal,
+    .wallpaper-modal,
+    .journal-print-modal,
+    .auth-card,
+    .password-modal-card {
+      width: min(100%, 980px);
+      max-height: calc(100dvh - 20px);
+      overflow: auto;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .planner-page,
+    .diary-page {
+      padding: 12px;
+    }
+    .page-topbar {
+      margin-bottom: 10px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .page-topbar-actions {
+      width: 100%;
+      justify-content: flex-start;
+    }
+    .page-canvas {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      max-width: 100%;
+    }
+    .view-planner .page-canvas .card[data-move-id^="planner-page-"],
+    .view-diary .page-canvas .card[data-move-id^="diary-page-"] {
+      position: relative;
+      top: auto;
+      right: auto;
+      left: auto;
+      width: 100% !important;
+      min-width: 0;
+      min-height: 0;
+      height: auto !important;
+      transform: none !important;
+      margin: 0;
+    }
+  }
+
   /* ── Embed Views ─────────────────────────────── */
   .sidebar { display: flex; flex-direction: column; gap: 18px; }
   body.embed-view { min-height: auto; background-attachment: scroll; }
@@ -1781,7 +2016,7 @@
     display: grid;
     gap: 8px;
   }
-  .planner-reminder-row {
+  .planner-add-row.planner-reminder-row {
     grid-template-columns: 1fr 1fr;
     align-items: center;
   }
